@@ -1,16 +1,18 @@
-import os
+import json
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from app.config import settings
+from app.ai.ticket_classifier import analyze_written_ticket, get_or_load_model
 from app.database import Base, SessionLocal, engine, get_db
-from app.models import Building, CampusAnnouncement, Classroom, CourseSchedule, MapAlert
+from app.models import Building, CampusAnnouncement, Classroom, CourseSchedule, MapAlert, User, WrittenTicket
 from app.routing.astar import compute_pedestrian_route, find_nearest_node, haversine_m
 from app.schemas import (
+    AnnouncementCreate,
     AnnouncementSchema,
+    AuthLoginRequest,
     BootstrapResponse,
     BuildingCreateOrUpdate,
     BuildingEntranceUpdate,
@@ -21,14 +23,18 @@ from app.schemas import (
     CourseScheduleSchema,
     CustomEdgeCreate,
     EdgeToggleRequest,
+    MapAlertCreate,
     MapAlertSchema,
+    MapAlertVoteRequest,
     RouteRequest,
     RouteResponse,
     SearchResponse,
     SearchResultItem,
+    WrittenTicketCreate,
+    WrittenTicketSchema,
+    WrittenTicketUpdate,
 )
 from app.seed import GRAPH_PATH, load_walk_graph, seed_database
-import json
 
 
 def init_db() -> None:
@@ -38,6 +44,7 @@ def init_db() -> None:
         seed_database(db)
     finally:
         db.close()
+    get_or_load_model()
 
 
 @asynccontextmanager
@@ -118,13 +125,46 @@ def evaluate_room_status(room: Classroom, day: int, time_str: str, now_utc: date
 @app.get("/health")
 def health_check() -> dict:
     init_db()
-    model_exists = os.path.exists(settings.ai_model_path)
+    bundle = get_or_load_model()
     return {
         "status": "healthy",
         "service": "gtu-nav-backend",
         "database": "connected",
-        "ai_model_loaded": model_exists,
+        "ai_model_loaded": bundle is not None,
         "version": "1.0.0",
+    }
+
+
+@app.post("/api/auth/login")
+def login_user(req: AuthLoginRequest, db: Session = Depends(get_db)) -> dict:
+    init_db()
+    email = (req.email or "ogrenci@gtu.edu.tr").strip().lower()
+    if not (email.endswith("@gtu.edu.tr") or email.endswith("@ogrenci.gtu.edu.tr")):
+        raise HTTPException(
+            status_code=403,
+            detail="Sadece @gtu.edu.tr uzantılı kurumsal e-posta adresleri kabul edilmektedir.",
+        )
+
+    role = req.role if req.role in ("student", "admin") else ("admin" if email.startswith("admin") else "student")
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        user = User(
+            email=email,
+            full_name="GTÜ Kampüs Yöneticisi" if role == "admin" else "GTÜ Öğrencisi",
+            role=role,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    elif req.role in ("student", "admin"):
+        user.role = req.role
+        db.commit()
+
+    return {
+        "email": user.email,
+        "full_name": user.full_name,
+        "role": user.role,
+        "token": f"gtunav_demo_token_{user.role}",
     }
 
 
@@ -218,6 +258,156 @@ def calculate_route(req: RouteRequest, db: Session = Depends(get_db)) -> RouteRe
         target_entrance_name=target_entrance_name,
     )
     return RouteResponse(**result)
+
+
+@app.post("/api/alerts", response_model=MapAlertSchema)
+def create_map_alert(req: MapAlertCreate, db: Session = Depends(get_db)) -> MapAlertSchema:
+    init_db()
+    graph = load_walk_graph()
+    nodes_map = {n["id"]: n for n in graph.get("nodes", [])}
+
+    edge_id = req.edge_id
+    blocks_route = req.blocks_route or (req.alert_type == "road_work")
+
+    # If road_work is reported without an explicit edge_id, snap to nearest walkway edge
+    if blocks_route and not edge_id:
+        nearest_nid = find_nearest_node(nodes_map, req.lat, req.lon)
+        candidate_edge = next(
+            (e for e in graph.get("edges", []) if e["from_node"] == nearest_nid or e["to_node"] == nearest_nid),
+            None,
+        )
+        if candidate_edge:
+            edge_id = candidate_edge["id"]
+
+    default_titles = {
+        "road_work": "Yol Çalışması / Geçici Kapalı Patika",
+        "puddle_ice": "Su Birikintisi / Kaygan Zemin",
+        "lighting_fault": "Aydınlatma Arızası / Karanlık Yol",
+        "event_stand": "Kampüs Etkinliği / Topluluk Standı",
+        "custom_poi": "Kampüs Bilgi Noktası",
+    }
+    title = req.title or default_titles.get(req.alert_type, "Kampüs Harita Uyarısı")
+
+    alert = MapAlert(
+        alert_type=req.alert_type,
+        title=title,
+        edge_id=edge_id,
+        blocks_route=blocks_route,
+        lat=req.lat,
+        lon=req.lon,
+        upvotes=1,
+        downvotes=0,
+        is_admin_verified=req.is_admin_verified,
+        status="active",
+    )
+    db.add(alert)
+    db.commit()
+    db.refresh(alert)
+    return MapAlertSchema.model_validate(alert)
+
+
+@app.post("/api/alerts/{alert_id}/vote", response_model=MapAlertSchema)
+def vote_map_alert(alert_id: int, req: MapAlertVoteRequest, db: Session = Depends(get_db)) -> MapAlertSchema:
+    init_db()
+    alert = db.query(MapAlert).filter(MapAlert.id == alert_id).first()
+    if not alert:
+        raise HTTPException(status_code=404, detail="Harita uyarısı bulunamadı.")
+
+    if req.vote == "up":
+        alert.upvotes += 1
+    else:
+        alert.downvotes += 1
+        if alert.downvotes >= 3 and not alert.is_admin_verified:
+            alert.status = "resolved"
+
+    db.commit()
+    db.refresh(alert)
+    return MapAlertSchema.model_validate(alert)
+
+
+@app.delete("/api/admin/alerts/{alert_id}")
+def delete_map_alert(alert_id: int, db: Session = Depends(get_db)) -> dict:
+    init_db()
+    alert = db.query(MapAlert).filter(MapAlert.id == alert_id).first()
+    if not alert:
+        raise HTTPException(status_code=404, detail="Harita uyarısı bulunamadı.")
+    alert.status = "resolved"
+    db.commit()
+    return {"id": alert_id, "status": "resolved"}
+
+
+@app.post("/api/tickets", response_model=WrittenTicketSchema)
+def create_written_ticket(req: WrittenTicketCreate, db: Session = Depends(get_db)) -> WrittenTicketSchema:
+    init_db()
+    ai_res = analyze_written_ticket(
+        title=req.title,
+        description=req.description,
+        category=req.category,
+    )
+
+    lat = req.lat
+    lon = req.lon
+    if (lat is None or lon is None) and req.building_id:
+        b = db.query(Building).filter(Building.id == req.building_id).first()
+        if b:
+            lat = b.lat
+            lon = b.lon
+
+    ticket = WrittenTicket(
+        reporter_email=req.reporter_email,
+        building_id=req.building_id,
+        classroom_id=req.classroom_id,
+        category=req.category,
+        title=req.title,
+        description=req.description,
+        lat=lat,
+        lon=lon,
+        ai_department=ai_res["ai_department"],
+        ai_urgency_score=ai_res["ai_urgency_score"],
+        ai_priority_label=ai_res["ai_priority_label"],
+        ai_is_spam=ai_res["ai_is_spam"],
+        status="pending",
+    )
+    db.add(ticket)
+    db.commit()
+    db.refresh(ticket)
+    return WrittenTicketSchema.model_validate(ticket)
+
+
+@app.get("/api/tickets", response_model=list[WrittenTicketSchema])
+def list_written_tickets(
+    reporter_email: str | None = None,
+    include_spam: bool = True,
+    db: Session = Depends(get_db),
+) -> list[WrittenTicketSchema]:
+    init_db()
+    q = db.query(WrittenTicket)
+    if reporter_email:
+        q = q.filter(WrittenTicket.reporter_email == reporter_email)
+    if not include_spam:
+        q = q.filter(WrittenTicket.ai_is_spam == False)  # noqa: E712
+
+    tickets = q.order_by(WrittenTicket.ai_urgency_score.desc(), WrittenTicket.created_at.desc()).all()
+    return [WrittenTicketSchema.model_validate(t) for t in tickets]
+
+
+@app.patch("/api/admin/tickets/{ticket_id}", response_model=WrittenTicketSchema)
+def update_written_ticket_status(
+    ticket_id: int,
+    req: WrittenTicketUpdate,
+    db: Session = Depends(get_db),
+) -> WrittenTicketSchema:
+    init_db()
+    ticket = db.query(WrittenTicket).filter(WrittenTicket.id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket bulunamadı.")
+
+    ticket.status = req.status
+    if req.admin_note is not None:
+        ticket.admin_note = req.admin_note
+    db.commit()
+    db.refresh(ticket)
+    return WrittenTicketSchema.model_validate(ticket)
 
 
 @app.post("/api/admin/edges/toggle")
@@ -364,6 +554,32 @@ def create_custom_walkway_edge(req: CustomEdgeCreate) -> dict:
     return new_edge
 
 
+@app.post("/api/admin/announcements", response_model=AnnouncementSchema)
+def create_announcement(req: AnnouncementCreate, db: Session = Depends(get_db)) -> AnnouncementSchema:
+    init_db()
+    ann = CampusAnnouncement(
+        title=req.title,
+        message=req.message,
+        severity=req.severity,
+        is_active=True,
+    )
+    db.add(ann)
+    db.commit()
+    db.refresh(ann)
+    return AnnouncementSchema.model_validate(ann)
+
+
+@app.delete("/api/admin/announcements/{announcement_id}")
+def deactivate_announcement(announcement_id: int, db: Session = Depends(get_db)) -> dict:
+    init_db()
+    ann = db.query(CampusAnnouncement).filter(CampusAnnouncement.id == announcement_id).first()
+    if not ann:
+        raise HTTPException(status_code=404, detail="Duyuru bulunamadı.")
+    ann.is_active = False
+    db.commit()
+    return {"id": announcement_id, "is_active": False}
+
+
 @app.get("/api/buildings/{building_id}/rooms", response_model=BuildingRoomsResponse)
 def get_building_rooms(
     building_id: str,
@@ -447,7 +663,6 @@ def search_campus(q: str = "", db: Session = Depends(get_db)) -> SearchResponse:
     results: list[SearchResultItem] = []
     seen_keys: set[str] = set()
 
-    # 1. Search by Course Code / Course Name (e.g. "CSE 101", "MATH 101")
     schedules = db.query(CourseSchedule).all()
     for s in schedules:
         if q_lower in s.course_code.lower() or q_lower in s.course_name.lower():
@@ -471,7 +686,6 @@ def search_campus(q: str = "", db: Session = Depends(get_db)) -> SearchResponse:
                 )
             )
 
-    # 2. Search by Building Code / Name
     buildings = db.query(Building).all()
     for b in buildings:
         if q_lower in b.code.lower() or q_lower in b.name.lower() or (b.description and q_lower in b.description.lower()):
@@ -489,7 +703,6 @@ def search_campus(q: str = "", db: Session = Depends(get_db)) -> SearchResponse:
                 )
             )
 
-    # 3. Search by Classroom / Amphitheater Name
     classrooms = db.query(Classroom).all()
     for r in classrooms:
         if q_lower in r.name.lower():
