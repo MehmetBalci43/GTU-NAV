@@ -7,15 +7,75 @@ DATA_DIR = Path(__file__).parent / "data"
 GRAPH_PATH = DATA_DIR / "gtu_walk_graph.json"
 BUILDINGS_PATH = DATA_DIR / "gtu_buildings.json"
 
+_WALK_GRAPH_CACHE: dict | None = None
+
 
 def load_walk_graph() -> dict:
-    with open(GRAPH_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    global _WALK_GRAPH_CACHE
+    if _WALK_GRAPH_CACHE is None:
+        with open(GRAPH_PATH, "r", encoding="utf-8") as f:
+            _WALK_GRAPH_CACHE = json.load(f)
+    return _WALK_GRAPH_CACHE
+
+
+def save_walk_graph(graph: dict) -> None:
+    global _WALK_GRAPH_CACHE
+    _WALK_GRAPH_CACHE = graph
+    GRAPH_PATH.write_text(
+        json.dumps(graph, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
 
 def load_buildings_data() -> list[dict]:
     with open(BUILDINGS_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def sync_buildings_to_json(db: Session) -> None:
+    """
+    Persists current SQLite Building records back to gtu_buildings.json
+    while preserving osm_way_id metadata from existing records.
+    """
+    existing_way_ids: dict[str, int] = {}
+    if BUILDINGS_PATH.exists():
+        try:
+            for item in load_buildings_data():
+                if "id" in item and "osm_way_id" in item:
+                    existing_way_ids[item["id"]] = item["osm_way_id"]
+        except Exception:
+            pass
+
+    all_buildings = db.query(Building).all()
+    serialized: list[dict] = []
+    for b in all_buildings:
+        entry: dict = {
+            "id": b.id,
+            "code": b.code,
+            "name": b.name,
+            "category": b.category,
+            "floors_count": b.floors_count,
+        }
+        if b.id in existing_way_ids:
+            entry["osm_way_id"] = existing_way_ids[b.id]
+        entry.update(
+            {
+                "entrance_name": b.entrance_name,
+                "description": b.description,
+                "lat": b.lat,
+                "lon": b.lon,
+                "polygon_coords": b.polygon_coords,
+                "entrance_node_id": b.entrance_node_id,
+                "entrance_lat": b.entrance_lat,
+                "entrance_lon": b.entrance_lon,
+            }
+        )
+        serialized.append(entry)
+
+    BUILDINGS_PATH.write_text(
+        json.dumps(serialized, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
 
 def seed_database(db: Session) -> None:

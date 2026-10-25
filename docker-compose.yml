@@ -12,6 +12,8 @@ services:
       - PORT=8000
       - HOST=0.0.0.0
       - DATABASE_URL=sqlite:///./gtu_nav.db
+    volumes:
+      - ./backend/app/data:/app/app/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]

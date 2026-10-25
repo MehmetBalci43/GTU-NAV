@@ -4,13 +4,14 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.ai.ticket_classifier import analyze_written_ticket, get_or_load_model
 from app.config import settings
 from app.database import Base, SessionLocal, engine, get_db
 from app.models import Building, CampusAnnouncement, Classroom, CourseSchedule, MapAlert, User, WrittenTicket
-from app.routing.astar import compute_pedestrian_route, find_nearest_node, haversine_m
+from app.routing.astar import compute_pedestrian_route, find_nearest_edge, find_nearest_node, haversine_m
 from app.schemas import (
     AnnouncementCreate,
     AnnouncementSchema,
@@ -36,10 +37,15 @@ from app.schemas import (
     WrittenTicketSchema,
     WrittenTicketUpdate,
 )
-from app.seed import GRAPH_PATH, load_walk_graph, seed_database
+from app.seed import load_walk_graph, save_walk_graph, seed_database, sync_buildings_to_json
+
+_DB_INITIALIZED: bool = False
 
 
 def init_db() -> None:
+    global _DB_INITIALIZED
+    if _DB_INITIALIZED:
+        return
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
@@ -47,6 +53,7 @@ def init_db() -> None:
     finally:
         db.close()
     get_or_load_model()
+    _DB_INITIALIZED = True
 
 
 @asynccontextmanager
@@ -301,15 +308,9 @@ def create_map_alert(req: MapAlertCreate, db: Session = Depends(get_db)) -> MapA
     edge_id = req.edge_id
     blocks_route = req.blocks_route or (req.alert_type == "road_work")
 
-    # If road_work is reported without an explicit edge_id, snap to nearest walkway edge
+    # If road_work is reported without an explicit edge_id, snap to nearest walkway edge via orthogonal projection
     if blocks_route and not edge_id:
-        nearest_nid = find_nearest_node(nodes_map, req.lat, req.lon)
-        candidate_edge = next(
-            (e for e in graph.get("edges", []) if e["from_node"] == nearest_nid or e["to_node"] == nearest_nid),
-            None,
-        )
-        if candidate_edge:
-            edge_id = candidate_edge["id"]
+        edge_id = find_nearest_edge(graph, req.lat, req.lon)
 
     default_titles = {
         "road_work": "Yol Çalışması / Geçici Kapalı Patika",
@@ -523,6 +524,7 @@ def update_building_entrance(
         b.entrance_name = req.entrance_name
     db.commit()
     db.refresh(b)
+    sync_buildings_to_json(db)
     return BuildingSchema.model_validate(b)
 
 
@@ -578,7 +580,34 @@ def create_or_update_building(
         db.add(b)
     db.commit()
     db.refresh(b)
+    sync_buildings_to_json(db)
     return BuildingSchema.model_validate(b)
+
+
+@app.delete("/api/admin/buildings/{building_id}")
+def delete_building(
+    building_id: str,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin_key),
+) -> dict:
+    init_db()
+    b = db.query(Building).filter(Building.id == building_id).first()
+    if not b:
+        raise HTTPException(status_code=404, detail="Bina bulunamadı.")
+    db.delete(b)
+    db.commit()
+    sync_buildings_to_json(db)
+    return {"id": building_id, "deleted": True}
+
+
+@app.post("/api/admin/poi", response_model=MapAlertSchema)
+def create_admin_poi(
+    req: MapAlertCreate,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin_key),
+) -> MapAlertSchema:
+    req.is_admin_verified = True
+    return create_map_alert(req=req, db=db)
 
 
 @app.post("/api/admin/edges")
@@ -588,23 +617,54 @@ def create_custom_walkway_edge(
 ) -> dict:
     graph = load_walk_graph()
     nodes_map = {n["id"]: n for n in graph.get("nodes", [])}
-    u_id = find_nearest_node(nodes_map, req.from_lat, req.from_lon)
-    v_id = find_nearest_node(nodes_map, req.to_lat, req.to_lon)
-    if u_id == v_id:
+
+    def _resolve_or_create_node(lat: float, lon: float, suffix: str) -> dict:
+        nearest_id = find_nearest_node(nodes_map, lat, lon)
+        nearest_node = nodes_map[nearest_id]
+        dist_m = haversine_m(lat, lon, nearest_node["lat"], nearest_node["lon"])
+        if dist_m <= 12.0:
+            return nearest_node
+        custom_id = f"osm_custom_{len(graph['nodes']) + 1}_{suffix}"
+        new_node = {
+            "id": custom_id,
+            "lat": round(lat, 6),
+            "lon": round(lon, 6),
+            "type": "walkway",
+            "label": req.name,
+        }
+        graph["nodes"].append(new_node)
+        nodes_map[custom_id] = new_node
+        # Connect new custom node to nearest existing graph node so it's reachable in A*
+        connector_len = round(dist_m, 1)
+        graph["edges"].append(
+            {
+                "id": f"e_conn_{len(graph['edges']) + 1}",
+                "name": f"{req.name} Bağlantısı",
+                "highway": "footway",
+                "from_node": nearest_id,
+                "to_node": custom_id,
+                "length_m": connector_len,
+            }
+        )
+        return new_node
+
+    u_node = _resolve_or_create_node(req.from_lat, req.from_lon, "a")
+    v_node = _resolve_or_create_node(req.to_lat, req.to_lon, "b")
+    if u_node["id"] == v_node["id"]:
         raise HTTPException(status_code=422, detail="Başlangıç ve bitiş düğümü aynı olamaz.")
-    u_node, v_node = nodes_map[u_id], nodes_map[v_id]
+
     length_m = round(haversine_m(u_node["lat"], u_node["lon"], v_node["lat"], v_node["lon"]), 1)
     new_edge_id = f"e_custom_{len(graph['edges']) + 1}"
     new_edge = {
         "id": new_edge_id,
         "name": req.name,
         "highway": "footway",
-        "from_node": u_id,
-        "to_node": v_id,
+        "from_node": u_node["id"],
+        "to_node": v_node["id"],
         "length_m": length_m,
     }
     graph["edges"].append(new_edge)
-    GRAPH_PATH.write_text(json.dumps(graph, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_walk_graph(graph)
     return new_edge
 
 
@@ -728,66 +788,89 @@ def search_campus(q: str = "", db: Session = Depends(get_db)) -> SearchResponse:
     if not query_clean:
         return SearchResponse(query="", results=[])
 
-    q_lower = query_clean.lower()
+    pattern = f"%{query_clean}%"
     results: list[SearchResultItem] = []
     seen_keys: set[str] = set()
 
-    schedules = db.query(CourseSchedule).all()
+    schedules = (
+        db.query(CourseSchedule)
+        .filter(
+            or_(
+                CourseSchedule.course_code.ilike(pattern),
+                CourseSchedule.course_name.ilike(pattern),
+            )
+        )
+        .limit(20)
+        .all()
+    )
     for s in schedules:
-        if q_lower in s.course_code.lower() or q_lower in s.course_name.lower():
-            room = s.classroom
-            bld = room.building
-            key = f"course_{s.course_code}_{room.id}"
-            if key in seen_keys:
-                continue
-            seen_keys.add(key)
-            results.append(
-                SearchResultItem(
-                    result_type="course",
-                    title=f"{s.course_code} — {s.course_name}",
-                    subtitle=f"{bld.name} • {room.name} ({s.start_time}-{s.end_time})",
-                    building_id=bld.id,
-                    building_code=bld.code,
-                    building_name=bld.name,
-                    classroom_id=room.id,
-                    entrance_lat=bld.entrance_lat,
-                    entrance_lon=bld.entrance_lon,
-                )
+        room = s.classroom
+        bld = room.building
+        key = f"course_{s.course_code}_{room.id}"
+        if key in seen_keys:
+            continue
+        seen_keys.add(key)
+        results.append(
+            SearchResultItem(
+                result_type="course",
+                title=f"{s.course_code} — {s.course_name}",
+                subtitle=f"{bld.name} • {room.name} ({s.start_time}-{s.end_time})",
+                building_id=bld.id,
+                building_code=bld.code,
+                building_name=bld.name,
+                classroom_id=room.id,
+                entrance_lat=bld.entrance_lat,
+                entrance_lon=bld.entrance_lon,
             )
+        )
 
-    buildings = db.query(Building).all()
+    buildings = (
+        db.query(Building)
+        .filter(
+            or_(
+                Building.code.ilike(pattern),
+                Building.name.ilike(pattern),
+                Building.description.ilike(pattern),
+            )
+        )
+        .limit(15)
+        .all()
+    )
     for b in buildings:
-        if q_lower in b.code.lower() or q_lower in b.name.lower() or (b.description and q_lower in b.description.lower()):
-            results.append(
-                SearchResultItem(
-                    result_type="building",
-                    title=f"{b.code} — {b.name}",
-                    subtitle=b.entrance_name,
-                    building_id=b.id,
-                    building_code=b.code,
-                    building_name=b.name,
-                    classroom_id=None,
-                    entrance_lat=b.entrance_lat,
-                    entrance_lon=b.entrance_lon,
-                )
+        results.append(
+            SearchResultItem(
+                result_type="building",
+                title=f"{b.code} — {b.name}",
+                subtitle=b.entrance_name,
+                building_id=b.id,
+                building_code=b.code,
+                building_name=b.name,
+                classroom_id=None,
+                entrance_lat=b.entrance_lat,
+                entrance_lon=b.entrance_lon,
             )
+        )
 
-    classrooms = db.query(Classroom).all()
+    classrooms = (
+        db.query(Classroom)
+        .filter(Classroom.name.ilike(pattern))
+        .limit(15)
+        .all()
+    )
     for r in classrooms:
-        if q_lower in r.name.lower():
-            b = r.building
-            results.append(
-                SearchResultItem(
-                    result_type="classroom",
-                    title=f"{r.name} ({b.code})",
-                    subtitle=f"{b.name} • Kat {r.floor} • {r.capacity} Kişilik",
-                    building_id=b.id,
-                    building_code=b.code,
-                    building_name=b.name,
-                    classroom_id=r.id,
-                    entrance_lat=b.entrance_lat,
-                    entrance_lon=b.entrance_lon,
-                )
+        b = r.building
+        results.append(
+            SearchResultItem(
+                result_type="classroom",
+                title=f"{r.name} ({b.code})",
+                subtitle=f"{b.name} • Kat {r.floor} • {r.capacity} Kişilik",
+                building_id=b.id,
+                building_code=b.code,
+                building_name=b.name,
+                classroom_id=r.id,
+                entrance_lat=b.entrance_lat,
+                entrance_lon=b.entrance_lon,
             )
+        )
 
     return SearchResponse(query=query_clean, results=results[:15])

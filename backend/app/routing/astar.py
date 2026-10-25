@@ -24,6 +24,50 @@ def find_nearest_node(nodes: dict[str, dict[str, Any]], lat: float, lon: float) 
     return best_id
 
 
+def _point_to_segment_dist_m(
+    p_lat: float,
+    p_lon: float,
+    a_lat: float,
+    a_lon: float,
+    b_lat: float,
+    b_lon: float,
+) -> float:
+    cos_lat = math.cos(math.radians(p_lat))
+    dx = (b_lon - a_lon) * cos_lat
+    dy = b_lat - a_lat
+    len_sq = dx * dx + dy * dy
+    if len_sq <= 1e-12:
+        return haversine_m(p_lat, p_lon, a_lat, a_lon)
+    px = (p_lon - a_lon) * cos_lat
+    py = p_lat - a_lat
+    t = max(0.0, min(1.0, (px * dx + py * dy) / len_sq))
+    proj_lon = a_lon + t * (b_lon - a_lon)
+    proj_lat = a_lat + t * (b_lat - a_lat)
+    return haversine_m(p_lat, p_lon, proj_lat, proj_lon)
+
+
+def find_nearest_edge(graph: dict[str, Any], lat: float, lon: float) -> str | None:
+    """
+    Finds the walkway edge whose line segment has the smallest orthogonal distance
+    to the given (lat, lon) coordinate.
+    """
+    nodes: dict[str, dict[str, Any]] = {n["id"]: n for n in graph.get("nodes", [])}
+    best_edge_id: str | None = None
+    best_dist = float("inf")
+
+    for e in graph.get("edges", []):
+        u = nodes.get(e["from_node"])
+        v = nodes.get(e["to_node"])
+        if not u or not v:
+            continue
+        d = _point_to_segment_dist_m(lat, lon, u["lat"], u["lon"], v["lat"], v["lon"])
+        if d < best_dist:
+            best_dist = d
+            best_edge_id = e["id"]
+
+    return best_edge_id
+
+
 def _run_astar(
     nodes: dict[str, dict[str, Any]],
     adj: dict[str, list[tuple[str, float, str]]],
