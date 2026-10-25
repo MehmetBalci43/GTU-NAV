@@ -4,6 +4,7 @@ import { useCampusData } from './hooks/useCampusData';
 import { useNavigation } from './hooks/useNavigation';
 import { useBuildingRooms } from './hooks/useBuildingRooms';
 import { SearchResultItem } from './types/campus';
+import { MARMARAY_SCHEDULE_CONFIG } from './config/marmaraySchedule';
 import { CampusMap3D, AdminMapInteractionMode } from './components/map/CampusMap3D';
 import { TopNavigationBar } from './components/layout/TopNavigationBar';
 import { BuildingDetailSheet } from './components/sheets/BuildingDetailSheet';
@@ -263,8 +264,9 @@ export const App: React.FC = () => {
         userLon={userPos.snappedLon}
         onClose={() => setIsMarmarayOpen(false)}
         onRouteToStation={() => {
-          setSelectedBuildingId('b_marmaray');
-          computeRouteToBuilding('b_marmaray');
+          const stationId = MARMARAY_SCHEDULE_CONFIG.stationBuildingId;
+          setSelectedBuildingId(stationId);
+          computeRouteToBuilding(stationId);
         }}
       />
 

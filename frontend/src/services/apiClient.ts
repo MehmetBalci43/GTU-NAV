@@ -12,13 +12,45 @@ import {
   WrittenTicket,
 } from '../types/campus';
 
+const AUTH_STORAGE_KEY = 'gtu_nav_auth_session_v1';
+const VOTER_STORAGE_KEY = 'gtu_nav_voter_id_v1';
+
+function getStoredAdminKey(): string | null {
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as UserSession;
+    return parsed.admin_key || null;
+  } catch {
+    return null;
+  }
+}
+
+export function getOrCreateVoterId(): string {
+  try {
+    const existing = localStorage.getItem(VOTER_STORAGE_KEY);
+    if (existing) return existing;
+    const generated = `voter_${Math.random().toString(36).slice(2, 10)}_${Date.now().toString(36)}`;
+    localStorage.setItem(VOTER_STORAGE_KEY, generated);
+    return generated;
+  } catch {
+    return 'voter_fallback_client';
+  }
+}
+
 async function requestJson<T>(url: string, options?: RequestInit): Promise<T> {
+  const adminKey = getStoredAdminKey();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...((options?.headers as Record<string, string>) || {}),
+  };
+  if (adminKey && !headers['X-Admin-Key']) {
+    headers['X-Admin-Key'] = adminKey;
+  }
+
   const res = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options?.headers || {}),
-    },
     ...options,
+    headers,
   });
 
   if (!res.ok) {
@@ -46,10 +78,10 @@ export const api = {
     return requestJson<BootstrapData>(`/api/campus/bootstrap${qs}`);
   },
 
-  login(email: string, role?: 'student' | 'admin'): Promise<UserSession> {
+  login(email: string, role?: 'student' | 'admin', adminKey?: string): Promise<UserSession> {
     return requestJson<UserSession>('/api/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, role }),
+      body: JSON.stringify({ email, role, admin_key: adminKey }),
     });
   },
 
@@ -111,7 +143,7 @@ export const api = {
   voteMapAlert(alertId: number, vote: 'up' | 'down'): Promise<MapAlert> {
     return requestJson<MapAlert>(`/api/alerts/${alertId}/vote`, {
       method: 'POST',
-      body: JSON.stringify({ vote }),
+      body: JSON.stringify({ vote, voter_id: getOrCreateVoterId() }),
     });
   },
 
@@ -193,6 +225,12 @@ export const api = {
     return requestJson<Building>('/api/admin/buildings', {
       method: 'POST',
       body: JSON.stringify(payload),
+    });
+  },
+
+  deleteBuilding(buildingId: string): Promise<{ id: string; deleted: boolean }> {
+    return requestJson<{ id: string; deleted: boolean }>(`/api/admin/buildings/${buildingId}`, {
+      method: 'DELETE',
     });
   },
 

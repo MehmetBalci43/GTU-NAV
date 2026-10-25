@@ -1,7 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { RouteResponse } from '../types/campus';
 import { api } from '../services/apiClient';
-import { snapLocationToRoute, haversineDistanceM } from '../services/snapToPath';
+import {
+  snapLocationToRoute,
+  haversineDistanceM,
+  resetGpsKalmanFilter,
+} from '../services/snapToPath';
 import { CAMPUS_CONFIG } from '../config/campusConfig';
 
 export interface UserPositionState {
@@ -72,6 +76,7 @@ export function useNavigation(blockedEdgeIds: string[]) {
 
   const gpsWatchIdRef = useRef<number | null>(null);
   const lastRerouteTimeRef = useRef<number>(0);
+  const offRouteStrikeCountRef = useRef<number>(0);
 
   const computeRouteToBuilding = useCallback(
     async (buildingId: string, startLat?: number, startLon?: number, reasonBanner?: string) => {
@@ -80,6 +85,8 @@ export function useNavigation(blockedEdgeIds: string[]) {
 
       setIsCalculatingRoute(true);
       setRouteError(null);
+      offRouteStrikeCountRef.current = 0;
+      resetGpsKalmanFilter();
       try {
         const res = await api.calculateRoute({
           start_lat: originLat,
@@ -125,9 +132,14 @@ export function useNavigation(blockedEdgeIds: string[]) {
   }, [blockedEdgeIds, activeRoute, targetBuildingId, userPos.snappedLat, userPos.snappedLon, computeRouteToBuilding]);
 
   const applyRawCoordinates = useCallback(
-    (rawLat: number, rawLon: number, source: 'default' | 'simulator' | 'gps') => {
+    (
+      rawLat: number,
+      rawLon: number,
+      source: 'default' | 'simulator' | 'gps',
+      accuracyM: number = 4.5
+    ) => {
       if (activeRoute && activeRoute.coordinates.length >= 2) {
-        const snap = snapLocationToRoute(rawLat, rawLon, activeRoute.coordinates);
+        const snap = snapLocationToRoute(rawLat, rawLon, activeRoute.coordinates, accuracyM);
         let remainingMeters = activeRoute.distance_m;
         if (snap.segmentIndex < activeRoute.coordinates.length - 1) {
           const nextPt = activeRoute.coordinates[snap.segmentIndex + 1];
@@ -153,14 +165,27 @@ export function useNavigation(blockedEdgeIds: string[]) {
           source,
         });
 
+        // Spec 02_harita_gps_ve_navigasyon_rehberi.md Bölüm 3:
+        // Yalnızca ardışık 3 ölçüm boyunca (>18m) rotadan uzaklaşılırsa yeniden rota hesapla!
+        if (snap.isOffRoute) {
+          offRouteStrikeCountRef.current += 1;
+        } else {
+          offRouteStrikeCountRef.current = 0;
+        }
+
         const now = Date.now();
-        if (snap.isOffRoute && targetBuildingId && now - lastRerouteTimeRef.current > 4000) {
+        if (
+          offRouteStrikeCountRef.current >= 3 &&
+          targetBuildingId &&
+          now - lastRerouteTimeRef.current > 4000
+        ) {
+          offRouteStrikeCountRef.current = 0;
           lastRerouteTimeRef.current = now;
           computeRouteToBuilding(
             targetBuildingId,
             rawLat,
             rawLon,
-            '🔄 Rotadan sapma algılandı. Yeni konumunuza göre A* rotası güncellendi.'
+            '🔄 Rotadan sapma (3 ardışık ölçüm >18m) algılandı. Yeni konumunuza göre A* rotası güncellendi.'
           );
         }
       } else {
@@ -228,7 +253,12 @@ export function useNavigation(blockedEdgeIds: string[]) {
     setIsLiveGpsActive(true);
     const id = navigator.geolocation.watchPosition(
       (pos) => {
-        applyRawCoordinates(pos.coords.latitude, pos.coords.longitude, 'gps');
+        applyRawCoordinates(
+          pos.coords.latitude,
+          pos.coords.longitude,
+          'gps',
+          pos.coords.accuracy || 6.0
+        );
       },
       () => {
         setRouteError('Canlı GPS izni alınamadı. Masaüstü Yürüyüş Simülatörünü kullanabilirsiniz.');

@@ -173,4 +173,5 @@ export interface UserSession {
   full_name: string;
   role: 'student' | 'admin';
   token: string;
+  admin_key?: string;
 }

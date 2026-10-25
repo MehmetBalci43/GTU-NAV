@@ -130,6 +130,14 @@ export function useCampusData() {
     [refreshBootstrap]
   );
 
+  const removeCampusBuilding = useCallback(
+    async (buildingId: string) => {
+      await api.deleteBuilding(buildingId);
+      await refreshBootstrap();
+    },
+    [refreshBootstrap]
+  );
+
   const addWalkwayEdge = useCallback(
     async (payload: {
       from_lat: number;
@@ -178,6 +186,7 @@ export function useCampusData() {
     toggleEdgeBlocked,
     updateBuildingEntrance,
     addOrUpdateCampusBuilding,
+    removeCampusBuilding,
     addWalkwayEdge,
     publishAnnouncement,
     removeAnnouncement,
