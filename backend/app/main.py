@@ -1,11 +1,13 @@
+from collections import defaultdict
 import json
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app.ai.ticket_classifier import analyze_written_ticket, get_or_load_model
+from app.config import settings
 from app.database import Base, SessionLocal, engine, get_db
 from app.models import Building, CampusAnnouncement, Classroom, CourseSchedule, MapAlert, User, WrittenTicket
 from app.routing.astar import compute_pedestrian_route, find_nearest_node, haversine_m
@@ -53,6 +55,19 @@ async def lifespan(app: FastAPI):
     yield
 
 
+TR_TZ = timezone(timedelta(hours=3))
+_ALERT_VOTERS: dict[int, set[str]] = defaultdict(set)
+
+
+def verify_admin_key(x_admin_key: str | None = Header(default=None)) -> str:
+    if not x_admin_key or x_admin_key != settings.admin_secret_key:
+        raise HTTPException(
+            status_code=403,
+            detail="Bu işlem için geçerli yönetici anahtarı (X-Admin-Key) gereklidir.",
+        )
+    return x_admin_key
+
+
 app = FastAPI(
     title="GTÜ-NAV Kampüs Navigasyon ve Akıllı Yaşam API",
     description="Gebze Teknik Üniversitesi Yaya Navigasyonu, Boş Amfi Radarı ve Yerel AI Destekli Kampüs Bildirim Sistemi",
@@ -62,7 +77,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -146,7 +161,20 @@ def login_user(req: AuthLoginRequest, db: Session = Depends(get_db)) -> dict:
         )
 
     role = req.role if req.role in ("student", "admin") else ("admin" if email.startswith("admin") else "student")
+    if role == "admin":
+        if req.admin_key != settings.admin_secret_key:
+            raise HTTPException(
+                status_code=403,
+                detail="Yönetici (LiveOps) girişi için geçerli yönetici anahtarı gereklidir.",
+            )
+
     user = db.query(User).filter(User.email == email).first()
+    if user and user.is_banned:
+        raise HTTPException(
+            status_code=403,
+            detail="Bu hesap kampüs bildirim kurallarını ihlal ettiği için kısıtlanmıştır.",
+        )
+
     if not user:
         user = User(
             email=email,
@@ -160,12 +188,15 @@ def login_user(req: AuthLoginRequest, db: Session = Depends(get_db)) -> dict:
         user.role = req.role
         db.commit()
 
-    return {
+    payload = {
         "email": user.email,
         "full_name": user.full_name,
         "role": user.role,
         "token": f"gtunav_demo_token_{user.role}",
     }
+    if user.role == "admin":
+        payload["admin_key"] = settings.admin_secret_key
+    return payload
 
 
 @app.get("/api/campus/bootstrap", response_model=BootstrapResponse)
@@ -175,9 +206,10 @@ def get_campus_bootstrap(
     db: Session = Depends(get_db),
 ) -> BootstrapResponse:
     init_db()
-    now_utc = datetime.now(timezone.utc)
-    query_day = day if day is not None else now_utc.isoweekday()
-    query_time = time if time is not None else now_utc.strftime("%H:%M")
+    now_tr = datetime.now(TR_TZ)
+    now_utc = now_tr.astimezone(timezone.utc)
+    query_day = day if day is not None else now_tr.isoweekday()
+    query_time = time if time is not None else now_tr.strftime("%H:%M")
 
     buildings = db.query(Building).all()
     building_schemas: list[BuildingSchema] = []
@@ -313,6 +345,11 @@ def vote_map_alert(alert_id: int, req: MapAlertVoteRequest, db: Session = Depend
     if not alert:
         raise HTTPException(status_code=404, detail="Harita uyarısı bulunamadı.")
 
+    voter_key = (req.voter_id or "anon_client").strip()
+    if voter_key in _ALERT_VOTERS[alert_id]:
+        return MapAlertSchema.model_validate(alert)
+    _ALERT_VOTERS[alert_id].add(voter_key)
+
     if req.vote == "up":
         alert.upvotes += 1
     else:
@@ -326,7 +363,11 @@ def vote_map_alert(alert_id: int, req: MapAlertVoteRequest, db: Session = Depend
 
 
 @app.delete("/api/admin/alerts/{alert_id}")
-def delete_map_alert(alert_id: int, db: Session = Depends(get_db)) -> dict:
+def delete_map_alert(
+    alert_id: int,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin_key),
+) -> dict:
     init_db()
     alert = db.query(MapAlert).filter(MapAlert.id == alert_id).first()
     if not alert:
@@ -396,6 +437,7 @@ def update_written_ticket_status(
     ticket_id: int,
     req: WrittenTicketUpdate,
     db: Session = Depends(get_db),
+    _: str = Depends(verify_admin_key),
 ) -> WrittenTicketSchema:
     init_db()
     ticket = db.query(WrittenTicket).filter(WrittenTicket.id == ticket_id).first()
@@ -411,7 +453,11 @@ def update_written_ticket_status(
 
 
 @app.post("/api/admin/edges/toggle")
-def toggle_walkway_edge(req: EdgeToggleRequest, db: Session = Depends(get_db)) -> dict:
+def toggle_walkway_edge(
+    req: EdgeToggleRequest,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin_key),
+) -> dict:
     init_db()
     graph = load_walk_graph()
     nodes_map = {n["id"]: n for n in graph.get("nodes", [])}
@@ -458,6 +504,7 @@ def update_building_entrance(
     building_id: str,
     req: BuildingEntranceUpdate,
     db: Session = Depends(get_db),
+    _: str = Depends(verify_admin_key),
 ) -> BuildingSchema:
     init_db()
     b = db.query(Building).filter(Building.id == building_id).first()
@@ -480,7 +527,11 @@ def update_building_entrance(
 
 
 @app.post("/api/admin/buildings", response_model=BuildingSchema)
-def create_or_update_building(req: BuildingCreateOrUpdate, db: Session = Depends(get_db)) -> BuildingSchema:
+def create_or_update_building(
+    req: BuildingCreateOrUpdate,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin_key),
+) -> BuildingSchema:
     init_db()
     graph = load_walk_graph()
     nodes_map = {n["id"]: n for n in graph.get("nodes", [])}
@@ -531,7 +582,10 @@ def create_or_update_building(req: BuildingCreateOrUpdate, db: Session = Depends
 
 
 @app.post("/api/admin/edges")
-def create_custom_walkway_edge(req: CustomEdgeCreate) -> dict:
+def create_custom_walkway_edge(
+    req: CustomEdgeCreate,
+    _: str = Depends(verify_admin_key),
+) -> dict:
     graph = load_walk_graph()
     nodes_map = {n["id"]: n for n in graph.get("nodes", [])}
     u_id = find_nearest_node(nodes_map, req.from_lat, req.from_lon)
@@ -555,7 +609,11 @@ def create_custom_walkway_edge(req: CustomEdgeCreate) -> dict:
 
 
 @app.post("/api/admin/announcements", response_model=AnnouncementSchema)
-def create_announcement(req: AnnouncementCreate, db: Session = Depends(get_db)) -> AnnouncementSchema:
+def create_announcement(
+    req: AnnouncementCreate,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin_key),
+) -> AnnouncementSchema:
     init_db()
     ann = CampusAnnouncement(
         title=req.title,
@@ -570,7 +628,11 @@ def create_announcement(req: AnnouncementCreate, db: Session = Depends(get_db)) 
 
 
 @app.delete("/api/admin/announcements/{announcement_id}")
-def deactivate_announcement(announcement_id: int, db: Session = Depends(get_db)) -> dict:
+def deactivate_announcement(
+    announcement_id: int,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin_key),
+) -> dict:
     init_db()
     ann = db.query(CampusAnnouncement).filter(CampusAnnouncement.id == announcement_id).first()
     if not ann:
@@ -592,9 +654,10 @@ def get_building_rooms(
     if not b:
         raise HTTPException(status_code=404, detail="Bina bulunamadı.")
 
-    now_utc = datetime.now(timezone.utc)
-    query_day = day if day is not None else now_utc.isoweekday()
-    query_time = time if time is not None else now_utc.strftime("%H:%M")
+    now_tr = datetime.now(TR_TZ)
+    now_utc = now_tr.astimezone(timezone.utc)
+    query_day = day if day is not None else now_tr.isoweekday()
+    query_time = time if time is not None else now_tr.strftime("%H:%M")
 
     room_statuses = [
         evaluate_room_status(r, query_day, query_time, now_utc)
@@ -625,31 +688,37 @@ def report_classroom_busy(
     if not room:
         raise HTTPException(status_code=404, detail="Derslik/amfi bulunamadı.")
 
-    now_utc = datetime.now(timezone.utc)
+    now_tr = datetime.now(TR_TZ)
+    now_utc = now_tr.astimezone(timezone.utc)
     room.crowd_busy_until = now_utc + timedelta(minutes=90)
     room.crowd_busy_reason = req.reason
     room.crowd_report_count = (room.crowd_report_count or 0) + 1
     db.commit()
     db.refresh(room)
 
-    return evaluate_room_status(room, now_utc.isoweekday(), now_utc.strftime("%H:%M"), now_utc)
+    return evaluate_room_status(room, now_tr.isoweekday(), now_tr.strftime("%H:%M"), now_utc)
 
 
 @app.post("/api/classrooms/{classroom_id}/clear-busy", response_model=ClassroomStatusSchema)
-def clear_classroom_busy(classroom_id: str, db: Session = Depends(get_db)) -> ClassroomStatusSchema:
+def clear_classroom_busy(
+    classroom_id: str,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin_key),
+) -> ClassroomStatusSchema:
     init_db()
     room = db.query(Classroom).filter(Classroom.id == classroom_id).first()
     if not room:
         raise HTTPException(status_code=404, detail="Derslik/amfi bulunamadı.")
 
-    now_utc = datetime.now(timezone.utc)
+    now_tr = datetime.now(TR_TZ)
+    now_utc = now_tr.astimezone(timezone.utc)
     room.crowd_busy_until = None
     room.crowd_busy_reason = None
     room.crowd_report_count = 0
     db.commit()
     db.refresh(room)
 
-    return evaluate_room_status(room, now_utc.isoweekday(), now_utc.strftime("%H:%M"), now_utc)
+    return evaluate_room_status(room, now_tr.isoweekday(), now_tr.strftime("%H:%M"), now_utc)
 
 
 @app.get("/api/search", response_model=SearchResponse)

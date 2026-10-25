@@ -131,6 +131,7 @@ class MapAlertCreate(BaseModel):
 
 class MapAlertVoteRequest(BaseModel):
     vote: str = Field(..., pattern="^(up|down)$")
+    voter_id: Optional[str] = Field(default="anon_client", max_length=80)
 
 
 class MapAlertSchema(BaseModel):
@@ -268,6 +269,7 @@ class BusyReportRequest(BaseModel):
 class AuthLoginRequest(BaseModel):
     email: str = Field(default="ogrenci@gtu.edu.tr")
     role: Optional[str] = Field(default=None)
+    admin_key: Optional[str] = Field(default=None)
 
 
 class BootstrapResponse(BaseModel):

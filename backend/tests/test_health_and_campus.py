@@ -1,3 +1,4 @@
+from app.config import settings
 from app.database import SessionLocal
 from app.main import (
     clear_classroom_busy,
@@ -54,7 +55,11 @@ def test_empty_rooms_and_crowd_busy_report() -> None:
         assert reported.crowd_busy_reason == "IEEE Kulüp Etkinliği"
 
         # Clear busy status
-        cleared = clear_classroom_busy(classroom_id=free_room.id, db=db)
+        cleared = clear_classroom_busy(
+            classroom_id=free_room.id,
+            db=db,
+            _=settings.admin_secret_key,
+        )
         assert cleared.is_crowd_busy is False
     finally:
         db.close()

@@ -40,7 +40,10 @@ def get_or_load_model() -> dict[str, Any]:
         model_path = Path(__file__).parent.parent.parent / settings.ai_model_path
 
     if model_path.exists():
-        _MODEL_BUNDLE = joblib.load(model_path)
+        try:
+            _MODEL_BUNDLE = joblib.load(model_path)
+        except Exception:
+            _MODEL_BUNDLE = train_and_save_model(model_path)
     else:
         _MODEL_BUNDLE = train_and_save_model(model_path)
 

@@ -57,7 +57,6 @@ class TrainedTfidfDepartmentClassifier:
 
         for toks, label in zip(tokenized_docs, labels):
             tf_counts = Counter(toks)
-            # Sublinear TF * IDF with L2 normalization
             weights: dict[str, float] = {}
             norm_sq = 0.0
             for tok, count in tf_counts.items():
@@ -150,7 +149,6 @@ class TrainedTfidfUrgencyRegressor:
                 num_sum[tok] += w * (target - self.global_mean_)
                 den_sum[tok] += w
 
-        # Ridge shrinkage factor lambda = 1.25
         ridge_lambda = 1.25
         self.token_weights_ = {
             tok: num_sum[tok] / (den_sum[tok] + ridge_lambda)
@@ -168,7 +166,6 @@ class TrainedTfidfUrgencyRegressor:
             if not matched_deltas:
                 preds.append(self.global_mean_)
             else:
-                # Combine mean shift + strongest urgency indicators
                 avg_delta = sum(matched_deltas) / len(matched_deltas)
                 peak_delta = max(matched_deltas, key=lambda x: abs(x))
                 score = self.global_mean_ + 0.55 * avg_delta + 0.65 * peak_delta
@@ -181,10 +178,7 @@ def train_and_save_model(output_path: str | Path) -> dict:
     out_file.parent.mkdir(parents=True, exist_ok=True)
 
     texts = [t[0].lower() for t in TRAINING_SAMPLES]
-    departments = [
-        d.replace("Bilgi İşleri Dairesi", "Bilgi İşlem Dairesi")
-        for _, d, _ in TRAINING_SAMPLES
-    ]
+    departments = [d for _, d, _ in TRAINING_SAMPLES]
     urgencies = [float(u) for _, _, u in TRAINING_SAMPLES]
 
     dept_pipeline = TrainedTfidfDepartmentClassifier(alpha=0.4)
@@ -196,13 +190,15 @@ def train_and_save_model(output_path: str | Path) -> dict:
     bundle = {
         "dept_pipeline": dept_pipeline,
         "urgency_pipeline": urgency_pipeline,
-        "version": "1.0.0",
+        "version": "1.1.0",
     }
     joblib.dump(bundle, out_file)
     return bundle
 
 
 if __name__ == "__main__":
+    from app.ai.train_model import train_and_save_model as _train_as_module
+
     default_out = Path(__file__).parent.parent.parent / "weights" / "ticket_ai_model.joblib"
-    train_and_save_model(default_out)
+    _train_as_module(default_out)
     print(f"Trained and saved CPU NLP model to {default_out}")

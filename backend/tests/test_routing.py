@@ -1,3 +1,4 @@
+from app.config import settings
 from app.database import SessionLocal
 from app.main import (
     calculate_route,
@@ -48,6 +49,7 @@ def test_route_avoids_blocked_edge_and_reroutes() -> None:
         toggle_walkway_edge(
             EdgeToggleRequest(edge_id=blocked_eid, closed=True, reason="Altyapı kazı çalışması"),
             db=db,
+            _=settings.admin_secret_key,
         )
 
         r2 = calculate_route(
@@ -62,7 +64,11 @@ def test_route_avoids_blocked_edge_and_reroutes() -> None:
         assert r2.avoided_closures >= 1
 
         # Re-open the edge after test
-        toggle_walkway_edge(EdgeToggleRequest(edge_id=blocked_eid, closed=False), db=db)
+        toggle_walkway_edge(
+            EdgeToggleRequest(edge_id=blocked_eid, closed=False),
+            db=db,
+            _=settings.admin_secret_key,
+        )
     finally:
         db.close()
 
@@ -79,8 +85,10 @@ def test_admin_can_relocate_building_entrance() -> None:
                 entrance_name="BMB Güney Bahçe Giriş Kapısı",
             ),
             db=db,
+            _=settings.admin_secret_key,
         )
         assert updated.entrance_name == "BMB Güney Bahçe Giriş Kapısı"
         assert updated.entrance_node_id.startswith("osm_")
     finally:
         db.close()
+

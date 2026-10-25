@@ -17,7 +17,7 @@ TRAINING_SAMPLES: list[tuple[str, str, int]] = [
 
     # 2. Bilgi İşlem Dairesi (Projeksiyon, Bilgisayar, İnternet/Eduroam, Ses Sistemi)
     ("amfi 1 projeksiyon cihazı görüntü vermiyor hdmi kablosu bozuk", "Bilgi İşlem Dairesi", 68),
-    ("derslikte projeksiyon lambası yanıp sönüyor sunum yapılamıyor", "Bilgi İşleri Dairesi", 64),
+    ("derslikte projeksiyon lambası yanıp sönüyor sunum yapılamıyor", "Bilgi İşlem Dairesi", 64),
     ("yazılım laboratuvarındaki bilgisayarlar açılmıyor ağ bağlantısı yok", "Bilgi İşlem Dairesi", 72),
     ("kütüphane çalışma salonunda eduroam wifi internet bağlantısı sürekli kopuyor", "Bilgi İşlem Dairesi", 60),
     ("büyük amfi mikrofon ve ses sistemi çalışmıyor hocanın sesi duyulmuyor", "Bilgi İşlem Dairesi", 62),
