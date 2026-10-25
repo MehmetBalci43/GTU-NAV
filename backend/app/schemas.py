@@ -29,6 +29,32 @@ class BuildingSchema(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class BuildingEntranceUpdate(BaseModel):
+    entrance_lat: float
+    entrance_lon: float
+    entrance_name: Optional[str] = None
+
+
+class BuildingCreateOrUpdate(BaseModel):
+    id: str = Field(..., min_length=2, max_length=50)
+    code: str = Field(..., min_length=2, max_length=20)
+    name: str = Field(..., min_length=3, max_length=150)
+    category: str = Field(default="academic")
+    floors_count: int = Field(default=3, ge=1, le=15)
+    lat: float
+    lon: float
+    entrance_lat: Optional[float] = None
+    entrance_lon: Optional[float] = None
+    entrance_name: Optional[str] = None
+    polygon_coords: Optional[list[list[list[float]]]] = None
+    description: Optional[str] = None
+
+    @field_validator("code", "name")
+    @classmethod
+    def sanitize_b_fields(cls, v: str) -> str:
+        return strip_html_tags(v)
+
+
 class CourseScheduleSchema(BaseModel):
     id: int
     day_of_week: int
@@ -62,6 +88,30 @@ class ClassroomStatusSchema(BaseModel):
     schedules: list[CourseScheduleSchema] = []
 
 
+class BuildingRoomsResponse(BaseModel):
+    building: BuildingSchema
+    query_day: int
+    query_time: str
+    rooms: list[ClassroomStatusSchema]
+
+
+class SearchResultItem(BaseModel):
+    result_type: str  # "building" | "course" | "classroom"
+    title: str
+    subtitle: str
+    building_id: str
+    building_code: str
+    building_name: str
+    classroom_id: Optional[str] = None
+    entrance_lat: float
+    entrance_lon: float
+
+
+class SearchResponse(BaseModel):
+    query: str
+    results: list[SearchResultItem]
+
+
 class MapAlertCreate(BaseModel):
     alert_type: str = Field(..., min_length=2, max_length=40)
     title: Optional[str] = Field(default=None, max_length=140)
@@ -77,6 +127,10 @@ class MapAlertCreate(BaseModel):
         if v is None:
             return None
         return strip_html_tags(v)
+
+
+class MapAlertVoteRequest(BaseModel):
+    vote: str = Field(..., pattern="^(up|down)$")
 
 
 class MapAlertSchema(BaseModel):
@@ -192,6 +246,14 @@ class EdgeToggleRequest(BaseModel):
     edge_id: str
     closed: bool
     reason: Optional[str] = "Yol Çalışması / Geçici Kapatma"
+
+
+class CustomEdgeCreate(BaseModel):
+    from_lat: float
+    from_lon: float
+    to_lat: float
+    to_lon: float
+    name: str = Field(default="Kampüs Yürüyüş Patikası", max_length=100)
 
 
 class BusyReportRequest(BaseModel):
