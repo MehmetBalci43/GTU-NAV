@@ -6,8 +6,8 @@
     "category": "academic",
     "floors_count": 4,
     "osm_way_id": 1165228308,
-    "entrance_name": "Bilgisayar Müh. Ana Giriş Kapısı",
-    "description": "Bilgisayar Mühendisliği Bölümü amfileri, yazılım laboratuvarları ve çalışma alanları.",
+    "entrance_name": "BMB Ana Giriş Kapısı",
+    "description": "Bilgisayar Mühendisliği amfileri, yazılım laboratuvarları ve çalışma alanları.",
     "lat": 40.808034,
     "lon": 29.356135,
     "polygon_coords": [
@@ -105,12 +105,12 @@
   {
     "id": "elmb",
     "code": "ELMB",
-    "name": "Elektronik Mühendisliği Binası",
+    "name": "Elektronik ve İnşaat Mühendisliği Binası",
     "category": "academic",
     "floors_count": 4,
     "osm_way_id": 609414171,
-    "entrance_name": "Elektronik Müh. Ana Giriş Kapısı",
-    "description": "Elektronik Mühendisliği derslikleri, devre ve haberleşme laboratuvarları.",
+    "entrance_name": "ELMB Ana Giriş Kapısı",
+    "description": "Elektronik ve İnşaat Mühendisliği derslikleri ve laboratuvarları.",
     "lat": 40.806535,
     "lon": 29.355608,
     "polygon_coords": [
@@ -152,7 +152,7 @@
     "category": "academic",
     "floors_count": 4,
     "osm_way_id": 465885755,
-    "entrance_name": "Temel Bilimler Ana Giriş Kapısı",
+    "entrance_name": "TBB Ana Giriş Kapısı",
     "description": "Matematik, Fizik ve Kimya ortak havuz dersleri (MATH 101, PHYS 101) amfileri.",
     "lat": 40.805517,
     "lon": 29.359716,
@@ -289,14 +289,93 @@
     "entrance_lon": 29.359233
   },
   {
+    "id": "kmb",
+    "code": "KMB",
+    "name": "Kimya Mühendisliği Binası",
+    "category": "academic",
+    "floors_count": 3,
+    "osm_way_id": 465885756,
+    "entrance_name": "KMB Ana Giriş Kapısı",
+    "description": "Kimya Mühendisliği derslikleri ve araştırma laboratuvarları.",
+    "lat": 40.805691,
+    "lon": 29.358797,
+    "polygon_coords": [
+      [
+        [
+          29.358679,
+          40.805927
+        ],
+        [
+          29.358529,
+          40.805496
+        ],
+        [
+          29.358729,
+          40.805456
+        ],
+        [
+          29.358759,
+          40.80554
+        ],
+        [
+          29.358803,
+          40.805531
+        ],
+        [
+          29.358821,
+          40.805582
+        ],
+        [
+          29.358958,
+          40.805555
+        ],
+        [
+          29.358991,
+          40.805651
+        ],
+        [
+          29.358864,
+          40.805676
+        ],
+        [
+          29.358881,
+          40.805722
+        ],
+        [
+          29.358822,
+          40.805733
+        ],
+        [
+          29.358855,
+          40.805828
+        ],
+        [
+          29.358784,
+          40.805842
+        ],
+        [
+          29.358805,
+          40.805902
+        ],
+        [
+          29.358679,
+          40.805927
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_6953363162",
+    "entrance_lat": 40.806073,
+    "entrance_lon": 29.358598
+  },
+  {
     "id": "mab",
     "code": "MAB",
     "name": "Merkezi Derslik ve Amfi Binası",
     "category": "academic",
     "floors_count": 3,
     "osm_way_id": 1353239698,
-    "entrance_name": "Merkezi Amfi Binası Girişi",
-    "description": "Kampüs ortak büyük amfileri ve sınav/ders salonları.",
+    "entrance_name": "MAB Ana Giriş Kapısı",
+    "description": "Kampüs ortak büyük amfileri ve sınav salonları.",
     "lat": 40.807349,
     "lon": 29.359203,
     "polygon_coords": [
@@ -391,9 +470,9 @@
         ]
       ]
     ],
-    "entrance_node_id": "osm_14282945548",
-    "entrance_lat": 40.807354,
-    "entrance_lon": 29.359469
+    "entrance_node_id": "osm_14282945550",
+    "entrance_lat": 40.807633,
+    "entrance_lon": 29.359515
   },
   {
     "id": "ibf",
@@ -402,7 +481,7 @@
     "category": "academic",
     "floors_count": 3,
     "osm_way_id": 715366603,
-    "entrance_name": "İşletme Fakültesi Giriş Kapısı",
+    "entrance_name": "IBF Ana Giriş Kapısı",
     "description": "İşletme, İktisat ve Yönetim Bilimleri amfi ve seminer salonları.",
     "lat": 40.808697,
     "lon": 29.361944,
@@ -435,13 +514,536 @@
     "entrance_lon": 29.362634
   },
   {
+    "id": "hemb",
+    "code": "HEMB",
+    "name": "Harita ve Endüstri Mühendisliği Bölümü",
+    "category": "academic",
+    "floors_count": 3,
+    "osm_way_id": 989867604,
+    "entrance_name": "HEMB Ana Giriş Kapısı",
+    "description": "Harita Mühendisliği ve Endüstri Mühendisliği derslikleri.",
+    "lat": 40.806811,
+    "lon": 29.362006,
+    "polygon_coords": [
+      [
+        [
+          29.361952,
+          40.807037
+        ],
+        [
+          29.362245,
+          40.806983
+        ],
+        [
+          29.362086,
+          40.806474
+        ],
+        [
+          29.361793,
+          40.806525
+        ],
+        [
+          29.361952,
+          40.807037
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_12176461337",
+    "entrance_lat": 40.807059,
+    "entrance_lon": 29.361952
+  },
+  {
+    "id": "biyo",
+    "code": "BIYO",
+    "name": "Biyomühendislik Bölümü",
+    "category": "academic",
+    "floors_count": 3,
+    "osm_way_id": 1065502235,
+    "entrance_name": "BIYO Ana Giriş Kapısı",
+    "description": "Biyomühendislik derslik ve laboratuvar binası.",
+    "lat": 40.806914,
+    "lon": 29.362887,
+    "polygon_coords": [
+      [
+        [
+          29.362576,
+          40.807066
+        ],
+        [
+          29.362503,
+          40.806846
+        ],
+        [
+          29.363184,
+          40.806717
+        ],
+        [
+          29.363227,
+          40.806853
+        ],
+        [
+          29.363257,
+          40.806938
+        ],
+        [
+          29.362576,
+          40.807066
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_12176768702",
+    "entrance_lat": 40.806853,
+    "entrance_lon": 29.363227
+  },
+  {
+    "id": "hubf",
+    "code": "HUBF",
+    "name": "Havacılık ve Uzay Bilimleri Fakültesi",
+    "category": "academic",
+    "floors_count": 3,
+    "osm_way_id": 1315053845,
+    "entrance_name": "HUBF Ana Giriş Kapısı",
+    "description": "Havacılık ve Uzay Bilimleri derslikleri ve tasarım stüdyoları.",
+    "lat": 40.80556,
+    "lon": 29.357582,
+    "polygon_coords": [
+      [
+        [
+          29.357306,
+          40.805195
+        ],
+        [
+          29.357688,
+          40.805126
+        ],
+        [
+          29.357991,
+          40.806107
+        ],
+        [
+          29.357617,
+          40.806176
+        ],
+        [
+          29.357306,
+          40.805195
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_14276377554",
+    "entrance_lat": 40.806137,
+    "entrance_lon": 29.357979
+  },
+  {
+    "id": "mim_n",
+    "code": "MIM-N",
+    "name": "Mimarlık Fakültesi (N & M Blok)",
+    "category": "academic",
+    "floors_count": 3,
+    "osm_way_id": 715366612,
+    "entrance_name": "MIM-N Ana Giriş Kapısı",
+    "description": "Mimarlık stüdyoları, maket atölyeleri ve jüri salonları.",
+    "lat": 40.810694,
+    "lon": 29.362173,
+    "polygon_coords": [
+      [
+        [
+          29.361859,
+          40.810672
+        ],
+        [
+          29.362002,
+          40.810623
+        ],
+        [
+          29.362062,
+          40.810724
+        ],
+        [
+          29.362237,
+          40.810664
+        ],
+        [
+          29.362172,
+          40.810556
+        ],
+        [
+          29.362515,
+          40.810438
+        ],
+        [
+          29.362628,
+          40.810626
+        ],
+        [
+          29.362385,
+          40.81071
+        ],
+        [
+          29.362417,
+          40.810762
+        ],
+        [
+          29.362082,
+          40.810877
+        ],
+        [
+          29.362056,
+          40.810834
+        ],
+        [
+          29.361973,
+          40.810862
+        ],
+        [
+          29.361859,
+          40.810672
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_12176447072",
+    "entrance_lat": 40.810716,
+    "entrance_lon": 29.362064
+  },
+  {
+    "id": "ydb",
+    "code": "YDB",
+    "name": "Yabancı Diller Bölümü (Hazırlık)",
+    "category": "academic",
+    "floors_count": 3,
+    "osm_way_id": 715366616,
+    "entrance_name": "YDB Ana Giriş Kapısı",
+    "description": "İngilizce hazırlık sınıfları ve dil laboratuvarları.",
+    "lat": 40.811621,
+    "lon": 29.3622,
+    "polygon_coords": [
+      [
+        [
+          29.361976,
+          40.811668
+        ],
+        [
+          29.36195,
+          40.811618
+        ],
+        [
+          29.361946,
+          40.811573
+        ],
+        [
+          29.361954,
+          40.811526
+        ],
+        [
+          29.361981,
+          40.811494
+        ],
+        [
+          29.362042,
+          40.811455
+        ],
+        [
+          29.362114,
+          40.811438
+        ],
+        [
+          29.362141,
+          40.811506
+        ],
+        [
+          29.362169,
+          40.811528
+        ],
+        [
+          29.362185,
+          40.811546
+        ],
+        [
+          29.36219,
+          40.811592
+        ],
+        [
+          29.362161,
+          40.811619
+        ],
+        [
+          29.362186,
+          40.811668
+        ],
+        [
+          29.362284,
+          40.81164
+        ],
+        [
+          29.362353,
+          40.81162
+        ],
+        [
+          29.362303,
+          40.811506
+        ],
+        [
+          29.362346,
+          40.81149
+        ],
+        [
+          29.362329,
+          40.811459
+        ],
+        [
+          29.362393,
+          40.811443
+        ],
+        [
+          29.362575,
+          40.811824
+        ],
+        [
+          29.362489,
+          40.811853
+        ],
+        [
+          29.362423,
+          40.811709
+        ],
+        [
+          29.362338,
+          40.81173
+        ],
+        [
+          29.362235,
+          40.811755
+        ],
+        [
+          29.362293,
+          40.811893
+        ],
+        [
+          29.362197,
+          40.81192
+        ],
+        [
+          29.362074,
+          40.811645
+        ],
+        [
+          29.361976,
+          40.811668
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_9884667514",
+    "entrance_lat": 40.81164,
+    "entrance_lon": 29.362284
+  },
+  {
+    "id": "eblok",
+    "code": "E-BLOK",
+    "name": "E Blok Ek Derslik Binası",
+    "category": "academic",
+    "floors_count": 3,
+    "osm_way_id": 1065502234,
+    "entrance_name": "E-BLOK Ana Giriş Kapısı",
+    "description": "Ortak derslikler ve seminer odaları.",
+    "lat": 40.809187,
+    "lon": 29.360661,
+    "polygon_coords": [
+      [
+        [
+          29.360345,
+          40.809335
+        ],
+        [
+          29.360293,
+          40.80922
+        ],
+        [
+          29.360346,
+          40.809206
+        ],
+        [
+          29.361292,
+          40.808956
+        ],
+        [
+          29.361345,
+          40.80907
+        ],
+        [
+          29.360345,
+          40.809335
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_11276073879",
+    "entrance_lat": 40.80935,
+    "entrance_lon": 29.360296
+  },
+  {
+    "id": "fblok",
+    "code": "F-BLOK",
+    "name": "F Blok Endüstriyel Tasarım Bölümü",
+    "category": "academic",
+    "floors_count": 3,
+    "osm_way_id": 715366604,
+    "entrance_name": "F-BLOK Ana Giriş Kapısı",
+    "description": "Endüstriyel tasarım stüdyoları ve CAD/CAM laboratuvarı.",
+    "lat": 40.809532,
+    "lon": 29.36131,
+    "polygon_coords": [
+      [
+        [
+          29.361172,
+          40.809548
+        ],
+        [
+          29.361241,
+          40.809524
+        ],
+        [
+          29.361227,
+          40.8095
+        ],
+        [
+          29.361304,
+          40.809473
+        ],
+        [
+          29.361314,
+          40.80949
+        ],
+        [
+          29.361588,
+          40.809392
+        ],
+        [
+          29.361652,
+          40.809496
+        ],
+        [
+          29.361262,
+          40.809634
+        ],
+        [
+          29.361253,
+          40.80962
+        ],
+        [
+          29.361223,
+          40.80963
+        ],
+        [
+          29.361172,
+          40.809548
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_9785420552",
+    "entrance_lat": 40.809079,
+    "entrance_lon": 29.361431
+  },
+  {
+    "id": "fiz_h",
+    "code": "FIZ-H",
+    "name": "Fizik Bölümü (H & I Blok)",
+    "category": "academic",
+    "floors_count": 3,
+    "osm_way_id": 715366606,
+    "entrance_name": "FIZ-H Ana Giriş Kapısı",
+    "description": "Fizik bölümü derslikleri ve optik/mekanik laboratuvarları.",
+    "lat": 40.809814,
+    "lon": 29.361483,
+    "polygon_coords": [
+      [
+        [
+          29.361335,
+          40.809809
+        ],
+        [
+          29.361633,
+          40.809705
+        ],
+        [
+          29.361704,
+          40.809821
+        ],
+        [
+          29.361406,
+          40.809925
+        ],
+        [
+          29.361335,
+          40.809809
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_2381109719",
+    "entrance_lat": 40.809973,
+    "entrance_lon": 29.36171
+  },
+  {
+    "id": "muh_dek",
+    "code": "MUH-DEK",
+    "name": "Mühendislik Fakültesi Dekanlığı",
+    "category": "academic",
+    "floors_count": 3,
+    "osm_way_id": 715366617,
+    "entrance_name": "MUH-DEK Ana Giriş Kapısı",
+    "description": "Mühendislik Fakültesi Dekanlığı ve idari birimler.",
+    "lat": 40.812725,
+    "lon": 29.360607,
+    "polygon_coords": [
+      [
+        [
+          29.360563,
+          40.813007
+        ],
+        [
+          29.361198,
+          40.812886
+        ],
+        [
+          29.361001,
+          40.812291
+        ],
+        [
+          29.360374,
+          40.81241
+        ],
+        [
+          29.360453,
+          40.812648
+        ],
+        [
+          29.360384,
+          40.812661
+        ],
+        [
+          29.360434,
+          40.812813
+        ],
+        [
+          29.360495,
+          40.812801
+        ],
+        [
+          29.360563,
+          40.813007
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_9785449542",
+    "entrance_lat": 40.812905,
+    "entrance_lon": 29.361384
+  },
+  {
     "id": "kut",
     "code": "KUT",
     "name": "GTÜ Merkez Kütüphanesi (7/24 Çalışma Salonu)",
     "category": "library",
     "floors_count": 3,
     "osm_way_id": 715366623,
-    "entrance_name": "Kütüphane Ana Giriş Kapısı",
+    "entrance_name": "KUT Ana Giriş Kapısı",
     "description": "Merkez Kütüphane, 7/24 açık sessiz çalışma salonları ve grup çalışma odaları.",
     "lat": 40.806525,
     "lon": 29.358774,
@@ -516,7 +1118,7 @@
     "category": "dining",
     "floors_count": 2,
     "osm_way_id": 715366607,
-    "entrance_name": "Öğrenci Yemekhanesi Girişi",
+    "entrance_name": "YMK Ana Giriş Kapısı",
     "description": "Merkezi öğrenci yemekhanesi, kafeterya ve dinlenme alanı.",
     "lat": 40.810095,
     "lon": 29.361717,
@@ -577,14 +1179,57 @@
     "entrance_lon": 29.361888
   },
   {
+    "id": "kelebek",
+    "code": "KAFE",
+    "name": "Kelebek Cafe & Kırtasiye Meydanı",
+    "category": "dining",
+    "floors_count": 1,
+    "osm_way_id": 715366615,
+    "entrance_name": "KAFE Ana Giriş Kapısı",
+    "description": "Kelebek Cafe, fotokopi/kırtasiye merkezi ve öğrenci buluşma alanı.",
+    "lat": 40.811685,
+    "lon": 29.36174,
+    "polygon_coords": [
+      [
+        [
+          29.361638,
+          40.811626
+        ],
+        [
+          29.361772,
+          40.811593
+        ],
+        [
+          29.361818,
+          40.811693
+        ],
+        [
+          29.361853,
+          40.81177
+        ],
+        [
+          29.361721,
+          40.811804
+        ],
+        [
+          29.361638,
+          40.811626
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_14312064456",
+    "entrance_lat": 40.811693,
+    "entrance_lon": 29.361818
+  },
+  {
     "id": "rek",
     "code": "REK",
-    "name": "GTÜ Rektörlük ve İdari Bina",
+    "name": "GTÜ Rektörlük Binası",
     "category": "admin",
     "floors_count": 4,
     "osm_way_id": 715366618,
-    "entrance_name": "Rektörlük Ana Giriş Kapısı",
-    "description": "Rektörlük, Öğrenci İşleri ve İdari Birimler.",
+    "entrance_name": "REK Ana Giriş Kapısı",
+    "description": "Rektörlük ve üst yönetim birimleri.",
     "lat": 40.811874,
     "lon": 29.357369,
     "polygon_coords": [
@@ -632,13 +1277,325 @@
     "entrance_lon": 29.357046
   },
   {
+    "id": "oidb",
+    "code": "OIDB",
+    "name": "Öğrenci İşleri Daire Başkanlığı",
+    "category": "admin",
+    "floors_count": 3,
+    "osm_way_id": 715366619,
+    "entrance_name": "OIDB Ana Giriş Kapısı",
+    "description": "Öğrenci İşleri, kayıt, belge ve danışma merkezi.",
+    "lat": 40.810762,
+    "lon": 29.357149,
+    "polygon_coords": [
+      [
+        [
+          29.356992,
+          40.811116
+        ],
+        [
+          29.357193,
+          40.81112
+        ],
+        [
+          29.357222,
+          40.810799
+        ],
+        [
+          29.357304,
+          40.810797
+        ],
+        [
+          29.357316,
+          40.810614
+        ],
+        [
+          29.357235,
+          40.810609
+        ],
+        [
+          29.357233,
+          40.810508
+        ],
+        [
+          29.357071,
+          40.810508
+        ],
+        [
+          29.357076,
+          40.810596
+        ],
+        [
+          29.357002,
+          40.8106
+        ],
+        [
+          29.356992,
+          40.811116
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_12176768991",
+    "entrance_lat": 40.811177,
+    "entrance_lon": 29.357148
+  },
+  {
+    "id": "bidb",
+    "code": "BIDB",
+    "name": "Bilgi İşlem Dairesi & Fen Bilimleri Enstitüsü",
+    "category": "admin",
+    "floors_count": 3,
+    "osm_way_id": 715366624,
+    "entrance_name": "BIDB Ana Giriş Kapısı",
+    "description": "Bilgi İşlem Dairesi Başkanlığı ve Enstitü müdürlüğü.",
+    "lat": 40.809239,
+    "lon": 29.363446,
+    "polygon_coords": [
+      [
+        [
+          29.363954,
+          40.809431
+        ],
+        [
+          29.363363,
+          40.809478
+        ],
+        [
+          29.363367,
+          40.809509
+        ],
+        [
+          29.363232,
+          40.80952
+        ],
+        [
+          29.363198,
+          40.809499
+        ],
+        [
+          29.363184,
+          40.809395
+        ],
+        [
+          29.363228,
+          40.809392
+        ],
+        [
+          29.363165,
+          40.80893
+        ],
+        [
+          29.363322,
+          40.808918
+        ],
+        [
+          29.363319,
+          40.808895
+        ],
+        [
+          29.363774,
+          40.808859
+        ],
+        [
+          29.363791,
+          40.808983
+        ],
+        [
+          29.363345,
+          40.809019
+        ],
+        [
+          29.363349,
+          40.809049
+        ],
+        [
+          29.363303,
+          40.809053
+        ],
+        [
+          29.363344,
+          40.809352
+        ],
+        [
+          29.363391,
+          40.809348
+        ],
+        [
+          29.363395,
+          40.80938
+        ],
+        [
+          29.36394,
+          40.809336
+        ],
+        [
+          29.363954,
+          40.809431
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_2380129164",
+    "entrance_lat": 40.808819,
+    "entrance_lon": 29.363747
+  },
+  {
+    "id": "kkm",
+    "code": "KKM",
+    "name": "GTÜ Kongre ve Kültür Merkezi",
+    "category": "admin",
+    "floors_count": 2,
+    "osm_way_id": 989908590,
+    "entrance_name": "KKM Ana Giriş Kapısı",
+    "description": "Üniversite konferans, tören ve etkinlik merkezi.",
+    "lat": 40.814056,
+    "lon": 29.36042,
+    "polygon_coords": [
+      [
+        [
+          29.360251,
+          40.81445
+        ],
+        [
+          29.360194,
+          40.814279
+        ],
+        [
+          29.36015,
+          40.814287
+        ],
+        [
+          29.360025,
+          40.813915
+        ],
+        [
+          29.360145,
+          40.813892
+        ],
+        [
+          29.360122,
+          40.813822
+        ],
+        [
+          29.360756,
+          40.8137
+        ],
+        [
+          29.360781,
+          40.813776
+        ],
+        [
+          29.360885,
+          40.813756
+        ],
+        [
+          29.361065,
+          40.814294
+        ],
+        [
+          29.360251,
+          40.81445
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_12346969191",
+    "entrance_lat": 40.814487,
+    "entrance_lon": 29.359965
+  },
+  {
+    "id": "anakapi",
+    "code": "KAPI-A",
+    "name": "GTÜ Ana Giriş Kapısı (Güvenlik)",
+    "category": "transit",
+    "floors_count": 1,
+    "osm_way_id": 1315053866,
+    "entrance_name": "KAPI-A Ana Giriş Kapısı",
+    "description": "Cumhuriyet Mah. Kampüs Ana Giriş Kapısı ve Otobüs Durağı.",
+    "lat": 40.809096,
+    "lon": 29.365028,
+    "polygon_coords": [
+      [
+        [
+          29.3649,
+          40.809147
+        ],
+        [
+          29.365061,
+          40.809138
+        ],
+        [
+          29.365063,
+          40.809158
+        ],
+        [
+          29.36515,
+          40.809153
+        ],
+        [
+          29.365149,
+          40.80914
+        ],
+        [
+          29.365196,
+          40.809137
+        ],
+        [
+          29.365191,
+          40.809088
+        ],
+        [
+          29.365037,
+          40.809097
+        ],
+        [
+          29.365032,
+          40.809049
+        ],
+        [
+          29.365043,
+          40.809048
+        ],
+        [
+          29.365039,
+          40.809007
+        ],
+        [
+          29.364939,
+          40.809012
+        ],
+        [
+          29.364942,
+          40.809046
+        ],
+        [
+          29.364966,
+          40.809044
+        ],
+        [
+          29.364972,
+          40.80911
+        ],
+        [
+          29.364897,
+          40.809114
+        ],
+        [
+          29.3649,
+          40.809147
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_14312064461",
+    "entrance_lat": 40.809001,
+    "entrance_lon": 29.364935
+  },
+  {
     "id": "mar",
     "code": "MAR",
     "name": "GTÜ - Fatih Marmaray İstasyonu",
     "category": "transit",
     "floors_count": 1,
     "osm_way_id": 915466892,
-    "entrance_name": "Marmaray Kuzey Kampüs Çıkışı",
+    "entrance_name": "MAR Ana Giriş Kapısı",
     "description": "Halkalı - Gebze Marmaray hattı doğrudan kampüs bağlantı istasyonu.",
     "lat": 40.807609,
     "lon": 29.364018,
@@ -742,8 +1699,8 @@
         ]
       ]
     ],
-    "entrance_node_id": "osm_8503647242",
-    "entrance_lat": 40.807664,
-    "entrance_lon": 29.363771
+    "entrance_node_id": "osm_8503647230",
+    "entrance_lat": 40.807563,
+    "entrance_lon": 29.364243
   }
 ]
