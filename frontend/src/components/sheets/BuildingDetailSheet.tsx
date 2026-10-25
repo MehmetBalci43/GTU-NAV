@@ -79,7 +79,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
     .sort((a, b) => a.start_time.localeCompare(b.start_time));
 
   return (
-    <aside className="fixed md:absolute inset-x-0 bottom-0 md:inset-x-auto md:top-28 md:right-3 md:bottom-4 w-full md:max-w-md max-h-[78dvh] md:max-h-none z-30 pointer-events-auto flex flex-col px-2 pb-2 md:p-0">
+    <aside className="fixed inset-x-0 bottom-0 md:inset-x-auto md:top-24 md:right-3 md:bottom-4 w-full md:w-[390px] max-h-[68dvh] md:max-h-none z-20 pointer-events-auto flex flex-col px-2 pb-2 md:p-0">
       <SurfaceCard className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="p-3.5 sm:p-4 border-b border-slate-800 flex items-start justify-between gap-3">

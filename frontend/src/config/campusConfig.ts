@@ -1,12 +1,18 @@
 export const CAMPUS_CONFIG = {
   name: 'Gebze Teknik Üniversitesi (GTÜ) Çayırova Yerleşkesi',
-  defaultCenter: [29.3592, 40.8082] as [number, number],
-  defaultZoom: 15.8,
-  defaultPitch: 42,
-  defaultBearing: -12,
+  // Exact geometric center of all 24 GTÜ campus buildings
+  defaultCenter: [29.3602, 40.8092] as [number, number],
+  defaultZoom: 15.45,
+  defaultPitch: 40,
+  defaultBearing: -10,
+  // Exact bounding box of all GTÜ buildings & walkways for fitBounds
+  campusBounds: [
+    [29.3548, 40.8050],
+    [29.3656, 40.8145],
+  ] as [[number, number], [number, number]],
   maxBounds: [
-    [29.346, 40.801],
-    [29.371, 40.818],
+    [29.342, 40.798],
+    [29.376, 40.822],
   ] as [[number, number], [number, number]],
   defaultSimStartCoord: {
     lat: 40.807664,

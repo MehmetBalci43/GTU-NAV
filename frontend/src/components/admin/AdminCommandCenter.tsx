@@ -116,6 +116,13 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
 
   if (!isOpen) return null;
 
+  // Auto-hide drawer (while keeping form state mounted!) when user needs unobstructed map access to click a point
+  const isWaitingForMapClick =
+    adminMapMode === 'move_entrance' ||
+    adminMapMode === 'add_building' ||
+    adminMapMode === 'pick_alert_coords' ||
+    (adminMapMode === 'draw_edge' && drawnEdgePoints.length < 2);
+
   const visibleTickets = hideSpam ? tickets.filter((t) => !t.ai_is_spam) : tickets;
 
   const handleTicketStatus = async (
@@ -204,7 +211,11 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
   };
 
   return (
-    <aside className="fixed md:absolute inset-x-0 bottom-0 md:inset-x-auto md:top-28 md:left-3 md:bottom-16 w-full md:max-w-lg max-h-[82dvh] md:max-h-none z-30 pointer-events-auto flex flex-col px-2 pb-2 md:p-0">
+    <aside
+      className={`fixed inset-x-0 bottom-0 md:inset-x-auto md:top-24 md:left-3 md:bottom-16 w-full md:w-[410px] max-h-[72dvh] md:max-h-none z-20 pointer-events-auto flex-col px-2 pb-2 md:p-0 ${
+        isWaitingForMapClick ? 'hidden' : 'flex'
+      }`}
+    >
       <SurfaceCard className="flex-1 flex flex-col overflow-hidden border-purple-500/40">
         {/* Header */}
         <div className="p-3.5 border-b border-slate-800 flex items-center justify-between bg-purple-950/30">
