@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Building,
   CampusAnnouncement,
-  WrittenTicket,
+  MapAlert,
 } from '../../types/campus';
-import { api } from '../../services/apiClient';
+import { useTickets } from '../../hooks/useTickets';
 import { AdminMapInteractionMode } from '../map/CampusMap3D';
 import { SurfaceCard, StatusBadge } from '../ui/Primitives';
 
 interface AdminCommandCenterProps {
   isOpen: boolean;
   buildings: Building[];
+  activeAlerts: MapAlert[];
   blockedEdgeIds: string[];
   announcements: CampusAnnouncement[];
   adminMapMode: AdminMapInteractionMode;
@@ -20,6 +21,7 @@ interface AdminCommandCenterProps {
   onSetAdminMapMode: (mode: AdminMapInteractionMode) => void;
   onClearDrawnEdgePoints: () => void;
   onToggleEdgeBlocked: (edgeId: string, closed: boolean, reason?: string) => Promise<void>;
+  onDeleteAlert: (alertId: number) => Promise<void>;
   onAddOrUpdateBuilding: (payload: {
     id: string;
     code: string;
@@ -28,7 +30,13 @@ interface AdminCommandCenterProps {
     floors_count: number;
     lat: number;
     lon: number;
+    entrance_lat?: number;
+    entrance_lon?: number;
+    entrance_name?: string;
+    polygon_coords?: number[][][];
+    description?: string;
   }) => Promise<void>;
+  onDeleteBuilding: (buildingId: string) => Promise<void>;
   onAddWalkwayEdge: (payload: {
     from_lat: number;
     from_lon: number;
@@ -48,6 +56,7 @@ interface AdminCommandCenterProps {
 export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
   isOpen,
   buildings,
+  activeAlerts,
   blockedEdgeIds,
   announcements,
   adminMapMode,
@@ -57,15 +66,19 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
   onSetAdminMapMode,
   onClearDrawnEdgePoints,
   onToggleEdgeBlocked,
+  onDeleteAlert,
   onAddOrUpdateBuilding,
+  onDeleteBuilding,
   onAddWalkwayEdge,
   onPublishAnnouncement,
   onRemoveAnnouncement,
   onClose,
 }) => {
   const [activeTab, setActiveTab] = useState<'tickets' | 'map_ops' | 'announcements'>('tickets');
-  const [tickets, setTickets] = useState<WrittenTicket[]>([]);
   const [hideSpam, setHideSpam] = useState<boolean>(true);
+  const [adminNotes, setAdminNotes] = useState<Record<number, string>>({});
+
+  const { tickets, refreshTickets, updateTicketStatus } = useTickets();
 
   // New building form state
   const [newBldCode, setNewBldCode] = useState<string>('');
@@ -74,38 +87,70 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
   const [newBldFloors, setNewBldFloors] = useState<number>(3);
   const [newEdgeName, setNewEdgeName] = useState<string>('Yeni Kampüs Yürüyüş Yolu');
 
+  // Selected building edit state
+  const [editBldName, setEditBldName] = useState<string>('');
+  const [editEntranceName, setEditEntranceName] = useState<string>('');
+  const [editBldFloors, setEditBldFloors] = useState<number>(3);
+
   // Announcement form state
   const [annTitle, setAnnTitle] = useState<string>('');
   const [annMessage, setAnnMessage] = useState<string>('');
   const [annSeverity, setAnnSeverity] = useState<'info' | 'warning' | 'urgent'>('warning');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  const loadTickets = useCallback(async () => {
-    try {
-      const list = await api.listWrittenTickets();
-      setTickets(list);
-    } catch {
-      // ignore
-    }
-  }, []);
+  const selectedBuilding = buildings.find((b) => b.id === selectedBuildingId) || null;
 
   useEffect(() => {
     if (isOpen) {
-      loadTickets();
+      refreshTickets();
     }
-  }, [isOpen, loadTickets]);
+  }, [isOpen, refreshTickets]);
+
+  useEffect(() => {
+    if (selectedBuilding) {
+      setEditBldName(selectedBuilding.name);
+      setEditEntranceName(selectedBuilding.entrance_name);
+      setEditBldFloors(selectedBuilding.floors_count);
+    }
+  }, [selectedBuilding]);
 
   if (!isOpen) return null;
 
   const visibleTickets = hideSpam ? tickets.filter((t) => !t.ai_is_spam) : tickets;
-  const selectedBuilding = buildings.find((b) => b.id === selectedBuildingId) || null;
 
   const handleTicketStatus = async (
     ticketId: number,
     status: 'pending' | 'in_progress' | 'resolved' | 'rejected'
   ) => {
-    await api.updateWrittenTicketStatus(ticketId, status);
-    await loadTickets();
+    const note = adminNotes[ticketId];
+    await updateTicketStatus(ticketId, status, note);
+    setStatusMessage(`✅ Ticket #${ticketId} durumu (${status}) ve yanıt notu güncellendi.`);
+  };
+
+  const handleUpdateSelectedBuilding = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedBuilding) return;
+    await onAddOrUpdateBuilding({
+      id: selectedBuilding.id,
+      code: selectedBuilding.code,
+      name: editBldName.trim() || selectedBuilding.name,
+      category: selectedBuilding.category,
+      floors_count: editBldFloors,
+      lat: selectedBuilding.lat,
+      lon: selectedBuilding.lon,
+      entrance_lat: selectedBuilding.entrance_lat,
+      entrance_lon: selectedBuilding.entrance_lon,
+      entrance_name: editEntranceName.trim() || selectedBuilding.entrance_name,
+      polygon_coords: selectedBuilding.polygon_coords,
+      description: selectedBuilding.description || undefined,
+    });
+    setStatusMessage(`💾 ${selectedBuilding.code} bina ve kapı bilgisi SQLite + gtu_buildings.json dosyasına kalıcı kaydedildi!`);
+  };
+
+  const handleDeleteSelectedBuilding = async () => {
+    if (!selectedBuilding) return;
+    await onDeleteBuilding(selectedBuilding.id);
+    setStatusMessage(`🗑️ ${selectedBuilding.code} binası haritadan ve gtu_buildings.json veri setinden silindi.`);
   };
 
   const handleCreateBuilding = async (e: React.FormEvent) => {
@@ -127,7 +172,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
     setNewBldCode('');
     setNewBldName('');
     onSetAdminMapMode('none');
-    setStatusMessage('✅ Yeni bina haritaya eklendi ve en yakın yürüyüş düğümüne bağlandı!');
+    setStatusMessage('✅ Yeni bina haritaya ve gtu_buildings.json dosyasına kalıcı olarak eklendi!');
   };
 
   const handleSaveDrawnEdge = async () => {
@@ -143,7 +188,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
     });
     onClearDrawnEdgePoints();
     onSetAdminMapMode('none');
-    setStatusMessage('✅ Yeni yürüyüş yolu grafiğe eklendi ve A* rotalamaya dahil edildi!');
+    setStatusMessage('✅ Yeni yürüyüş yolu gtu_walk_graph.json dosyasına eklendi ve A* rotalamaya dahil edildi!');
   };
 
   const handleCreateAnnouncement = async (e: React.FormEvent) => {
@@ -159,12 +204,17 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
   };
 
   return (
-    <aside className="absolute top-24 left-3 bottom-16 w-full max-w-lg z-20 pointer-events-auto flex flex-col">
+    <aside className="fixed md:absolute inset-x-0 bottom-0 md:inset-x-auto md:top-28 md:left-3 md:bottom-16 w-full md:max-w-lg max-h-[82dvh] md:max-h-none z-30 pointer-events-auto flex flex-col px-2 pb-2 md:p-0">
       <SurfaceCard className="flex-1 flex flex-col overflow-hidden border-purple-500/40">
         {/* Header */}
         <div className="p-3.5 border-b border-slate-800 flex items-center justify-between bg-purple-950/30">
           <div>
-            <StatusBadge variant="purple">🛡️ GTÜ LiveOps Komuta Merkezi</StatusBadge>
+            <div className="flex items-center gap-2 flex-wrap">
+              <StatusBadge variant="purple">🛡️ GTÜ LiveOps Komuta Merkezi</StatusBadge>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-semibold">
+                💾 Kalıcı JSON Senkronizasyonu Aktif
+              </span>
+            </div>
             <h2 className="text-sm font-extrabold text-white mt-1">
               Canlı Harita Müdahale & AI Ticket Triyaj Paneli
             </h2>
@@ -273,6 +323,22 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                       </StatusBadge>
                     </div>
 
+                    {/* Admin Response Note Input */}
+                    <div className="pt-1">
+                      <input
+                        type="text"
+                        value={adminNotes[t.id] ?? (t.admin_note || '')}
+                        onChange={(e) =>
+                          setAdminNotes((prev) => ({
+                            ...prev,
+                            [t.id]: e.target.value,
+                          }))
+                        }
+                        placeholder="Öğrenciye geri dönüş notu yazın (Örn: Teknik ekip yönlendirildi)..."
+                        className="w-full bg-slate-900 border border-slate-800 focus:border-purple-400 rounded-lg px-2.5 py-1.5 text-[11px] text-slate-200 outline-none"
+                      />
+                    </div>
+
                     <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-900">
                       <span className="text-[11px] font-semibold text-purple-300">
                         🏢 {t.ai_department}
@@ -284,10 +350,10 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                           className={`px-2 py-0.5 rounded font-bold text-[11px] ${
                             t.status === 'in_progress'
                               ? 'bg-amber-500 text-slate-950'
-                              : 'bg-slate-800 text-slate-300'
+                              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                           }`}
                         >
-                          İşlemde
+                          İnceleniyor
                         </button>
                         <button
                           type="button"
@@ -295,10 +361,21 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                           className={`px-2 py-0.5 rounded font-bold text-[11px] ${
                             t.status === 'resolved'
                               ? 'bg-emerald-500 text-slate-950'
-                              : 'bg-slate-800 text-slate-300'
+                              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                           }`}
                         >
                           Çözüldü
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleTicketStatus(t.id, 'rejected')}
+                          className={`px-2 py-0.5 rounded font-bold text-[11px] ${
+                            t.status === 'rejected'
+                              ? 'bg-rose-500 text-white'
+                              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                          }`}
+                        >
+                          Reddet
                         </button>
                       </div>
                     </div>
@@ -355,10 +432,10 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                 )}
               </div>
 
-              {/* 2. Building Entrance Relocation */}
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+              {/* 2. Building Entrance Relocation & Metadata Editor */}
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
                 <div className="font-bold text-emerald-300">
-                  🚪 2. Bina Giriş Kapısı Konumunu Düzenle
+                  🚪 2. Seçili Binayı & Giriş Kapısını Düzenle (`gtu_buildings.json`)
                 </div>
                 <p className="text-[11px] text-slate-400">
                   Seçili Bina:{' '}
@@ -368,6 +445,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                       : 'Lütfen haritadan bir binaya tıklayın'}
                   </strong>
                 </p>
+
                 <button
                   type="button"
                   disabled={!selectedBuilding}
@@ -384,6 +462,52 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                     ? '🟢 Haritada Yeni Giriş Noktasına Tıklayın...'
                     : '🚪 Seçili Binanın Giriş Kapısını Haritada Taşı'}
                 </button>
+
+                {selectedBuilding && (
+                  <form onSubmit={handleUpdateSelectedBuilding} className="space-y-2 pt-2 border-t border-slate-800">
+                    <div className="grid grid-cols-3 gap-2">
+                      <input
+                        type="text"
+                        value={editBldName}
+                        onChange={(e) => setEditBldName(e.target.value)}
+                        placeholder="Bina Adı"
+                        className="col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                      />
+                      <input
+                        type="number"
+                        min={1}
+                        max={15}
+                        value={editBldFloors}
+                        onChange={(e) => setEditBldFloors(Number(e.target.value))}
+                        className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                        title="Kat Sayısı"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editEntranceName}
+                        onChange={(e) => setEditEntranceName(e.target.value)}
+                        placeholder="Giriş Kapısı Adı"
+                        className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                      />
+                      <button
+                        type="submit"
+                        className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold shrink-0"
+                      >
+                        Güncelle
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleDeleteSelectedBuilding}
+                        className="px-2.5 py-1.5 rounded-lg bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-500/30 font-bold shrink-0"
+                        title="Binayı haritadan ve JSON veri setinden sil"
+                      >
+                        🗑️ Sil
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
 
               {/* 3. Add Missing Building on Satellite / Map */}
@@ -459,7 +583,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
               {/* 4. Draw New Walkway Path */}
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
                 <div className="font-bold text-indigo-300">
-                  📏 4. Yeni Yürüyüş Patikası / Kaldırım Çiz
+                  📏 4. Yeni Yürüyüş Patikası / Kaldırım Çiz (`gtu_walk_graph.json`)
                 </div>
                 <input
                   type="text"
@@ -496,6 +620,38 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                   )}
                 </div>
               </div>
+
+              {/* 5. Manage Active Map Alerts */}
+              {activeAlerts.length > 0 && (
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                  <div className="font-bold text-rose-300">
+                    ⚠️ 5. Aktif Saha Uyarılarını Yönet ({activeAlerts.length})
+                  </div>
+                  <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                    {activeAlerts.map((al) => (
+                      <div
+                        key={al.id}
+                        className="flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800"
+                      >
+                        <div>
+                          <div className="font-bold text-slate-100">{al.title}</div>
+                          <div className="text-[10px] text-slate-400">
+                            👍 {al.upvotes} • 👎 {al.downvotes}
+                            {al.edge_id ? ` • Kenar: ${al.edge_id}` : ''}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => onDeleteAlert(al.id)}
+                          className="px-2 py-1 rounded bg-rose-950 hover:bg-rose-900 text-rose-200 text-[11px] font-bold shrink-0"
+                        >
+                          Kaldır ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

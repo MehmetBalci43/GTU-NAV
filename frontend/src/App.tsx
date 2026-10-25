@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useCampusData } from './hooks/useCampusData';
 import { useNavigation } from './hooks/useNavigation';
@@ -6,7 +6,7 @@ import { useBuildingRooms } from './hooks/useBuildingRooms';
 import { SearchResultItem } from './types/campus';
 import { MARMARAY_SCHEDULE_CONFIG } from './config/marmaraySchedule';
 import { CampusMap3D, AdminMapInteractionMode } from './components/map/CampusMap3D';
-import { TopNavigationBar } from './components/layout/TopNavigationBar';
+import { TopNavigationBar, QuickCampusFilter } from './components/layout/TopNavigationBar';
 import { BuildingDetailSheet } from './components/sheets/BuildingDetailSheet';
 import { MarmaraySheet } from './components/sheets/MarmaraySheet';
 import { ReportAlertModal } from './components/tickets/ReportAlertModal';
@@ -14,7 +14,7 @@ import { WrittenTicketModal } from './components/tickets/WrittenTicketModal';
 import { AdminCommandCenter } from './components/admin/AdminCommandCenter';
 
 export const App: React.FC = () => {
-  const { user, isAdmin, switchRoleQuick } = useAuth();
+  const { user, isAdmin, error: authError, clearAuthError, switchRoleQuick } = useAuth();
   const {
     buildings,
     walkGraph,
@@ -26,9 +26,11 @@ export const App: React.FC = () => {
     searchResults,
     createAlert,
     voteOnAlert,
+    deleteAlert,
     toggleEdgeBlocked,
     updateBuildingEntrance,
     addOrUpdateCampusBuilding,
+    removeCampusBuilding,
     addWalkwayEdge,
     publishAnnouncement,
     removeAnnouncement,
@@ -48,6 +50,7 @@ export const App: React.FC = () => {
     clearNavigation,
   } = useNavigation(blockedEdgeIds);
 
+  const [activeFilter, setActiveFilter] = useState<QuickCampusFilter>('all');
   const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
   const { roomsData, isLoadingRooms, reportBusy, clearBusy } =
     useBuildingRooms(selectedBuildingId);
@@ -80,6 +83,19 @@ export const App: React.FC = () => {
     setTimeout(() => setToastBanner(null), 4500);
   };
 
+  // Apply quick filter chips to buildings shown as badges on map
+  const filteredBuildings = useMemo(() => {
+    if (activeFilter === 'free_rooms') {
+      return buildings.filter((b) => b.free_rooms_count > 0);
+    }
+    if (activeFilter === 'dining_library') {
+      return buildings.filter(
+        (b) => b.category === 'dining' || b.category === 'library'
+      );
+    }
+    return buildings;
+  }, [buildings, activeFilter]);
+
   const selectedBuilding =
     buildings.find((b) => b.id === selectedBuildingId) || null;
 
@@ -93,22 +109,39 @@ export const App: React.FC = () => {
     if (!selectedBuildingId) return;
     await updateBuildingEntrance(selectedBuildingId, lat, lon);
     setAdminMapMode('none');
-    showToast('✅ Bina giriş kapısı en yakın yürüyüş yolu düğümüne taşındı!');
+    showToast('✅ Bina giriş kapısı taşındı ve gtu_buildings.json dosyasına kalıcı kaydedildi!');
   };
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-slate-950 text-slate-100 font-sans">
-      {/* Top Omnibox Search, Live Announcements & Role Switcher */}
+      {/* Top Omnibox Search, Quick Filter Chips, Live Announcements & Encrypted Admin Gate */}
       <TopNavigationBar
         user={user}
         isAdmin={isAdmin}
-        onSwitchRole={(r) => {
-          switchRoleQuick(r);
-          if (r === 'admin') {
-            setIsAdminDrawerOpen(true);
-          } else {
-            setIsAdminDrawerOpen(false);
-            setAdminMapMode('none');
+        authError={authError}
+        onClearAuthError={clearAuthError}
+        onSwitchRole={async (r, adminKey) => {
+          const ok = await switchRoleQuick(r, adminKey);
+          if (ok) {
+            if (r === 'admin') {
+              setIsAdminDrawerOpen(true);
+              showToast('🛡️ Yönetici (LiveOps) Komuta Merkezi aktif edildi.');
+            } else {
+              setIsAdminDrawerOpen(false);
+              setAdminMapMode('none');
+            }
+          }
+          return ok;
+        }}
+        activeFilter={activeFilter}
+        onFilterChange={(nextFilter) => {
+          setActiveFilter(nextFilter);
+          if (nextFilter === 'free_rooms') {
+            showToast('🟢 Haritada şu an boş amfisi/dersliği bulunan binalar filtrelendi.');
+          } else if (nextFilter === 'dining_library') {
+            showToast('🍽️ Kütüphane ve sosyal/yemekhane binaları filtrelendi.');
+          } else if (nextFilter === 'alerts') {
+            showToast(`🚧 Kampüste ${activeAlerts.length} aktif saha uyarısı görüntüleniyor.`);
           }
         }}
         searchQuery={searchQuery}
@@ -131,7 +164,7 @@ export const App: React.FC = () => {
 
       {/* Dynamic Toast / Reroute Alert Banner */}
       {(rerouteNotice || routeError || toastBanner) && (
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-xl bg-slate-900/95 border border-sky-400/50 text-sky-200 text-xs font-bold shadow-2xl">
+        <div className="absolute top-32 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-xl bg-slate-900/95 border border-sky-400/50 text-sky-200 text-xs font-bold shadow-2xl">
           {rerouteNotice || routeError || toastBanner}
         </div>
       )}
@@ -147,7 +180,7 @@ export const App: React.FC = () => {
               Kalan: <strong>{userPos.remainingMeters} m</strong> (~{userPos.remainingMinutes} dk) •{' '}
               {userPos.isSnapped ? (
                 <span className="text-emerald-400 font-semibold">
-                  🧲 Snap-to-Path Aktif ({userPos.offRouteDistanceMeters}m dik izdüşüm)
+                  🧲 Snap-to-Path + Kalman Aktif ({userPos.offRouteDistanceMeters}m izdüşüm)
                 </span>
               ) : (
                 <span>Serbest Konum</span>
@@ -166,7 +199,7 @@ export const App: React.FC = () => {
 
       {/* Main 3D MapLibre Campus Map */}
       <CampusMap3D
-        buildings={buildings}
+        buildings={filteredBuildings}
         walkGraph={walkGraph}
         activeAlerts={activeAlerts}
         blockedEdgeIds={blockedEdgeIds}
@@ -204,7 +237,7 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* Building Empty Amphitheater & Route Drawer */}
+      {/* Building Empty Amphitheater & Weekly Schedule Drawer */}
       <BuildingDetailSheet
         building={selectedBuilding}
         roomsData={roomsData}
@@ -241,6 +274,7 @@ export const App: React.FC = () => {
       <AdminCommandCenter
         isOpen={isAdmin && isAdminDrawerOpen}
         buildings={buildings}
+        activeAlerts={activeAlerts}
         blockedEdgeIds={blockedEdgeIds}
         announcements={announcements}
         adminMapMode={adminMapMode}
@@ -250,7 +284,15 @@ export const App: React.FC = () => {
         onSetAdminMapMode={setAdminMapMode}
         onClearDrawnEdgePoints={() => setDrawnEdgePoints([])}
         onToggleEdgeBlocked={toggleEdgeBlocked}
+        onDeleteAlert={async (alertId) => {
+          await deleteAlert(alertId);
+          showToast('🗑️ Saha uyarısı kaldırıldı.');
+        }}
         onAddOrUpdateBuilding={addOrUpdateCampusBuilding}
+        onDeleteBuilding={async (bId) => {
+          await removeCampusBuilding(bId);
+          if (selectedBuildingId === bId) setSelectedBuildingId(null);
+        }}
         onAddWalkwayEdge={addWalkwayEdge}
         onPublishAnnouncement={publishAnnouncement}
         onRemoveAnnouncement={removeAnnouncement}

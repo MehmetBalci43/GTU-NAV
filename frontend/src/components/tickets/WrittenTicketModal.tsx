@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Building, WrittenTicket } from '../../types/campus';
 import { TICKET_CATEGORIES } from '../../config/ticketCategories';
-import { api } from '../../services/apiClient';
+import { useTickets } from '../../hooks/useTickets';
 import { SurfaceCard, StatusBadge } from '../ui/Primitives';
 
 interface WrittenTicketModalProps {
@@ -28,8 +28,13 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
   const [description, setDescription] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [createdTicket, setCreatedTicket] = useState<WrittenTicket | null>(null);
-  const [myTickets, setMyTickets] = useState<WrittenTicket[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const {
+    tickets: myTickets,
+    refreshTickets,
+    submitWrittenTicket,
+  } = useTickets(reporterEmail);
 
   useEffect(() => {
     if (initialBuildingId) setBuildingId(initialBuildingId);
@@ -38,11 +43,8 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    api
-      .listWrittenTickets(reporterEmail)
-      .then(setMyTickets)
-      .catch(() => setMyTickets([]));
-  }, [isOpen, reporterEmail]);
+    refreshTickets(reporterEmail);
+  }, [isOpen, reporterEmail, refreshTickets]);
 
   if (!isOpen) return null;
 
@@ -54,7 +56,7 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
     setErrorMsg(null);
     setIsSubmitting(true);
     try {
-      const res = await api.createWrittenTicket({
+      const res = await submitWrittenTicket({
         reporter_email: reporterEmail,
         building_id: buildingId || null,
         classroom_id: classroomId || null,
@@ -65,8 +67,6 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
       setCreatedTicket(res);
       setTitle('');
       setDescription('');
-      const updated = await api.listWrittenTickets(reporterEmail);
-      setMyTickets(updated);
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Bildirim gönderilemedi');
     } finally {
@@ -225,7 +225,14 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
                       <div className="font-bold text-slate-100">{t.title}</div>
                       <div className="text-[11px] text-slate-400">
                         {t.ai_department} • Aciliyet: {t.ai_urgency_score}/100
-                        {t.admin_note ? ` • Not: ${t.admin_note}` : ''}
+                        {t.admin_note ? (
+                          <span className="text-sky-300 font-semibold">
+                            {' '}
+                            • İdare Yanıtı: {t.admin_note}
+                          </span>
+                        ) : (
+                          ''
+                        )}
                       </div>
                     </div>
                     <StatusBadge
@@ -234,6 +241,8 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
                           ? 'emerald'
                           : t.status === 'in_progress'
                           ? 'amber'
+                          : t.status === 'rejected'
+                          ? 'rose'
                           : 'slate'
                       }
                     >
