@@ -19,6 +19,8 @@ export type AdminMapInteractionMode =
   | 'draw_edge'
   | 'pick_alert_coords';
 
+export type BasemapStyleMode = 'voyager' | 'vector' | 'satellite';
+
 interface CampusMap3DProps {
   buildings: Building[];
   walkGraph: WalkGraph | null;
@@ -38,7 +40,13 @@ interface CampusMap3DProps {
   onPickAlertCoords: (lat: number, lon: number, nearestEdgeId?: string | null) => void;
 }
 
-function buildRasterStyle(mode: 'voyager' | 'satellite'): maplibregl.StyleSpecification {
+const OPENFREEMAP_VECTOR_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+
+function buildMapStyle(mode: BasemapStyleMode): string | maplibregl.StyleSpecification {
+  if (mode === 'vector') {
+    return OPENFREEMAP_VECTOR_STYLE;
+  }
+
   const tiles =
     mode === 'satellite'
       ? ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}']
@@ -72,6 +80,14 @@ function buildRasterStyle(mode: 'voyager' | 'satellite'): maplibregl.StyleSpecif
   };
 }
 
+function getBuildingBadgeClassName(isSelected: boolean): string {
+  return `group flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-bold shadow-lg border transition-transform ${
+    isSelected
+      ? 'bg-cyan-950 text-cyan-200 border-cyan-400 scale-110 z-30'
+      : 'bg-slate-900/90 text-slate-100 border-slate-700 hover:scale-105'
+  }`;
+}
+
 export const CampusMap3D: React.FC<CampusMap3DProps> = ({
   buildings,
   walkGraph,
@@ -91,11 +107,16 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const markersRef = useRef<maplibregl.Marker[]>([]);
+
+  // Separate refs for building markers (cached in a Map to avoid DOM teardown on selection change) and alert markers
+  const buildingMarkersMapRef = useRef<
+    Map<string, { marker: maplibregl.Marker; el: HTMLButtonElement }>
+  >(new Map());
+  const alertMarkersRef = useRef<maplibregl.Marker[]>([]);
   const userMarkerRef = useRef<maplibregl.Marker | null>(null);
   const rawGpsMarkerRef = useRef<maplibregl.Marker | null>(null);
 
-  const [basemapMode, setBasemapMode] = useState<'voyager' | 'satellite'>('voyager');
+  const [basemapMode, setBasemapMode] = useState<BasemapStyleMode>('voyager');
   const [is3DPitch, setIs3DPitch] = useState<boolean>(true);
   const [styleVersion, setStyleVersion] = useState<number>(0);
 
@@ -138,7 +159,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: buildRasterStyle('voyager'),
+      style: buildMapStyle('voyager'),
       center: CAMPUS_CONFIG.defaultCenter,
       zoom: CAMPUS_CONFIG.defaultZoom,
       pitch: CAMPUS_CONFIG.defaultPitch,
@@ -218,12 +239,12 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     };
   }, []);
 
-  // Switch between Street (CartoDB Voyager) and Satellite (Esri World Imagery)
-  const handleToggleBasemap = (nextMode: 'voyager' | 'satellite') => {
+  // Switch between Street (CartoDB Voyager), Vector (OpenFreeMap Liberty) and Satellite (Esri World Imagery)
+  const handleToggleBasemap = (nextMode: BasemapStyleMode) => {
     if (nextMode === basemapMode || !mapRef.current) return;
     setBasemapMode(nextMode);
     const map = mapRef.current;
-    map.setStyle(buildRasterStyle(nextMode));
+    map.setStyle(buildMapStyle(nextMode));
     map.once('styledata', () => {
       setStyleVersion((v) => v + 1);
     });
@@ -467,31 +488,28 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     }
   }, [buildings, walkGraph, blockedEdgeIds, selectedBuildingId, activeRoute, styleVersion]);
 
-  // Render HTML Badges for Buildings (Code + Free Rooms Radar Badge) and Active Map Alerts
+  // Synchronize Building DOM Badges (Only creates/removes when `buildings` list changes, NOT on selection change)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    markersRef.current.forEach((m) => m.remove());
-    markersRef.current = [];
+    const currentIds = new Set(buildings.map((b) => b.id));
+    // Remove markers for buildings no longer in `buildings`
+    buildingMarkersMapRef.current.forEach((entry, bId) => {
+      if (!currentIds.has(bId)) {
+        entry.marker.remove();
+        buildingMarkersMapRef.current.delete(bId);
+      }
+    });
 
-    // Building Badges
     buildings.forEach((b) => {
-      const el = document.createElement('button');
-      el.type = 'button';
-      const isSelected = b.id === selectedBuildingId;
       const hasRooms = b.total_rooms_count > 0;
       const badgeColor =
         b.free_rooms_count > 0
           ? 'bg-emerald-500 text-slate-950'
           : 'bg-rose-500 text-white';
 
-      el.className = `group flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-bold shadow-lg border transition-transform ${
-        isSelected
-          ? 'bg-cyan-950 text-cyan-200 border-cyan-400 scale-110 z-30'
-          : 'bg-slate-900/90 text-slate-100 border-slate-700 hover:scale-105'
-      }`;
-      el.innerHTML = `
+      const innerMarkup = `
         <span>${b.code}</span>
         ${
           hasRooms
@@ -499,18 +517,43 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             : ''
         }
       `;
-      el.onclick = (ev) => {
-        ev.stopPropagation();
-        onSelectBuilding(b.id);
-      };
 
-      const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
-        .setLngLat([b.lon, b.lat])
-        .addTo(map);
-      markersRef.current.push(marker);
+      const existing = buildingMarkersMapRef.current.get(b.id);
+      if (existing) {
+        existing.el.innerHTML = innerMarkup;
+        existing.marker.setLngLat([b.lon, b.lat]);
+      } else {
+        const el = document.createElement('button');
+        el.type = 'button';
+        el.className = getBuildingBadgeClassName(b.id === selectedBuildingId);
+        el.innerHTML = innerMarkup;
+        el.onclick = (ev) => {
+          ev.stopPropagation();
+          callbacksRef.current.onSelectBuilding(b.id);
+        };
+        const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([b.lon, b.lat])
+          .addTo(map);
+        buildingMarkersMapRef.current.set(b.id, { marker, el });
+      }
     });
+  }, [buildings]);
 
-    // Map Alert Markers (Layer 1)
+  // Lightweight CSS class update when `selectedBuildingId` changes (Zero DOM teardown!)
+  useEffect(() => {
+    buildingMarkersMapRef.current.forEach((entry, bId) => {
+      entry.el.className = getBuildingBadgeClassName(bId === selectedBuildingId);
+    });
+  }, [selectedBuildingId]);
+
+  // Synchronize Map Alert Markers (Layer 1)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    alertMarkersRef.current.forEach((m) => m.remove());
+    alertMarkersRef.current = [];
+
     activeAlerts.forEach((alert) => {
       const cfg = ALERT_TYPES.find((t) => t.id === alert.alert_type);
       const emoji =
@@ -565,9 +608,9 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         .setLngLat([alert.lon, alert.lat])
         .setPopup(popup)
         .addTo(map);
-      markersRef.current.push(alertMarker);
+      alertMarkersRef.current.push(alertMarker);
     });
-  }, [buildings, activeAlerts, selectedBuildingId, onSelectBuilding, onVoteAlert]);
+  }, [activeAlerts, onVoteAlert]);
 
   // Update User Snapped Location Dot & Raw GPS Ghost Dot
   useEffect(() => {
@@ -619,7 +662,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 
       {/* Admin Active Map Mode Banner */}
       {adminMapMode !== 'none' && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-amber-500 text-slate-950 font-bold text-xs shadow-xl border border-amber-200 flex items-center gap-2">
+        <div className="absolute top-32 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-amber-500 text-slate-950 font-bold text-xs shadow-xl border border-amber-200 flex items-center gap-2">
           <span>🛠️ Canlı Harita Müdahale Modu:</span>
           <span>
             {adminMapMode === 'toggle_edge' && 'Kapatmak veya açmak istediğiniz yürüyüş yoluna tıklayın'}
@@ -631,7 +674,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         </div>
       )}
 
-      {/* Map Control Floating Pill (Street / Satellite / 3D Tilt / Reset Campus Center) */}
+      {/* Map Control Floating Pill (Street / OpenFreeMap Vector / Satellite / 3D Tilt / Reset Campus Center) */}
       <div className="absolute bottom-5 left-4 z-20 flex flex-wrap items-center gap-1.5 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-700/80 shadow-xl text-xs">
         <button
           type="button"
@@ -642,7 +685,19 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
               : 'text-slate-300 hover:bg-slate-800'
           }`}
         >
-          🗺️ Sokak Haritası
+          🗺️ Sokak
+        </button>
+        <button
+          type="button"
+          onClick={() => handleToggleBasemap('vector')}
+          className={`px-2.5 py-1.5 rounded-lg font-semibold transition ${
+            basemapMode === 'vector'
+              ? 'bg-sky-500 text-slate-950'
+              : 'text-slate-300 hover:bg-slate-800'
+          }`}
+          title="OpenFreeMap Liberty Vektör Karoları"
+        >
+          🧭 Vektör (HD)
         </button>
         <button
           type="button"
