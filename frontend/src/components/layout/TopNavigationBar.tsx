@@ -55,13 +55,13 @@ interface TopNavigationBarProps {
   onSelectSearchResult: (item: SearchResultItem) => void;
   announcements: CampusAnnouncement[];
   isNavigating?: boolean;
-  isPickingUserStart?: boolean;
-  onTogglePickUserStart?: () => void;
   onOpenMarmaray: () => void;
   onOpenAlertModal: () => void;
   onOpenWrittenTicketModal: () => void;
   onToggleAdminDrawer: () => void;
   isAdminDrawerOpen: boolean;
+  isAnnouncementsModalOpen?: boolean;
+  onSetAnnouncementsModalOpen?: (open: boolean) => void;
 }
 
 export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
@@ -78,16 +78,19 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
   onSelectSearchResult,
   announcements,
   isNavigating = false,
-  isPickingUserStart = false,
-  onTogglePickUserStart,
   onOpenMarmaray,
   onOpenAlertModal,
   onOpenWrittenTicketModal,
   onToggleAdminDrawer,
   isAdminDrawerOpen,
+  isAnnouncementsModalOpen: controlledAnnOpen,
+  onSetAnnouncementsModalOpen,
 }) => {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
-  const [isAnnouncementsModalOpen, setIsAnnouncementsModalOpen] = useState<boolean>(false);
+  const [localAnnOpen, setLocalAnnOpen] = useState<boolean>(false);
+  const isAnnouncementsModalOpen = controlledAnnOpen ?? localAnnOpen;
+  const setAnnouncementsModalOpen = onSetAnnouncementsModalOpen ?? setLocalAnnOpen;
+
   const [isLeftCollapsed, setIsLeftCollapsed] = useState<boolean>(false);
   const [isRightCollapsed, setIsRightCollapsed] = useState<boolean>(false);
 
@@ -222,22 +225,6 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
           <UtensilsCrossed className="w-3 h-3 text-amber-600" />
           <span>Yemek/Küt.</span>
         </button>
-
-        {onTogglePickUserStart && (
-          <button
-            type="button"
-            onClick={onTogglePickUserStart}
-            className={`px-2.5 py-1 rounded-lg text-[11px] font-black shadow-[1.5px_1.5px_0px_#18181B] border border-zinc-950 transition flex items-center gap-1 select-none ${
-              isPickingUserStart
-                ? 'bg-sky-400 text-zinc-950 ring-1 ring-sky-300'
-                : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 hover:bg-zinc-200'
-            }`}
-            title="Haritada başlangıç noktanızı değiştirmek için tıklayın"
-          >
-            <MapPin className="w-3 h-3 text-sky-500" />
-            <span>{isPickingUserStart ? 'Nokta Seç...' : 'Konum Seç'}</span>
-          </button>
-        )}
       </div>
     );
   };
@@ -341,7 +328,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
                   size="sm"
                   variant="secondary"
                   icon={<Megaphone className="w-3.5 h-3.5 text-amber-500" />}
-                  onClick={() => setIsAnnouncementsModalOpen(true)}
+                  onClick={() => setAnnouncementsModalOpen(true)}
                   title="Kampüs Duyuruları"
                 >
                   Duyurular
@@ -446,118 +433,54 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
       </div>
 
       {/* ==================================================================== */}
-      {/*                     MOBILE COMPACT FLOATING BAR                      */}
+      {/*                  MOBILE MINIMAL FLOATING TOP ISLAND                  */}
       {/* ==================================================================== */}
       <div
-        className={`block md:hidden fixed top-2 inset-x-2 z-30 pointer-events-auto ${
+        className={`block md:hidden fixed top-0 inset-x-0 z-30 pt-safe px-3.5 pointer-events-none transition-all duration-200 ${
           isNavigating ? 'hidden' : ''
         }`}
       >
-        <TactileCard className="p-2 space-y-2 bg-white/95 dark:bg-[#1E222D]/95 border-2 border-zinc-950 shadow-hard-md dark:shadow-hard-night-md">
-          {/* Top Row: Brand + Search + Action Icons */}
-          <div className="flex items-center gap-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-600 border border-zinc-950 flex items-center justify-center font-black text-white text-xs shrink-0 shadow-sm">
+        <div className="pt-2 flex items-center justify-between pointer-events-auto">
+          {/* Minimal GTÜ Brand Pill */}
+          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-2xl bg-white/90 dark:bg-[#1E222D]/90 border border-zinc-300 dark:border-white/10 shadow-sm backdrop-blur-md">
+            <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-600 border border-zinc-950 flex items-center justify-center font-black text-white text-[10px] shadow-sm">
               GTÜ
             </div>
-
-            {/* Omnibox Search Field */}
-            <div className="relative flex-1 min-w-0">
-              <div className="relative w-full">
-                <div className="absolute inset-y-0 left-2.5 flex items-center pointer-events-none text-zinc-500">
-                  <Search className="w-3.5 h-3.5" />
-                </div>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  placeholder="Ders, amfi veya bina..."
-                  className="w-full h-8 pl-8 pr-6 bg-zinc-100 dark:bg-zinc-900 border border-zinc-950 rounded-lg text-xs font-bold text-zinc-950 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none focus:ring-2 focus:ring-sky-400 shadow-sm"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => onSearchChange('')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full flex items-center justify-center text-zinc-400 text-xs font-bold"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Quick Action Icons */}
-            <div className="flex items-center gap-1 shrink-0">
-              {announcements.length > 0 && (
-                <TactileIconButton
-                  size="sm"
-                  variant="secondary"
-                  label="Duyurular"
-                  onClick={() => setIsAnnouncementsModalOpen(true)}
-                >
-                  <Megaphone className="w-3.5 h-3.5 text-amber-500" />
-                </TactileIconButton>
-              )}
-
-              <TactileIconButton
-                size="sm"
-                variant="secondary"
-                label="Marmaray"
-                onClick={onOpenMarmaray}
-              >
-                <Train className="w-3.5 h-3.5 text-emerald-600" />
-              </TactileIconButton>
-
-              <TactileIconButton
-                size="sm"
-                variant="secondary"
-                label="Saha Uyarısı"
-                onClick={onOpenAlertModal}
-              >
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
-              </TactileIconButton>
-
-              <TactileIconButton
-                size="sm"
-                variant="secondary"
-                label="AI Bildirim"
-                onClick={onOpenWrittenTicketModal}
-              >
-                <FileText className="w-3.5 h-3.5 text-sky-500" />
-              </TactileIconButton>
-
-              {isAdmin ? (
-                <TactileIconButton
-                  size="sm"
-                  variant={isAdminDrawerOpen ? 'primary' : 'warning'}
-                  label="LiveOps Yönetici"
-                  onClick={onToggleAdminDrawer}
-                >
-                  <ShieldAlert className="w-3.5 h-3.5" />
-                </TactileIconButton>
-              ) : (
-                <TactileIconButton
-                  size="sm"
-                  variant="neutral"
-                  label="Yönetici Girişi"
-                  onClick={() => {
-                    onClearAuthError();
-                    setIsAdminModalOpen(true);
-                  }}
-                >
-                  <Shield className="w-3.5 h-3.5 text-zinc-400" />
-                </TactileIconButton>
-              )}
-            </div>
+            <span className="text-xs font-black text-zinc-950 dark:text-zinc-100 tracking-tight">
+              GTÜ-NAV
+            </span>
           </div>
 
-          {/* Search Dropdown on Mobile */}
-          {renderSearchResults()}
-
-          {/* Bottom Row: Scope Bar */}
-          <div className="pt-1 border-t border-zinc-950/10 dark:border-white/10">
-            {renderScopeBar(true)}
+          {/* Admin Trigger / Status Pill */}
+          <div className="flex items-center gap-1.5">
+            {isAdmin ? (
+              <button
+                type="button"
+                onClick={onToggleAdminDrawer}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl border font-black text-xs shadow-sm backdrop-blur-md transition ${
+                  isAdminDrawerOpen
+                    ? 'bg-purple-600 text-white border-purple-700'
+                    : 'bg-white/90 dark:bg-[#1E222D]/90 text-purple-600 dark:text-purple-400 border-zinc-300 dark:border-white/10'
+                }`}
+              >
+                <ShieldAlert className="w-3.5 h-3.5" />
+                <span>LiveOps</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  onClearAuthError();
+                  setIsAdminModalOpen(true);
+                }}
+                className="w-8 h-8 rounded-2xl bg-white/90 dark:bg-[#1E222D]/90 border border-zinc-300 dark:border-white/10 text-zinc-400 flex items-center justify-center shadow-sm backdrop-blur-md active:scale-95 transition"
+                title="Yönetici Girişi"
+              >
+                <Shield className="w-4 h-4" />
+              </button>
+            )}
           </div>
-        </TactileCard>
+        </div>
       </div>
 
       {/* Duyurular Modal (On-Demand Only, Never stuck on screen) */}
@@ -582,7 +505,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
                 size="sm"
                 variant="ghost"
                 label="Kapat"
-                onClick={() => setIsAnnouncementsModalOpen(false)}
+                onClick={() => setAnnouncementsModalOpen(false)}
               >
                 <X className="w-4 h-4" />
               </TactileIconButton>
@@ -619,7 +542,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
               <TactileButton
                 variant="neutral"
                 size="sm"
-                onClick={() => setIsAnnouncementsModalOpen(false)}
+                onClick={() => setAnnouncementsModalOpen(false)}
               >
                 Kapat
               </TactileButton>

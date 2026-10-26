@@ -104,13 +104,8 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
     .sort((a, b) => a.start_time.localeCompare(b.start_time));
 
   return (
-    <aside className="fixed inset-x-0 bottom-0 md:inset-x-auto md:top-20 md:right-4 md:bottom-4 w-full md:w-[410px] max-h-[82dvh] md:max-h-none z-30 pointer-events-auto flex flex-col p-2 md:p-0">
-      <TactileCard className="flex-1 flex flex-col overflow-hidden p-0 border-2 border-zinc-950 shadow-hard-lg dark:shadow-hard-night-lg">
-        {/* Mobile Drag Grabber */}
-        <div className="md:hidden">
-          <GrabberHandle />
-        </div>
-
+    <aside className="hidden md:flex fixed md:top-20 md:right-4 md:bottom-4 md:w-[410px] z-30 pointer-events-auto flex-col">
+      <TactileCard className="flex-1 flex flex-col overflow-hidden p-0 border border-zinc-300 dark:border-white/10 shadow-hard-lg dark:shadow-hard-night-lg">
         {/* Header */}
         <div className="p-3.5 sm:p-4 border-b-2 border-zinc-950 flex items-start justify-between gap-3 bg-zinc-50 dark:bg-zinc-900/60">
           <div>
