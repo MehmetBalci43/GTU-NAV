@@ -126,6 +126,13 @@ export const InteractiveBottomSheet: React.FC<InteractiveBottomSheetProps> = ({
     setIsTransitioning(true);
     const h = getDetentHeight(nextDetent);
     onHeightChange?.(h);
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(8);
+      } catch {
+        // Ignore vibration errors if blocked
+      }
+    }
   }, [getDetentHeight, onHeightChange]);
 
   // When a building is selected, open sheet to medium or keep peek
@@ -269,7 +276,7 @@ export const InteractiveBottomSheet: React.FC<InteractiveBottomSheetProps> = ({
   return (
     <div
       ref={sheetRef}
-      className="md:hidden fixed inset-x-0 bottom-0 z-30 pointer-events-auto flex flex-col bg-white dark:bg-[#1E222D] border-t border-zinc-300 dark:border-white/10 rounded-t-[28px] shadow-hard-lg dark:shadow-hard-night-lg overflow-hidden"
+      className="md:hidden fixed inset-x-0 bottom-0 z-30 pointer-events-auto flex flex-col bg-white/95 dark:bg-[#1E222D]/95 backdrop-blur-xl border-t border-zinc-200/80 dark:border-white/10 rounded-t-[28px] shadow-hard-lg dark:shadow-hard-night-lg overflow-hidden"
       style={{
         height: `${currentHeightPx}px`,
         transition: isTransitioning
@@ -605,31 +612,7 @@ export const InteractiveBottomSheet: React.FC<InteractiveBottomSheetProps> = ({
           /* VIEW C: EXPLORE HUBS (GENEROUS TOUCH TILES & FILTERS)             */
           /* ================================================================ */
           <div className="space-y-4 pt-1">
-            {/* Announcement Banner Pill if announcements exist */}
-            {announcements.length > 0 && (
-              <button
-                type="button"
-                onClick={onOpenAnnouncements}
-                className="w-full p-2.5 rounded-2xl bg-amber-400/15 border border-amber-400/40 text-amber-900 dark:text-amber-200 flex items-center gap-2.5 text-left active:scale-[0.98] transition"
-              >
-                <div className="w-7 h-7 rounded-lg bg-amber-400 text-zinc-950 flex items-center justify-center shrink-0 font-bold">
-                  <Megaphone className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-black truncate">
-                    {announcements[0].title}
-                  </div>
-                  <div className="text-[11px] text-amber-800/80 dark:text-amber-300/80 truncate font-semibold">
-                    {announcements[0].message}
-                  </div>
-                </div>
-                <span className="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-amber-400 text-zinc-950">
-                  {announcements.length}
-                </span>
-              </button>
-            )}
-
-            {/* 4 Generous Mobile Touch Action Tiles (2x2 Grid) */}
+            {/* Quick Campus Services (On-Demand Touch Action Tiles) */}
             <div>
               <div className="text-[11px] font-black text-zinc-400 uppercase tracking-wider mb-2">
                 Hızlı Kampüs Hizmetleri
@@ -715,6 +698,32 @@ export const InteractiveBottomSheet: React.FC<InteractiveBottomSheetProps> = ({
                   </div>
                 </button>
               </div>
+
+              {/* 5. Kampüs Duyuruları (On-Demand Service Row) */}
+              {announcements.length > 0 && (
+                <button
+                  type="button"
+                  onClick={onOpenAnnouncements}
+                  className="mt-2.5 w-full p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700/40 flex items-center justify-between text-left active:scale-[0.98] transition"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-amber-400 text-zinc-950 flex items-center justify-center font-bold shrink-0">
+                      <Megaphone className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-black text-amber-950 dark:text-amber-200 truncate">
+                        Kampüs Duyuruları ({announcements.length})
+                      </div>
+                      <div className="text-[10px] font-semibold text-amber-800/80 dark:text-amber-300/80 truncate">
+                        {announcements[0]?.title}
+                      </div>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md bg-amber-400 text-zinc-950 text-[10px] font-black shrink-0">
+                    Görüntüle →
+                  </span>
+                </button>
+              )}
             </div>
 
             {/* Scope Bar Filters (Horizontal scrollable, touch-friendly) */}

@@ -20,6 +20,7 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
 } from 'lucide-react';
 import {
   CampusAnnouncement,
@@ -62,6 +63,10 @@ interface TopNavigationBarProps {
   isAdminDrawerOpen: boolean;
   isAnnouncementsModalOpen?: boolean;
   onSetAnnouncementsModalOpen?: (open: boolean) => void;
+  basemapMode?: 'diorama' | 'satellite' | 'street';
+  onToggleBasemap?: () => void;
+  is3DPitch?: boolean;
+  onTogglePitch?: () => void;
 }
 
 export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
@@ -85,6 +90,10 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
   isAdminDrawerOpen,
   isAnnouncementsModalOpen: controlledAnnOpen,
   onSetAnnouncementsModalOpen,
+  basemapMode = 'diorama',
+  onToggleBasemap,
+  is3DPitch = false,
+  onTogglePitch,
 }) => {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
   const [localAnnOpen, setLocalAnnOpen] = useState<boolean>(false);
@@ -93,6 +102,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
 
   const [isLeftCollapsed, setIsLeftCollapsed] = useState<boolean>(false);
   const [isRightCollapsed, setIsRightCollapsed] = useState<boolean>(false);
+  const [isReportDropdownOpen, setIsReportDropdownOpen] = useState<boolean>(false);
 
   const [adminKeyInput, setAdminKeyInput] = useState<string>('');
   const [isVerifyingKey, setIsVerifyingKey] = useState<boolean>(false);
@@ -319,25 +329,11 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
           </aside>
         )}
 
-        {/* Top-Right Island: Compact Services Toolbar */}
+        {/* Top-Right Island: HIG Compact Popover Toolbar */}
         {!isRightCollapsed ? (
           <nav className="fixed top-4 right-4 z-30 pointer-events-auto transition-all">
             <TactileCard className="p-1.5 flex items-center gap-1.5 bg-white/95 dark:bg-[#1E222D]/95 border-2 border-zinc-950 shadow-hard-md dark:shadow-hard-night-md">
-              {announcements.length > 0 && (
-                <TactileButton
-                  size="sm"
-                  variant="secondary"
-                  icon={<Megaphone className="w-3.5 h-3.5 text-amber-500" />}
-                  onClick={() => setAnnouncementsModalOpen(true)}
-                  title="Kampüs Duyuruları"
-                >
-                  Duyurular
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full bg-amber-400 text-zinc-950 text-[10px] font-black">
-                    {announcements.length}
-                  </span>
-                </TactileButton>
-              )}
-
+              {/* Marmaray Quick Access */}
               <TactileButton
                 size="sm"
                 variant="secondary"
@@ -348,26 +344,75 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
                 Marmaray
               </TactileButton>
 
-              <TactileButton
-                size="sm"
-                variant="secondary"
-                icon={<AlertTriangle className="w-3.5 h-3.5 text-amber-500" />}
-                onClick={onOpenAlertModal}
-                title="Haritaya Anlık Saha Uyarısı Bırak"
-              >
-                Saha Uyarısı
-              </TactileButton>
+              {/* HIG Pull-Down Button: Bildir ▾ (Groups Saha Uyarısı & AI Bildirim into an elegant popover) */}
+              <div className="relative">
+                <TactileButton
+                  size="sm"
+                  variant={isReportDropdownOpen ? 'primary' : 'secondary'}
+                  icon={<AlertTriangle className="w-3.5 h-3.5 text-amber-500" />}
+                  onClick={() => setIsReportDropdownOpen((prev) => !prev)}
+                  title="Bildirim ve Saha Uyarı Menüsü"
+                >
+                  <span>Bildir</span>
+                  <ChevronDown className="w-3 h-3 ml-0.5 opacity-70" />
+                </TactileButton>
 
-              <TactileButton
-                size="sm"
-                variant="secondary"
-                icon={<FileText className="w-3.5 h-3.5 text-sky-500" />}
-                onClick={onOpenWrittenTicketModal}
-                title="Yerel Türkçe NLP Yapay Zekâ Destekli Yazılı Arıza Bildirimi"
-              >
-                AI Bildirim
-              </TactileButton>
+                {isReportDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-lg z-50 p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-100">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsReportDropdownOpen(false);
+                        onOpenAlertModal();
+                      }}
+                      className="w-full text-left p-2 rounded-xl hover:bg-amber-50 dark:hover:bg-amber-950/40 text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2.5 transition"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0 border border-amber-300">
+                        <AlertTriangle className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="font-black text-xs">Saha Uyarısı Bırak</div>
+                        <div className="text-[10px] text-zinc-500 dark:text-zinc-400">Yol kapalı, su birikintisi, arıza</div>
+                      </div>
+                    </button>
 
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsReportDropdownOpen(false);
+                        onOpenWrittenTicketModal();
+                      }}
+                      className="w-full text-left p-2 rounded-xl hover:bg-sky-50 dark:hover:bg-sky-950/40 text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2.5 transition"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-sky-100 dark:bg-sky-900/60 text-sky-600 dark:text-sky-300 flex items-center justify-center shrink-0 border border-sky-300">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="font-black text-xs">AI Arıza/İstek Bildir</div>
+                        <div className="text-[10px] text-zinc-500 dark:text-zinc-400">Doğal dille idareye yazılı ilet</div>
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Duyurular (Only if active) */}
+              {announcements.length > 0 && (
+                <TactileButton
+                  size="sm"
+                  variant="secondary"
+                  icon={<Megaphone className="w-3.5 h-3.5 text-amber-500" />}
+                  onClick={() => setAnnouncementsModalOpen(true)}
+                  title="Kampüs Duyuruları"
+                >
+                  <span className="hidden lg:inline">Duyurular</span>
+                  <span className="px-1.5 py-0.2 rounded-full bg-amber-400 text-zinc-950 text-[10px] font-black">
+                    {announcements.length}
+                  </span>
+                </TactileButton>
+              )}
+
+              {/* Admin / LiveOps Pill */}
               {isAdmin ? (
                 <div className="flex items-center gap-1 pl-1 border-l-2 border-zinc-950/20 dark:border-white/20">
                   <TactileButton
@@ -433,16 +478,16 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
       </div>
 
       {/* ==================================================================== */}
-      {/*                  MOBILE MINIMAL FLOATING TOP ISLAND                  */}
+      {/*                  MOBILE UNIFIED TOP ISLAND                           */}
       {/* ==================================================================== */}
       <div
-        className={`block md:hidden fixed top-0 inset-x-0 z-30 pt-safe px-3.5 pointer-events-none transition-all duration-200 ${
+        className={`block md:hidden fixed top-0 inset-x-0 z-30 pt-safe px-3 pointer-events-none transition-all duration-200 ${
           isNavigating ? 'hidden' : ''
         }`}
       >
         <div className="pt-2 flex items-center justify-between pointer-events-auto">
           {/* Minimal GTÜ Brand Pill */}
-          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-2xl bg-white/90 dark:bg-[#1E222D]/90 border border-zinc-300 dark:border-white/10 shadow-sm backdrop-blur-md">
+          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-2xl bg-white/92 dark:bg-[#1E222D]/92 border border-zinc-300 dark:border-white/10 shadow-sm backdrop-blur-md">
             <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-600 border border-zinc-950 flex items-center justify-center font-black text-white text-[10px] shadow-sm">
               GTÜ
             </div>
@@ -451,16 +496,53 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
             </span>
           </div>
 
-          {/* Admin Trigger / Status Pill */}
-          <div className="flex items-center gap-1.5">
+          {/* Unified Controls: Map Layers, 2D/3B, Duyuru & Admin in ONE Flex Row */}
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white/92 dark:bg-[#1E222D]/92 border border-zinc-300 dark:border-white/10 shadow-sm backdrop-blur-md">
+            {onToggleBasemap && (
+              <button
+                type="button"
+                onClick={onToggleBasemap}
+                className="px-2.5 py-1 text-[11px] font-black rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-white/5 active:scale-95 transition"
+              >
+                {basemapMode === 'diorama' ? 'Maket' : 'Uydu'}
+              </button>
+            )}
+
+            {onTogglePitch && (
+              <button
+                type="button"
+                onClick={onTogglePitch}
+                className={`px-2 py-1 text-[11px] font-black rounded-xl border active:scale-95 transition ${
+                  is3DPitch
+                    ? 'bg-sky-400 text-zinc-950 border-sky-500 font-black'
+                    : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border-zinc-200 dark:border-white/5'
+                }`}
+              >
+                {is3DPitch ? '3B' : '2B'}
+              </button>
+            )}
+
+            {announcements.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setAnnouncementsModalOpen(true)}
+                className="w-8 h-8 rounded-xl bg-amber-400/20 text-amber-950 dark:text-amber-200 border border-amber-400/40 flex items-center justify-center relative active:scale-95 transition"
+                title="Kampüs Duyuruları"
+                aria-label="Kampüs Duyuruları"
+              >
+                <Megaphone className="w-3.5 h-3.5 text-amber-500" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white dark:ring-zinc-900" />
+              </button>
+            )}
+
             {isAdmin ? (
               <button
                 type="button"
                 onClick={onToggleAdminDrawer}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl border font-black text-xs shadow-sm backdrop-blur-md transition ${
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-xl border font-black text-[11px] active:scale-95 transition ${
                   isAdminDrawerOpen
                     ? 'bg-purple-600 text-white border-purple-700'
-                    : 'bg-white/90 dark:bg-[#1E222D]/90 text-purple-600 dark:text-purple-400 border-zinc-300 dark:border-white/10'
+                    : 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-800'
                 }`}
               >
                 <ShieldAlert className="w-3.5 h-3.5" />
@@ -473,10 +555,11 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
                   onClearAuthError();
                   setIsAdminModalOpen(true);
                 }}
-                className="w-8 h-8 rounded-2xl bg-white/90 dark:bg-[#1E222D]/90 border border-zinc-300 dark:border-white/10 text-zinc-400 flex items-center justify-center shadow-sm backdrop-blur-md active:scale-95 transition"
+                className="w-8 h-8 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 text-zinc-400 hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-white/10 flex items-center justify-center active:scale-95 transition"
                 title="Yönetici Girişi"
+                aria-label="Yönetici Girişi"
               >
-                <Shield className="w-4 h-4" />
+                <Shield className="w-3.5 h-3.5" />
               </button>
             )}
           </div>

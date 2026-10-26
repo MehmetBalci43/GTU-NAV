@@ -282,12 +282,19 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
   };
 
   return (
-    <aside
-      className={`fixed inset-x-0 bottom-0 md:inset-x-auto md:top-20 md:left-4 md:bottom-4 w-full md:w-[420px] max-h-[82dvh] md:max-h-none z-30 pointer-events-auto flex-col p-2 md:p-0 ${
+    <div
+      className={`fixed inset-0 md:inset-auto md:top-20 md:left-4 md:bottom-4 z-40 pointer-events-auto flex flex-col justify-end md:justify-start bg-black/50 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none p-2 sm:p-3 md:p-0 transition-opacity ${
         isWaitingForMapClick ? 'hidden' : 'flex'
       }`}
+      onClick={(e) => {
+        // If clicking on mobile backdrop outside card, close
+        if (e.target === e.currentTarget && window.innerWidth < 768) {
+          onClose();
+        }
+      }}
     >
-      <TactileCard className="flex-1 flex flex-col overflow-hidden p-0 border-2 border-zinc-950 shadow-hard-lg dark:shadow-hard-night-lg">
+      <aside className="w-full md:w-[420px] max-h-[86dvh] md:max-h-full flex flex-col pointer-events-auto">
+        <TactileCard className="flex-1 flex flex-col overflow-hidden p-0 border border-zinc-300 dark:border-white/10 shadow-hard-lg dark:shadow-hard-night-lg bg-white dark:bg-[#1A1D27] rounded-[24px]">
         {/* Header */}
         <div className="p-3.5 sm:p-4 border-b-2 border-zinc-950 flex items-start justify-between gap-3 bg-purple-50 dark:bg-purple-950/40">
           <div>
@@ -936,5 +943,6 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
         </div>
       </TactileCard>
     </aside>
-  );
+  </div>
+);
 };
