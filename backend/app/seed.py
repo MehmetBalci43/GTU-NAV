@@ -79,7 +79,32 @@ def sync_buildings_to_json(db: Session) -> None:
 
 
 def seed_database(db: Session) -> None:
+    raw_buildings = load_buildings_data()
     if db.query(Building).count() > 0:
+        existing_ids = {row[0] for row in db.query(Building.id).all()}
+        added_any = False
+        for b in raw_buildings:
+            if b["id"] not in existing_ids:
+                db.add(
+                    Building(
+                        id=b["id"],
+                        code=b["code"],
+                        name=b["name"],
+                        category=b["category"],
+                        floors_count=b["floors_count"],
+                        lat=b["lat"],
+                        lon=b["lon"],
+                        entrance_node_id=b["entrance_node_id"],
+                        entrance_name=b["entrance_name"],
+                        entrance_lat=b["entrance_lat"],
+                        entrance_lon=b["entrance_lon"],
+                        polygon_coords=b["polygon_coords"],
+                        description=b.get("description", ""),
+                    )
+                )
+                added_any = True
+        if added_any:
+            db.commit()
         return
 
     # 1. Demo Kullanıcılar
@@ -88,8 +113,7 @@ def seed_database(db: Session) -> None:
         User(email="admin@gtu.edu.tr", full_name="GTÜ Kampüs İdare (Demo Admin)", role="admin"),
     ])
 
-    # 2. GTÜ Kampüs Binaları (OpenStreetMap Core API v0.6 Gerçek Poligon & Kapı Verisi)
-    raw_buildings = load_buildings_data()
+    # 2. GTÜ Kampüs Binaları
     buildings = [
         Building(
             id=b["id"],

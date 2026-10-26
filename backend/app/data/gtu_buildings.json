@@ -1702,5 +1702,52 @@
     "entrance_node_id": "osm_8503647230",
     "entrance_lat": 40.807563,
     "entrance_lon": 29.364243
+  },
+  {
+    "id": "kyk_kiz_yurdu",
+    "code": "KIZ-YURDU",
+    "name": "KYK Nilüfer Hatun Kız Öğrenci Yurdu",
+    "category": "dining",
+    "floors_count": 5,
+    "osm_way_id": 1165229901,
+    "entrance_name": "Kız Yurdu Ana Giriş Kapısı",
+    "description": "Kampüs içi KYK Nilüfer Hatun Kız Öğrenci Yurdu yerleşkesi ve sosyal tesis alanı.",
+    "lat": 40.806413,
+    "lon": 29.364354,
+    "polygon_coords": [
+      [
+        [
+          29.363982,
+          40.806773
+        ],
+        [
+          29.364774,
+          40.80666
+        ],
+        [
+          29.364597,
+          40.805949
+        ],
+        [
+          29.36435,
+          40.805985
+        ],
+        [
+          29.364482,
+          40.806515
+        ],
+        [
+          29.363937,
+          40.806593
+        ],
+        [
+          29.363982,
+          40.806773
+        ]
+      ]
+    ],
+    "entrance_lat": 40.806441,
+    "entrance_lon": 29.364693,
+    "entrance_node_id": "osm_9933047066"
   }
 ]

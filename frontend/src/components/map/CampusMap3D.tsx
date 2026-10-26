@@ -46,8 +46,8 @@ interface CampusMap3DProps {
 }
 
 /**
- * Builds a single unified MapLibre StyleSpecification containing all 3 basemap raster sources
- * (OpenStreetMap Street, Carto Dark without `{r}`, and Esri World Imagery Satellite).
+ * Builds a single unified MapLibre StyleSpecification using ONLY 100% API-key-free sources
+ * (OpenStreetMap Standard for Street + GPU Dark Shader for Dark Mode, and Esri World Imagery for Satellite).
  * Switching basemaps simply toggles layer visibility in 0ms without destroying 3D layers or requiring API keys.
  */
 function createUnifiedMapStyle(): maplibregl.StyleSpecification {
@@ -60,16 +60,6 @@ function createUnifiedMapStyle(): maplibregl.StyleSpecification {
         tileSize: 256,
         maxzoom: 19,
         attribution: '© OpenStreetMap contributors',
-      },
-      'basemap-dark-src': {
-        type: 'raster',
-        tiles: [
-          'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-          'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        ],
-        tileSize: 256,
-        maxzoom: 20,
-        attribution: '© OpenStreetMap contributors & CARTO',
       },
       'basemap-satellite-src': {
         type: 'raster',
@@ -91,8 +81,14 @@ function createUnifiedMapStyle(): maplibregl.StyleSpecification {
       {
         id: 'basemap-dark',
         type: 'raster',
-        source: 'basemap-dark-src',
+        source: 'basemap-street-src',
         layout: { visibility: 'none' },
+        paint: {
+          'raster-brightness-max': 0.36,
+          'raster-brightness-min': 0.02,
+          'raster-saturation': -0.75,
+          'raster-contrast': 0.28,
+        },
       },
       {
         id: 'basemap-satellite',
@@ -446,6 +442,8 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 
     const walkwayFeatures: GeoJSON.Feature[] = [];
     (walkGraph?.edges || []).forEach((edge) => {
+      // Hide synthetic cross-lane connectors from visual clutter while keeping them active in A* routing
+      if (edge.id.startsWith('ped_x_')) return;
       const u = nodeMap.get(edge.from_node);
       const v = nodeMap.get(edge.to_node);
       if (!u || !v) return;
