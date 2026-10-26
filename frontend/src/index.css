@@ -2,20 +2,211 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body,
-#root {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background-color: #020617;
-  color: #f8fafc;
+@layer base {
+  html,
+  body,
+  #root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    background-color: #1E222D;
+    color: #F8FAFC;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation;
+  }
 }
 
+@layer utilities {
+  /* iOS Safe Area Insets */
+  .pt-safe {
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+  }
+  .pb-safe {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+  .mb-safe {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Hide scrollbar while preserving scroll functionality */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Tactile Neo-Brutal Button Press Animation */
+  .tactile-press {
+    transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
+  }
+  .tactile-press:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px #18181B !important;
+  }
+  .dark .tactile-press:active {
+    box-shadow: 1px 1px 0px #080A0F !important;
+  }
+
+  /* Dark Mode Rim Light (Single Sun Depth) */
+  .rim-light {
+    box-shadow: 4px 4px 0px #080A0F, inset 1px 1px 0px rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* ========================================================================== */
+/*           APPLE MAPS STYLE COMPACT POI BADGES (ANTI-COLLISION)             */
+/* ========================================================================== */
+
+.apple-poi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3.5px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 9999px;
+  background: #FFFFFF;
+  color: #09090B;
+  border: 1.5px solid #18181B;
+  box-shadow: 1.5px 1.5px 0px #18181B;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.12s ease, opacity 0.2s ease;
+  z-index: 10;
+}
+
+.apple-poi-badge:hover {
+  transform: scale(1.08);
+  box-shadow: 2.5px 2.5px 0px #18181B;
+  z-index: 30;
+}
+
+.apple-poi-badge.selected {
+  background: #38BDF8 !important;
+  color: #09090B !important;
+  border: 2px solid #18181B !important;
+  box-shadow: 2.5px 2.5px 0px #18181B !important;
+  transform: scale(1.12);
+  z-index: 50 !important;
+}
+
+.apple-poi-badge .live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10B981;
+  flex-shrink: 0;
+}
+
+.apple-poi-badge .room-count {
+  font-weight: 900;
+  color: #047857;
+  font-variant-numeric: tabular-nums;
+  padding-left: 1px;
+}
+
+.apple-poi-badge.selected .room-count {
+  color: #09090B;
+}
+
+/* Dark Mode Overrides */
+.dark-theme .apple-poi-badge {
+  background: #242938;
+  color: #F8FAFC;
+  border: 1.5px solid #0D1117;
+  box-shadow: 1.5px 1.5px 0px #080A0F, inset 1px 1px 0px rgba(255, 255, 255, 0.08);
+}
+.dark-theme .apple-poi-badge .room-count {
+  color: #34D399;
+}
+
+/* Micro Tooltip on Hover */
+.apple-poi-badge .poi-tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #09090B;
+  color: #FFFFFF;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  border: 1px solid #27272A;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+  z-index: 60;
+}
+
+.apple-poi-badge:hover .poi-tooltip {
+  opacity: 1;
+}
+
+/* ========================================================================== */
+/*                HAZARD BEACON MARKERS (COMPACT 24px PIN)                   */
+/* ========================================================================== */
+
+.hazard-beacon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 1.5px solid #18181B;
+  box-shadow: 1.5px 1.5px 0px #18181B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.12s ease;
+  z-index: 20;
+}
+
+.hazard-beacon:hover {
+  transform: scale(1.15);
+  z-index: 35;
+}
+
+.hazard-beacon .beacon-pulse {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid #F59E0B;
+  opacity: 0.6;
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+/* MapLibre Popup Overrides */
 .maplibregl-popup-content {
-  border-radius: 12px !important;
-  padding: 6px !important;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35) !important;
+  background: #FFFFFF !important;
+  color: #09090B !important;
+  border: 2px solid #18181B !important;
+  border-radius: 16px !important;
+  padding: 10px 14px !important;
+  box-shadow: 4px 4px 0px #18181B !important;
+}
+
+.dark-theme .maplibregl-popup-content {
+  background: #282D3C !important;
+  color: #F8FAFC !important;
+  border: 2px solid #0D1117 !important;
+  box-shadow: 4px 4px 0px #080A0F, inset 1px 1px 0px rgba(255, 255, 255, 0.08) !important;
+}
+
+.maplibregl-popup-tip {
+  border-top-color: #18181B !important;
 }
