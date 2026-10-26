@@ -11,6 +11,7 @@ import {
   LocateFixed,
   Box,
   Map as MapIcon,
+  MapPin,
 } from 'lucide-react';
 import {
   Building,
@@ -28,6 +29,7 @@ export type AdminMapInteractionMode =
   | 'toggle_edge'
   | 'move_entrance'
   | 'add_building'
+  | 'pick_building_entrance'
   | 'draw_edge'
   | 'pick_alert_coords'
   | 'pick_user_start';
@@ -46,6 +48,12 @@ interface CampusMap3DProps {
   adminMapMode: AdminMapInteractionMode;
   isLeftDrawerOpen?: boolean;
   isRightDrawerOpen?: boolean;
+  bottomSheetHeight?: number;
+  isPickingUserStart?: boolean;
+  onTogglePickUserStart?: () => void;
+  selectedFootprintIds?: number[];
+  onAdminToggleFootprintSelection?: (osmWayId: number, name: string) => void;
+  onAdminPickEntranceCoords?: (lat: number, lon: number) => void;
   onSelectBuilding: (buildingId: string) => void;
   onQuickRouteToBuilding: (buildingId: string) => void;
   onVoteAlert: (alertId: number, vote: 'up' | 'down') => void;
@@ -181,6 +189,12 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
   adminMapMode,
   isLeftDrawerOpen = false,
   isRightDrawerOpen = false,
+  bottomSheetHeight = 92,
+  isPickingUserStart = false,
+  onTogglePickUserStart,
+  selectedFootprintIds = [],
+  onAdminToggleFootprintSelection,
+  onAdminPickEntranceCoords,
   onSelectBuilding,
   onVoteAlert,
   onAdminToggleEdge,
@@ -226,6 +240,8 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     onAdminDrawWalkwayPoint,
     onPickAlertCoords,
     onPickUserStartCoords,
+    onAdminToggleFootprintSelection,
+    onAdminPickEntranceCoords,
   });
 
   useEffect(() => {
@@ -239,6 +255,8 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       onAdminDrawWalkwayPoint,
       onPickAlertCoords,
       onPickUserStartCoords,
+      onAdminToggleFootprintSelection,
+      onAdminPickEntranceCoords,
     };
   }, [
     adminMapMode,
@@ -250,6 +268,8 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     onAdminDrawWalkwayPoint,
     onPickAlertCoords,
     onPickUserStartCoords,
+    onAdminToggleFootprintSelection,
+    onAdminPickEntranceCoords,
   ]);
 
   const fitCampusBounds = useCallback(
@@ -257,12 +277,15 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       const map = mapRef.current;
       if (!map) return;
       const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
+      const dynamicBottomPadding = isDesktop
+        ? (isRightDrawerOpen ? 60 : 70)
+        : Math.max(90, (bottomSheetHeight || 90) + 20);
       map.fitBounds(CAMPUS_CONFIG.campusBounds, {
         padding: {
-          top: isDesktop ? 60 : 90,
-          bottom: isDesktop ? 60 : 80,
-          left: isDesktop ? (isLeftDrawerOpen ? 460 : 400) : (isLeftDrawerOpen ? 320 : 30),
-          right: isDesktop ? (isRightDrawerOpen ? 450 : 80) : (isRightDrawerOpen ? 320 : 30),
+          top: isDesktop ? 60 : 60,
+          bottom: dynamicBottomPadding,
+          left: isDesktop ? (isLeftDrawerOpen ? 460 : 400) : 20,
+          right: isDesktop ? (isRightDrawerOpen ? 450 : 80) : 20,
         },
         pitch: is3DPitch ? CAMPUS_CONFIG.defaultPitch : 0,
         bearing: is3DPitch ? CAMPUS_CONFIG.defaultBearing : 0,
@@ -270,7 +293,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         duration: durationMs,
       });
     },
-    [is3DPitch, isLeftDrawerOpen, isRightDrawerOpen]
+    [is3DPitch, isLeftDrawerOpen, isRightDrawerOpen, bottomSheetHeight]
   );
 
   // Initialize MapLibre GL
@@ -335,10 +358,10 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
       map.fitBounds(CAMPUS_CONFIG.campusBounds, {
         padding: {
-          top: isDesktop ? 60 : 90,
-          bottom: isDesktop ? 60 : 80,
-          left: isDesktop ? 400 : 30,
-          right: isDesktop ? 80 : 30,
+          top: isDesktop ? 60 : 60,
+          bottom: isDesktop ? 70 : 100,
+          left: isDesktop ? 400 : 20,
+          right: isDesktop ? 80 : 20,
         },
         pitch: 0,
         bearing: 0,
@@ -360,7 +383,26 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         cb.onAdminMoveEntrance(clickLat, clickLon);
         return;
       }
+      if (cb.adminMapMode === 'pick_building_entrance') {
+        cb.onAdminPickEntranceCoords?.(clickLat, clickLon);
+        return;
+      }
       if (cb.adminMapMode === 'add_building') {
+        // First check if an OSM footprint was clicked
+        if (map.getLayer('extra-footprints-fill')) {
+          const fpFeatures = map.queryRenderedFeatures(e.point, {
+            layers: ['extra-footprints-fill'],
+          });
+          if (fpFeatures.length > 0) {
+            const wayId = Number(fpFeatures[0].properties?.osm_way_id);
+            const fpName = String(fpFeatures[0].properties?.name || '');
+            if (wayId) {
+              cb.onAdminToggleFootprintSelection?.(wayId, fpName);
+              return;
+            }
+          }
+        }
+        // Fallback: clicked open ground
         cb.onAdminPickBuildingCoords(clickLat, clickLon);
         return;
       }
@@ -600,18 +642,62 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     // 2. Extra OSM Footprints
     const extraFootprintsGeoJSON: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
-      features: (walkGraph?.extra_building_footprints || []).map((fp) => ({
-        type: 'Feature',
-        properties: { name: fp.name },
-        geometry: {
-          type: 'Polygon',
-          coordinates: [fp.coords],
-        },
-      })),
+      features: (walkGraph?.extra_building_footprints || []).map((fp) => {
+        const isSel = selectedFootprintIds.includes(fp.osm_way_id);
+        return {
+          type: 'Feature',
+          properties: {
+            osm_way_id: fp.osm_way_id,
+            name: fp.name,
+            is_selected: isSel,
+            is_interactive: adminMapMode === 'add_building',
+          },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [fp.coords],
+          },
+        };
+      }),
     };
 
     if (map.getSource('extra-footprints')) {
       (map.getSource('extra-footprints') as maplibregl.GeoJSONSource).setData(extraFootprintsGeoJSON);
+      if (map.getLayer('extra-footprints-fill')) {
+        map.setPaintProperty('extra-footprints-fill', 'fill-color', [
+          'case',
+          ['boolean', ['get', 'is_selected'], false],
+          '#10B981',
+          ['boolean', ['get', 'is_interactive'], false],
+          themeMode === 'night' ? '#F59E0B' : '#FBBF24',
+          themeMode === 'night' ? '#333B4F' : '#E2E8F0',
+        ]);
+        map.setPaintProperty('extra-footprints-fill', 'fill-opacity', [
+          'case',
+          ['boolean', ['get', 'is_selected'], false],
+          0.88,
+          ['boolean', ['get', 'is_interactive'], false],
+          0.65,
+          0.5,
+        ]);
+      }
+      if (map.getLayer('extra-footprints-stroke')) {
+        map.setPaintProperty('extra-footprints-stroke', 'line-color', [
+          'case',
+          ['boolean', ['get', 'is_selected'], false],
+          '#065F46',
+          ['boolean', ['get', 'is_interactive'], false],
+          '#D97706',
+          themeMode === 'night' ? '#1E222D' : '#94A3B8',
+        ]);
+        map.setPaintProperty('extra-footprints-stroke', 'line-width', [
+          'case',
+          ['boolean', ['get', 'is_selected'], false],
+          2.5,
+          ['boolean', ['get', 'is_interactive'], false],
+          1.8,
+          1,
+        ]);
+      }
     } else {
       map.addSource('extra-footprints', { type: 'geojson', data: extraFootprintsGeoJSON });
       map.addLayer({
@@ -619,8 +705,22 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         type: 'fill',
         source: 'extra-footprints',
         paint: {
-          'fill-color': themeMode === 'night' ? '#333B4F' : '#E2E8F0',
-          'fill-opacity': 0.6,
+          'fill-color': [
+            'case',
+            ['boolean', ['get', 'is_selected'], false],
+            '#10B981',
+            ['boolean', ['get', 'is_interactive'], false],
+            themeMode === 'night' ? '#F59E0B' : '#FBBF24',
+            themeMode === 'night' ? '#333B4F' : '#E2E8F0',
+          ],
+          'fill-opacity': [
+            'case',
+            ['boolean', ['get', 'is_selected'], false],
+            0.88,
+            ['boolean', ['get', 'is_interactive'], false],
+            0.65,
+            0.5,
+          ],
         },
       });
       map.addLayer({
@@ -628,8 +728,22 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         type: 'line',
         source: 'extra-footprints',
         paint: {
-          'line-color': themeMode === 'night' ? '#1E222D' : '#94A3B8',
-          'line-width': 1,
+          'line-color': [
+            'case',
+            ['boolean', ['get', 'is_selected'], false],
+            '#065F46',
+            ['boolean', ['get', 'is_interactive'], false],
+            '#D97706',
+            themeMode === 'night' ? '#1E222D' : '#94A3B8',
+          ],
+          'line-width': [
+            'case',
+            ['boolean', ['get', 'is_selected'], false],
+            2.5,
+            ['boolean', ['get', 'is_interactive'], false],
+            1.8,
+            1,
+          ],
         },
       });
     }
@@ -857,6 +971,8 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     isMapLoaded,
     themeMode,
     is3DPitch,
+    selectedFootprintIds,
+    adminMapMode,
   ]);
 
   // Synchronize Building Badges & Zoom-Based LOD Visibility
@@ -1052,19 +1168,22 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     if (target) {
       const [cLon, cLat] = getBuildingCentroid(target);
       const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
+      const dynamicBottomPadding = isDesktop
+        ? 60
+        : Math.max(120, (bottomSheetHeight || 120) + 24);
       map.flyTo({
         center: [cLon, cLat],
         zoom: Math.max(map.getZoom(), 16.5),
         padding: {
-          top: isDesktop ? 60 : 80,
-          bottom: isDesktop ? 60 : 80,
-          left: isDesktop ? (isLeftDrawerOpen ? 460 : 400) : (isLeftDrawerOpen ? 320 : 30),
-          right: isDesktop ? (isRightDrawerOpen ? 450 : 80) : (isRightDrawerOpen ? 320 : 30),
+          top: isDesktop ? 60 : 70,
+          bottom: dynamicBottomPadding,
+          left: isDesktop ? (isLeftDrawerOpen ? 460 : 400) : 20,
+          right: isDesktop ? (isRightDrawerOpen ? 450 : 80) : 20,
         },
         duration: 750,
       });
     }
-  }, [selectedBuildingId, buildings, isLeftDrawerOpen, isRightDrawerOpen]);
+  }, [selectedBuildingId, buildings, isLeftDrawerOpen, isRightDrawerOpen, bottomSheetHeight]);
 
   return (
     <div
@@ -1087,7 +1206,11 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             {adminMapMode === 'move_entrance' &&
               '🚪 Seçili binanın yeni giriş kapısı noktasına haritada tıklayın'}
             {adminMapMode === 'add_building' &&
-              '🏛️ Yeni eklenecek binanın harita üzerindeki konumuna tıklayın'}
+              (selectedFootprintIds.length > 0
+                ? `🏛️ ${selectedFootprintIds.length} blok ayak izi seçildi. Yeni blok ekleyebilir veya giriş kapısına geçebilirsiniz.`
+                : '🏛️ Haritada altın parlayan bina kutucuğuna tıklayın (Birden fazla blok seçebilirsiniz)')}
+            {adminMapMode === 'pick_building_entrance' &&
+              '🚪 Binanın ana giriş kapısının olduğu noktaya haritada tıklayın (Snap-to-Node)'}
             {adminMapMode === 'draw_edge' &&
               '📏 Yeni yürüyüş patikası için başlangıç ve bitiş noktalarına tıklayın'}
             {adminMapMode === 'pick_alert_coords' &&
@@ -1106,8 +1229,52 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         </div>
       )}
 
-      {/* Floating Map Controls Dock (Mobile: Top-Right Stack | Desktop: Bottom-Left Capsule) */}
-      <div className="fixed top-24 right-3 md:top-auto md:right-auto md:bottom-4 md:left-4 z-20 flex flex-col md:flex-row items-center gap-1.5 p-1.5 rounded-2xl bg-white/95 dark:bg-[#1E222D]/95 border-2 border-zinc-950 shadow-hard-md dark:shadow-hard-night-md">
+      {/* ==================================================================== */}
+      {/*              DESKTOP BOTTOM-RIGHT MAP COMMAND DOCK                   */}
+      {/* ==================================================================== */}
+      <div className="hidden md:flex fixed bottom-6 right-6 z-20 items-center gap-1.5 p-1.5 rounded-2xl bg-white/95 dark:bg-[#1E222D]/95 border border-zinc-300 dark:border-white/10 shadow-hard-md dark:shadow-hard-night-md backdrop-blur-md">
+        {onTogglePickUserStart && (
+          <TactileButton
+            size="sm"
+            variant={isPickingUserStart ? 'accent' : 'secondary'}
+            icon={<MapPin className="w-3.5 h-3.5 text-sky-500" />}
+            onClick={onTogglePickUserStart}
+            title="Haritada yürüyüşe başlayacağınız noktayı seçin"
+          >
+            {isPickingUserStart ? 'Noktaya Tıklayın...' : 'Konum Belirle'}
+          </TactileButton>
+        )}
+
+        <TactileIconButton
+          size="sm"
+          variant="secondary"
+          label="Tüm Kampüsü Ekrana Sığdır ve Ortala"
+          onClick={() => fitCampusBounds(750)}
+        >
+          <LocateFixed className="w-4 h-4 text-sky-500" />
+        </TactileIconButton>
+
+        {currentBearing !== 0 && (
+          <TactileIconButton
+            size="sm"
+            variant="accent"
+            label={`Kuzeye Çevir (${currentBearing}°)`}
+            onClick={() => {
+              mapRef.current?.easeTo({
+                bearing: 0,
+                duration: 400,
+              });
+            }}
+          >
+            <Compass
+              className="w-4 h-4 transition-transform duration-200 text-zinc-950"
+              style={{ transform: `rotate(${-currentBearing}deg)` }}
+            />
+          </TactileIconButton>
+        )}
+
+        <div className="w-px h-5 bg-zinc-300 dark:bg-white/10 mx-0.5" />
+
         <TactileButton
           size="sm"
           variant={basemapMode === 'diorama' ? 'primary' : 'ghost'}
@@ -1115,7 +1282,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           onClick={() => handleToggleBasemap('diorama')}
           title="Mini Motorways Kampüs Maketi Görünümü"
         >
-          <span className="hidden md:inline">Maket</span>
+          Maket
         </TactileButton>
 
         <TactileButton
@@ -1125,11 +1292,17 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           onClick={() => handleToggleBasemap('satellite')}
           title="Esri Yüksek Çözünürlüklü Uydu Altlığı"
         >
-          <span className="hidden md:inline">Uydu</span>
+          Uydu
         </TactileButton>
 
-        <div className="hidden md:block w-px h-5 bg-zinc-950/20 dark:bg-white/20 mx-0.5" />
-        <div className="md:hidden h-px w-5 bg-zinc-950/20 dark:bg-white/20 my-0.5" />
+        <TactileIconButton
+          size="sm"
+          variant={is3DPitch ? 'accent' : 'secondary'}
+          label={is3DPitch ? '2B Makete Dön' : '3B Bloğa Geç'}
+          onClick={handleTogglePitch}
+        >
+          <Box className="w-3.5 h-3.5" />
+        </TactileIconButton>
 
         <TactileIconButton
           size="sm"
@@ -1146,15 +1319,6 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 
         <TactileIconButton
           size="sm"
-          variant={is3DPitch ? 'accent' : 'secondary'}
-          label={is3DPitch ? '2B Makete Dön' : '3B Bloğa Geç'}
-          onClick={handleTogglePitch}
-        >
-          <Box className="w-3.5 h-3.5" />
-        </TactileIconButton>
-
-        <TactileIconButton
-          size="sm"
           variant={showBuildingLabels ? 'primary' : 'secondary'}
           label={showBuildingLabels ? 'Etiketleri Gizle' : 'Etiketleri Göster'}
           onClick={() => setShowBuildingLabels((prev) => !prev)}
@@ -1165,33 +1329,83 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             <EyeOff className="w-3.5 h-3.5 text-zinc-400" />
           )}
         </TactileIconButton>
+      </div>
 
-        <TactileIconButton
-          size="sm"
-          variant="secondary"
-          label="Tüm Kampüsü Ekrana Sığdır ve Ortala"
-          onClick={() => fitCampusBounds(750)}
+      {/* ==================================================================== */}
+      {/*             MOBILE TOP-RIGHT COMPACT LAYER PILL                      */}
+      {/* ==================================================================== */}
+      <div className="md:hidden fixed top-3 right-3 z-20 flex items-center gap-1 p-1 rounded-xl bg-white/90 dark:bg-[#1E222D]/90 border border-zinc-300 dark:border-white/10 shadow-sm backdrop-blur-md">
+        <button
+          type="button"
+          onClick={() => handleToggleBasemap(basemapMode === 'diorama' ? 'satellite' : 'diorama')}
+          className="px-2 py-1 text-[11px] font-black rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-white/5 active:scale-95 transition"
         >
-          <LocateFixed className="w-3.5 h-3.5 text-sky-500" />
-        </TactileIconButton>
+          {basemapMode === 'diorama' ? 'Maket' : 'Uydu'}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleTogglePitch}
+          className={`px-2 py-1 text-[11px] font-black rounded-lg border active:scale-95 transition ${
+            is3DPitch
+              ? 'bg-sky-400 text-zinc-950 border-sky-500'
+              : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border-zinc-200 dark:border-white/5'
+          }`}
+        >
+          {is3DPitch ? '3B' : '2B'}
+        </button>
+      </div>
+
+      {/* ==================================================================== */}
+      {/*       MOBILE BOTTOM-RIGHT THUMB ZONE (ABOVE BOTTOM SHEET)            */}
+      {/* ==================================================================== */}
+      <div
+        className="md:hidden fixed right-3.5 z-20 flex flex-col items-center gap-2.5 transition-all duration-300 pointer-events-auto"
+        style={{ bottom: `${Math.max(104, (bottomSheetHeight || 92) + 16)}px` }}
+      >
+        {onTogglePickUserStart && (
+          <button
+            type="button"
+            onClick={onTogglePickUserStart}
+            aria-label="Konum Belirle"
+            title="Haritada başlangıç noktası seçin"
+            className={`w-11 h-11 rounded-2xl flex items-center justify-center border shadow-hard-md active:scale-95 transition ${
+              isPickingUserStart
+                ? 'bg-sky-400 text-zinc-950 border-zinc-950 ring-2 ring-sky-300'
+                : 'bg-white/95 dark:bg-[#1E222D]/95 text-sky-600 dark:text-sky-400 border-zinc-300 dark:border-white/10'
+            }`}
+          >
+            <MapPin className="w-5 h-5" />
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={() => fitCampusBounds(600)}
+          aria-label="Tüm Kampüsü Ortala"
+          title="Tüm Kampüsü Ortala"
+          className="w-11 h-11 rounded-2xl bg-white/95 dark:bg-[#1E222D]/95 text-zinc-900 dark:text-zinc-100 border border-zinc-300 dark:border-white/10 shadow-hard-md flex items-center justify-center active:scale-95 transition"
+        >
+          <LocateFixed className="w-5 h-5 text-sky-500" />
+        </button>
 
         {currentBearing !== 0 && (
-          <TactileIconButton
-            size="sm"
-            variant="accent"
-            label={`Kuzeye Çevir (${currentBearing}°)`}
+          <button
+            type="button"
             onClick={() => {
               mapRef.current?.easeTo({
                 bearing: 0,
                 duration: 400,
               });
             }}
+            aria-label={`Kuzeye Çevir (${currentBearing}°)`}
+            className="w-11 h-11 rounded-2xl bg-amber-400 text-zinc-950 border border-zinc-950 shadow-hard-md flex items-center justify-center active:scale-95 transition"
           >
             <Compass
-              className="w-3.5 h-3.5 transition-transform duration-200 text-zinc-950"
+              className="w-5 h-5 transition-transform duration-200"
               style={{ transform: `rotate(${-currentBearing}deg)` }}
             />
-          </TactileIconButton>
+          </button>
         )}
       </div>
     </div>
