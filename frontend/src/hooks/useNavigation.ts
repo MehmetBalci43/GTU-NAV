@@ -100,8 +100,13 @@ export function useNavigation(blockedEdgeIds: string[]) {
           setRerouteNotice(reasonBanner);
           setTimeout(() => setRerouteNotice(null), 5500);
         }
+        const firstPt = res.coordinates[0];
         setUserPos((prev) => ({
           ...prev,
+          snappedLon: firstPt ? firstPt[0] : prev.snappedLon,
+          snappedLat: firstPt ? firstPt[1] : prev.snappedLat,
+          isSnapped: true,
+          offRouteDistanceMeters: 0,
           remainingMeters: res.distance_m,
           remainingMinutes: res.duration_min,
         }));
@@ -139,7 +144,13 @@ export function useNavigation(blockedEdgeIds: string[]) {
       accuracyM: number = 4.5
     ) => {
       if (activeRoute && activeRoute.coordinates.length >= 2) {
-        const snap = snapLocationToRoute(rawLat, rawLon, activeRoute.coordinates, accuracyM);
+        const snap = snapLocationToRoute(
+          rawLat,
+          rawLon,
+          activeRoute.coordinates,
+          accuracyM,
+          source === 'simulator'
+        );
         let remainingMeters = activeRoute.distance_m;
         if (snap.segmentIndex < activeRoute.coordinates.length - 1) {
           const nextPt = activeRoute.coordinates[snap.segmentIndex + 1];

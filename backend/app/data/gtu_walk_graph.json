@@ -37694,4520 +37694,1532 @@
       "length_m": 2.43
     },
     {
-      "id": "ped_x_0",
-      "from_node": "osm_14312064493",
-      "to_node": "e_1216937277_18_m2",
-      "length_m": 1.43,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_1",
+      "id": "curb_0",
       "from_node": "osm_11276063028",
       "to_node": "osm_14272955096",
       "length_m": 1.68,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_2",
+      "id": "curb_1",
       "from_node": "osm_11276073949",
       "to_node": "osm_14272957805",
       "length_m": 1.7,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_3",
+      "id": "curb_2",
       "from_node": "osm_14272955098",
       "to_node": "e_1567277352_7_m5",
       "length_m": 1.81,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_4",
+      "id": "curb_3",
       "from_node": "e_1216934774_2_m2",
       "to_node": "e_1216934776_36_m2",
       "length_m": 1.82,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_5",
-      "from_node": "e_1216934780_4_m1",
-      "to_node": "e_1567277352_7_m6",
-      "length_m": 1.83,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_6",
+      "id": "curb_4",
       "from_node": "e_1216934780_15_m3",
       "to_node": "e_1567277354_4_m2",
       "length_m": 1.83,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_7",
-      "from_node": "e_1216934774_9_m1",
-      "to_node": "e_1216934776_23_m2",
-      "length_m": 1.89,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_8",
-      "from_node": "e_1216934774_9_m2",
-      "to_node": "e_1216934776_23_m1",
-      "length_m": 1.89,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_9",
-      "from_node": "e_1216934774_10_m1",
-      "to_node": "e_1216934776_22_m2",
-      "length_m": 1.89,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_10",
+      "id": "curb_5",
       "from_node": "osm_9785449546",
       "to_node": "osm_13119639089",
       "length_m": 1.89,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_11",
-      "from_node": "e_1216934774_10_m2",
-      "to_node": "e_1216934776_22_m1",
-      "length_m": 1.9,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_12",
-      "from_node": "e_1216934780_15_m4",
-      "to_node": "e_1567277354_4_m3",
-      "length_m": 1.92,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_13",
+      "id": "curb_6",
       "from_node": "osm_11276063053",
       "to_node": "osm_12176768930",
       "length_m": 1.94,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_14",
-      "from_node": "osm_11276063018",
-      "to_node": "e_1315053862_3_m7",
-      "length_m": 1.97,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_15",
-      "from_node": "e_1216934780_3_m1",
-      "to_node": "e_1567277352_7_m4",
-      "length_m": 2.05,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_16",
+      "id": "curb_7",
       "from_node": "osm_14312064498",
       "to_node": "e_1216937277_16_m2",
       "length_m": 2.13,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_17",
+      "id": "curb_8",
       "from_node": "osm_2380129156",
       "to_node": "osm_11276073890",
       "length_m": 2.17,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_18",
-      "from_node": "e_1216934780_20_m2",
-      "to_node": "e_1567277359_2_m2",
-      "length_m": 2.17,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_19",
-      "from_node": "e_217289272_1_m1",
-      "to_node": "e_1567277348_6_m1",
-      "length_m": 2.22,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_20",
+      "id": "curb_9",
       "from_node": "osm_2380129158",
       "to_node": "osm_11276063057",
       "length_m": 2.22,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_21",
+      "id": "curb_10",
       "from_node": "e_1216934780_22_m4",
       "to_node": "e_1567277360_0_m4",
       "length_m": 2.22,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_22",
+      "id": "curb_11",
       "from_node": "osm_14272955097",
       "to_node": "e_1567277352_7_m3",
       "length_m": 2.23,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_23",
-      "from_node": "e_1216934780_15_m2",
-      "to_node": "e_1567277354_4_m1",
-      "length_m": 2.28,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_24",
-      "from_node": "e_1216934780_20_m1",
-      "to_node": "e_1567277359_2_m1",
-      "length_m": 2.3,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_25",
-      "from_node": "e_230039432_7_m1",
-      "to_node": "e_1216934776_18_m4",
-      "length_m": 2.32,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_26",
+      "id": "curb_12",
       "from_node": "e_230039432_7_m2",
       "to_node": "e_1216934776_18_m3",
       "length_m": 2.38,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_27",
-      "from_node": "e_230039432_7_m3",
-      "to_node": "e_1216934776_18_m2",
-      "length_m": 2.38,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_28",
-      "from_node": "e_1315519860_1_m1",
-      "to_node": "e_1334608446_2_m1",
-      "length_m": 2.38,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_29",
-      "from_node": "e_1216934780_2_m3",
-      "to_node": "e_1567277352_7_m2",
-      "length_m": 2.4,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_30",
-      "from_node": "e_1315487280_10_m1",
-      "to_node": "e_1567277345_1_m1",
-      "length_m": 2.41,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_31",
-      "from_node": "e_1315487280_10_m2",
-      "to_node": "e_1567277345_1_m2",
-      "length_m": 2.41,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_32",
+      "id": "curb_13",
       "from_node": "e_217289272_1_m2",
       "to_node": "e_1567277348_6_m2",
       "length_m": 2.41,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_33",
-      "from_node": "e_1315487280_9_m1",
-      "to_node": "e_1567277345_0_m1",
-      "length_m": 2.42,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_34",
-      "from_node": "e_1315487280_15_m1",
-      "to_node": "e_1567277345_6_m1",
-      "length_m": 2.43,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_35",
+      "id": "curb_14",
       "from_node": "e_1315487280_15_m3",
       "to_node": "e_1567277345_6_m3",
       "length_m": 2.43,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_36",
+      "id": "curb_15",
       "from_node": "e_230039432_7_m4",
       "to_node": "e_1216934776_18_m1",
       "length_m": 2.44,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_37",
+      "id": "curb_16",
       "from_node": "e_1315487280_18_m2",
       "to_node": "e_1567277345_8_m2",
       "length_m": 2.46,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_38",
-      "from_node": "e_230039432_10_m1",
-      "to_node": "e_1216934780_10_m5",
-      "length_m": 2.46,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_39",
+      "id": "curb_17",
       "from_node": "e_1216934780_2_m2",
       "to_node": "e_1567277352_7_m1",
       "length_m": 2.46,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_40",
-      "from_node": "e_1315487280_18_m1",
-      "to_node": "e_1567277345_8_m1",
-      "length_m": 2.5,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_41",
-      "from_node": "e_1315487280_9_m2",
-      "to_node": "e_1567277345_0_m2",
-      "length_m": 2.51,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_42",
+      "id": "curb_18",
       "from_node": "osm_11276063065",
       "to_node": "osm_14272955060",
       "length_m": 2.53,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_43",
-      "from_node": "e_1315487280_15_m2",
-      "to_node": "e_1567277345_6_m2",
-      "length_m": 2.54,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_44",
-      "from_node": "e_217289272_1_m3",
-      "to_node": "e_1567277348_6_m3",
-      "length_m": 2.54,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_45",
-      "from_node": "e_1315487280_15_m4",
-      "to_node": "e_1567277345_6_m4",
-      "length_m": 2.54,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_46",
-      "from_node": "e_1315487280_18_m3",
-      "to_node": "e_1567277345_8_m3",
-      "length_m": 2.56,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_47",
-      "from_node": "e_230039432_1_m2",
-      "to_node": "e_1216934780_20_m1",
-      "length_m": 2.56,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_48",
-      "from_node": "e_1216934780_22_m3",
-      "to_node": "e_1567277360_0_m3",
-      "length_m": 2.57,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_49",
+      "id": "curb_19",
       "from_node": "osm_11276073944",
       "to_node": "osm_14272957830",
       "length_m": 2.62,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_50",
-      "from_node": "osm_2385652873",
-      "to_node": "osm_11276073892",
-      "length_m": 2.62,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_51",
-      "from_node": "e_1065502217_1_m1",
-      "to_node": "e_1334608446_10_m1",
-      "length_m": 2.62,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_52",
-      "from_node": "osm_2385652951",
-      "to_node": "osm_11276063037",
-      "length_m": 2.62,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_53",
-      "from_node": "e_230039432_9_m1",
-      "to_node": "e_1216934780_11_m1",
-      "length_m": 2.65,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_54",
-      "from_node": "e_1216934780_11_m1",
-      "to_node": "e_1567277353_8_m1",
-      "length_m": 2.65,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_55",
-      "from_node": "e_230039432_22_m4",
-      "to_node": "e_1216934775_0_m1",
-      "length_m": 2.65,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_56",
+      "id": "curb_20",
       "from_node": "e_1315487280_18_m4",
       "to_node": "e_1567277345_8_m4",
       "length_m": 2.68,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_57",
-      "from_node": "osm_11276063026",
-      "to_node": "osm_14272957827",
-      "length_m": 2.68,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_58",
-      "from_node": "osm_14272955095",
-      "to_node": "e_1216934780_2_m1",
-      "length_m": 2.71,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_59",
-      "from_node": "osm_11276073880",
-      "to_node": "osm_14272957803",
-      "length_m": 2.73,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_60",
-      "from_node": "e_217289272_1_m4",
-      "to_node": "e_1567277348_6_m4",
-      "length_m": 2.73,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_61",
-      "from_node": "e_230039432_1_m1",
-      "to_node": "e_1216934780_20_m2",
-      "length_m": 2.73,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_62",
+      "id": "curb_21",
       "from_node": "osm_2380129164",
       "to_node": "osm_11276073909",
       "length_m": 2.74,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_63",
+      "id": "curb_22",
       "from_node": "osm_2380129159",
       "to_node": "osm_11276073869",
       "length_m": 2.82,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_64",
-      "from_node": "e_1315487280_18_m5",
-      "to_node": "e_1567277345_8_m5",
-      "length_m": 2.83,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "id": "curb_23",
+      "from_node": "e_1065502217_1_m2",
+      "to_node": "e_1334608446_10_m2",
+      "length_m": 2.85,
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_65",
+      "id": "curb_24",
       "from_node": "e_217289272_13_m2",
       "to_node": "e_1567568083_14_m1",
       "length_m": 2.86,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_66",
+      "id": "curb_25",
       "from_node": "e_1315487280_18_m6",
       "to_node": "e_1567277345_8_m6",
       "length_m": 2.88,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_67",
-      "from_node": "e_1065515213_1_m2",
-      "to_node": "e_1216934783_11_m1",
-      "length_m": 2.91,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_68",
+      "id": "curb_26",
       "from_node": "e_1065502217_2_m1",
       "to_node": "e_1334608446_11_m1",
       "length_m": 2.93,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_69",
+      "id": "curb_27",
       "from_node": "e_230039408_6_m3",
       "to_node": "e_1216937277_33_m3",
       "length_m": 2.95,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_70",
-      "from_node": "e_1315519860_1_m2",
-      "to_node": "e_1334608446_2_m2",
-      "length_m": 3.02,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_71",
+      "id": "curb_28",
       "from_node": "osm_2385652888",
       "to_node": "osm_11276063017",
       "length_m": 3.02,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_72",
-      "from_node": "e_1065502217_1_m3",
-      "to_node": "e_1334608446_10_m3",
-      "length_m": 3.03,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_73",
-      "from_node": "e_1315487280_18_m7",
-      "to_node": "e_1567277345_8_m7",
-      "length_m": 3.06,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_74",
+      "id": "curb_29",
       "from_node": "e_230039432_10_m2",
       "to_node": "e_1216934780_10_m4",
       "length_m": 3.08,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_75",
-      "from_node": "e_1065502217_2_m2",
-      "to_node": "e_1334608446_11_m2",
-      "length_m": 3.12,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_76",
+      "id": "curb_30",
       "from_node": "osm_2380129163",
       "to_node": "osm_11276073883",
       "length_m": 3.13,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_77",
-      "from_node": "e_217289313_4_m1",
-      "to_node": "e_1567277355_2_m2",
-      "length_m": 3.13,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_78",
-      "from_node": "e_217289272_1_m4",
-      "to_node": "e_1315487280_15_m1",
+      "id": "curb_31",
+      "from_node": "osm_2385652874",
+      "to_node": "osm_11276063049",
       "length_m": 3.14,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_79",
+      "id": "curb_32",
       "from_node": "osm_14272957809",
       "to_node": "e_1216934780_15_m1",
       "length_m": 3.15,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_80",
+      "id": "curb_33",
       "from_node": "e_230039432_22_m3",
       "to_node": "e_1216934775_0_m2",
       "length_m": 3.16,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_81",
+      "id": "curb_34",
       "from_node": "osm_2241169181",
       "to_node": "osm_11276063048",
       "length_m": 3.16,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_82",
-      "from_node": "osm_9785449547",
-      "to_node": "osm_14312064424",
-      "length_m": 3.2,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_83",
-      "from_node": "e_1216934780_22_m5",
-      "to_node": "e_1567277360_0_m5",
-      "length_m": 3.25,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_84",
+      "id": "curb_35",
       "from_node": "osm_2385652874",
       "to_node": "osm_11276073949",
       "length_m": 3.25,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_85",
+      "id": "curb_36",
       "from_node": "e_1315487280_18_m8",
       "to_node": "e_1567277345_8_m8",
       "length_m": 3.26,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_86",
-      "from_node": "e_1065502217_2_m3",
-      "to_node": "e_1334608446_11_m3",
-      "length_m": 3.26,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_87",
+      "id": "curb_37",
       "from_node": "osm_14272955097",
       "to_node": "e_230039432_14_m3",
       "length_m": 3.28,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_88",
+      "id": "curb_38",
       "from_node": "e_217289272_7_m2",
       "to_node": "e_1567277348_11_m2",
       "length_m": 3.29,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_89",
-      "from_node": "osm_2241169313",
-      "to_node": "osm_11276073912",
-      "length_m": 3.29,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_90",
-      "from_node": "osm_14276377573",
-      "to_node": "e_217289272_12_m1",
-      "length_m": 3.3,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_91",
-      "from_node": "e_217289272_13_m1",
-      "to_node": "e_1567568083_14_m2",
-      "length_m": 3.31,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_92",
-      "from_node": "e_1216934780_28_m1",
-      "to_node": "e_1567277361_4_m1",
-      "length_m": 3.31,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_93",
+      "id": "curb_39",
       "from_node": "e_214611220_2_m2",
       "to_node": "e_1568194477_9_m1",
       "length_m": 3.33,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_94",
-      "from_node": "e_230039432_7_m1",
-      "to_node": "e_1216934780_15_m4",
-      "length_m": 3.34,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_95",
-      "from_node": "e_217289313_4_m2",
-      "to_node": "e_1567277355_2_m1",
-      "length_m": 3.35,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_96",
+      "id": "curb_40",
       "from_node": "e_217289272_1_m3",
       "to_node": "e_1315487280_15_m2",
       "length_m": 3.38,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_97",
+      "id": "curb_41",
       "from_node": "e_217289272_11_m2",
       "to_node": "e_1315487280_5_m8",
       "length_m": 3.43,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_98",
-      "from_node": "e_1315487280_18_m9",
-      "to_node": "e_1567277345_8_m9",
-      "length_m": 3.46,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_99",
+      "id": "curb_42",
       "from_node": "e_230039432_7_m2",
       "to_node": "e_1216934780_15_m3",
       "length_m": 3.51,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_100",
+      "id": "curb_43",
       "from_node": "e_1315487280_18_m10",
       "to_node": "e_1567277345_8_m10",
       "length_m": 3.58,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_101",
+      "id": "curb_44",
       "from_node": "osm_14312084702",
       "to_node": "e_228842504_1_m3",
       "length_m": 3.59,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_102",
-      "from_node": "e_228842504_1_m4",
-      "to_node": "e_1216937277_17_m2",
-      "length_m": 3.61,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_103",
-      "from_node": "e_217289272_1_m2",
-      "to_node": "e_1315487280_15_m3",
-      "length_m": 3.62,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_104",
+      "id": "curb_45",
       "from_node": "e_230039432_15_m2",
       "to_node": "e_1216934780_2_m1",
       "length_m": 3.63,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_105",
+      "id": "curb_46",
       "from_node": "e_228842504_1_m5",
       "to_node": "e_1216937277_17_m1",
       "length_m": 3.64,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_106",
+      "id": "curb_47",
       "from_node": "osm_2385652888",
       "to_node": "e_1216934780_4_m1",
       "length_m": 3.65,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_107",
+      "id": "curb_48",
       "from_node": "osm_13124848843",
       "to_node": "osm_14272955054",
       "length_m": 3.66,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_108",
-      "from_node": "osm_9785311410",
-      "to_node": "osm_11276063044",
-      "length_m": 3.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_109",
-      "from_node": "osm_2380129149",
-      "to_node": "osm_11276073942",
-      "length_m": 3.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_110",
-      "from_node": "e_230039432_22_m2",
-      "to_node": "e_1216934775_0_m3",
-      "length_m": 3.72,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_111",
+      "id": "curb_49",
       "from_node": "osm_3326586865",
       "to_node": "osm_11276074233",
       "length_m": 3.72,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_112",
-      "from_node": "osm_2241169528",
-      "to_node": "osm_14276377578",
-      "length_m": 3.73,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_113",
-      "from_node": "e_230039432_10_m3",
-      "to_node": "e_1216934780_10_m3",
-      "length_m": 3.73,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_114",
+      "id": "curb_50",
       "from_node": "e_1216937277_28_m4",
       "to_node": "e_1315053864_0_m1",
       "length_m": 3.76,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_115",
-      "from_node": "e_230039432_14_m2",
-      "to_node": "e_1216934780_3_m1",
-      "length_m": 3.76,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_116",
+      "id": "curb_51",
       "from_node": "osm_2241169181",
       "to_node": "osm_14276377560",
       "length_m": 3.8,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_117",
-      "from_node": "e_1216937277_28_m3",
-      "to_node": "e_1315053864_0_m2",
-      "length_m": 3.81,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_118",
-      "from_node": "e_217289313_12_m2",
-      "to_node": "e_1216934774_2_m1",
-      "length_m": 3.81,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_119",
+      "id": "curb_52",
       "from_node": "e_1216937277_28_m2",
       "to_node": "e_1315053864_0_m3",
       "length_m": 3.84,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_120",
-      "from_node": "e_217289272_1_m1",
-      "to_node": "e_1315487280_15_m4",
-      "length_m": 3.85,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_121",
-      "from_node": "e_217289313_4_m2",
-      "to_node": "e_1216934774_9_m1",
-      "length_m": 3.87,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_122",
+      "id": "curb_53",
       "from_node": "osm_2385652886",
       "to_node": "osm_11276073941",
       "length_m": 3.87,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_123",
+      "id": "curb_54",
       "from_node": "osm_12172044016",
       "to_node": "e_1315053862_3_m6",
       "length_m": 3.89,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_124",
+      "id": "curb_55",
       "from_node": "osm_2241169268",
       "to_node": "osm_14276377566",
       "length_m": 3.9,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_125",
+      "id": "curb_56",
       "from_node": "osm_14272955053",
       "to_node": "osm_14272955060",
       "length_m": 3.91,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_126",
-      "from_node": "e_230039432_15_m1",
-      "to_node": "e_1216934780_2_m2",
-      "length_m": 3.92,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_127",
+      "id": "curb_57",
       "from_node": "osm_10838086413",
       "to_node": "osm_14282945525",
       "length_m": 3.92,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_128",
+      "id": "curb_58",
       "from_node": "e_1216934780_22_m2",
       "to_node": "e_1567277360_0_m2",
       "length_m": 3.94,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_129",
-      "from_node": "osm_2385652915",
-      "to_node": "osm_11276073943",
-      "length_m": 3.94,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_130",
-      "from_node": "osm_11276073940",
-      "to_node": "osm_12172044020",
-      "length_m": 3.96,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_131",
-      "from_node": "e_230039408_6_m2",
-      "to_node": "e_1216937277_33_m4",
-      "length_m": 3.96,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_132",
+      "id": "curb_59",
       "from_node": "e_1315519860_3_m2",
       "to_node": "e_1334608446_3_m2",
       "length_m": 3.97,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_133",
+      "id": "curb_60",
       "from_node": "osm_11276063059",
       "to_node": "osm_14312064500",
       "length_m": 4.0,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_134",
+      "id": "curb_61",
       "from_node": "osm_9785311411",
       "to_node": "osm_11276073873",
       "length_m": 4.02,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_135",
-      "from_node": "e_228842504_1_m2",
-      "to_node": "e_1216937277_18_m1",
-      "length_m": 4.03,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_136",
-      "from_node": "e_217289272_5_m1",
-      "to_node": "e_1567277348_9_m1",
-      "length_m": 4.03,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_137",
+      "id": "curb_62",
       "from_node": "osm_9785420541",
       "to_node": "osm_10207164225",
       "length_m": 4.07,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_138",
-      "from_node": "e_1065515213_1_m1",
-      "to_node": "e_1216934783_11_m2",
-      "length_m": 4.08,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_139",
-      "from_node": "e_230039432_7_m3",
-      "to_node": "e_1216934780_15_m2",
-      "length_m": 4.09,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_140",
-      "from_node": "e_522099380_0_m1",
-      "to_node": "e_1216934778_1_m1",
-      "length_m": 4.11,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_141",
+      "id": "curb_63",
       "from_node": "osm_9785420578",
       "to_node": "e_1567277346_0_m3",
       "length_m": 4.17,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_142",
+      "id": "curb_64",
       "from_node": "osm_12176769032",
       "to_node": "osm_12346969190",
       "length_m": 4.17,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_143",
+      "id": "curb_65",
       "from_node": "osm_11276073928",
       "to_node": "osm_12346969181",
       "length_m": 4.2,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_144",
-      "from_node": "e_217289313_4_m1",
-      "to_node": "e_1216934774_9_m2",
-      "length_m": 4.22,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_145",
-      "from_node": "e_1216937277_28_m1",
-      "to_node": "e_1315053864_0_m4",
-      "length_m": 4.22,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_146",
+      "id": "curb_66",
       "from_node": "e_228842504_2_m1",
       "to_node": "e_1216937277_16_m2",
       "length_m": 4.23,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_147",
+      "id": "curb_67",
       "from_node": "osm_14312064494",
       "to_node": "e_1216937277_18_m1",
       "length_m": 4.27,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_148",
+      "id": "curb_68",
       "from_node": "osm_9785311412",
       "to_node": "osm_11276073906",
       "length_m": 4.34,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_149",
-      "from_node": "e_1078150661_1_m6",
-      "to_node": "e_1216934777_4_m5",
-      "length_m": 4.36,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_150",
+      "id": "curb_69",
       "from_node": "osm_12172044140",
       "to_node": "osm_12176751151",
       "length_m": 4.37,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_151",
-      "from_node": "e_1315519860_3_m3",
-      "to_node": "e_1334608446_3_m3",
-      "length_m": 4.37,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_152",
-      "from_node": "osm_11276073943",
-      "to_node": "osm_14272955094",
-      "length_m": 4.41,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_153",
+      "id": "curb_70",
       "from_node": "e_230039432_22_m1",
       "to_node": "e_1216934775_0_m4",
       "length_m": 4.41,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_154",
-      "from_node": "osm_14276377570",
-      "to_node": "e_217289272_13_m3",
-      "length_m": 4.45,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_155",
-      "from_node": "osm_14272955054",
-      "to_node": "e_1216934780_2_m3",
-      "length_m": 4.45,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_156",
-      "from_node": "osm_5085864851",
-      "to_node": "osm_11276074230",
-      "length_m": 4.46,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_157",
+      "id": "curb_71",
       "from_node": "e_217289272_13_m4",
       "to_node": "e_1315487280_5_m1",
       "length_m": 4.46,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_158",
-      "from_node": "e_217289272_11_m1",
-      "to_node": "e_1315487280_5_m9",
-      "length_m": 4.48,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_159",
-      "from_node": "e_1065511232_2_m1",
-      "to_node": "e_1216934773_2_m1",
-      "length_m": 4.49,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_160",
+      "id": "curb_72",
       "from_node": "e_230039432_10_m4",
       "to_node": "e_1216934780_10_m2",
       "length_m": 4.51,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_161",
-      "from_node": "e_228842504_1_m1",
-      "to_node": "e_1216937277_18_m2",
-      "length_m": 4.56,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_162",
-      "from_node": "osm_12172044148",
-      "to_node": "e_229526896_5_m2",
-      "length_m": 4.56,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_163",
-      "from_node": "e_217289272_12_m1",
-      "to_node": "e_1567277346_0_m4",
-      "length_m": 4.57,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_164",
+      "id": "curb_73",
       "from_node": "osm_8503647271",
       "to_node": "osm_11276073893",
       "length_m": 4.58,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_165",
-      "from_node": "e_230039432_14_m3",
-      "to_node": "e_1216934775_10_m1",
-      "length_m": 4.59,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_166",
-      "from_node": "e_228842504_1_m1",
-      "to_node": "e_1571036593_0_m1",
-      "length_m": 4.6,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_167",
+      "id": "curb_74",
       "from_node": "e_230039432_7_m4",
       "to_node": "e_1216934780_15_m1",
       "length_m": 4.62,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_168",
-      "from_node": "e_230039432_22_m4",
-      "to_node": "e_1315487280_18_m1",
-      "length_m": 4.65,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_169",
-      "from_node": "e_1065511267_1_m1",
-      "to_node": "e_1315519860_1_m2",
-      "length_m": 4.68,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_170",
-      "from_node": "e_1065511267_1_m2",
-      "to_node": "e_1315519860_1_m1",
-      "length_m": 4.68,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_171",
-      "from_node": "e_1216937277_49_m2",
-      "to_node": "e_1315053862_3_m1",
-      "length_m": 4.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_172",
+      "id": "curb_75",
       "from_node": "osm_2385652881",
       "to_node": "osm_11276073918",
       "length_m": 4.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_173",
+      "id": "curb_76",
       "from_node": "e_217289313_12_m1",
       "to_node": "e_1216934774_2_m2",
       "length_m": 4.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_174",
+      "id": "curb_77",
       "from_node": "e_1065511267_0_m3",
       "to_node": "e_1315519860_3_m2",
       "length_m": 4.72,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_175",
-      "from_node": "osm_12172044142",
-      "to_node": "e_1216937277_59_m1",
-      "length_m": 4.79,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_176",
-      "from_node": "osm_11276073942",
-      "to_node": "osm_14312064497",
-      "length_m": 4.8,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_177",
-      "from_node": "e_230039412_1_m7",
-      "to_node": "e_1216937277_4_m7",
-      "length_m": 4.81,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_178",
+      "id": "curb_78",
       "from_node": "e_1065511232_2_m2",
       "to_node": "e_1216934773_2_m2",
       "length_m": 4.82,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_179",
+      "id": "curb_79",
       "from_node": "osm_6953363162",
       "to_node": "e_1567568082_1_m2",
       "length_m": 4.82,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_180",
-      "from_node": "e_228842504_2_m2",
-      "to_node": "e_1216937277_16_m1",
-      "length_m": 4.83,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_181",
-      "from_node": "e_230039408_9_m1",
-      "to_node": "e_1216937277_31_m2",
-      "length_m": 4.84,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_182",
+      "id": "curb_80",
       "from_node": "osm_14276377558",
       "to_node": "e_1315053843_5_m3",
       "length_m": 4.89,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_183",
-      "from_node": "e_1315053843_5_m2",
-      "to_node": "e_1567568083_1_m1",
-      "length_m": 4.9,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "id": "curb_81",
+      "from_node": "osm_11276063052",
+      "to_node": "osm_14272957826",
+      "length_m": 4.97,
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_184",
-      "from_node": "e_1065511232_1_m4",
-      "to_node": "e_1216934773_1_m3",
-      "length_m": 4.92,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "id": "curb_82",
+      "from_node": "osm_11276063005",
+      "to_node": "osm_12172044141",
+      "length_m": 5.06,
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_185",
-      "from_node": "e_1315519861_0_m1",
-      "to_node": "e_1334608446_6_m1",
-      "length_m": 4.92,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_186",
-      "from_node": "e_1315487280_5_m9",
-      "to_node": "e_1567277346_0_m1",
-      "length_m": 5.0,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_187",
+      "id": "curb_83",
       "from_node": "osm_2385653021",
       "to_node": "osm_14276377545",
       "length_m": 5.06,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_188",
-      "from_node": "e_742780450_0_m1",
-      "to_node": "e_1567568082_1_m3",
-      "length_m": 5.09,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_189",
+      "id": "curb_84",
       "from_node": "osm_9785317218",
       "to_node": "osm_14283100115",
       "length_m": 5.1,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_190",
-      "from_node": "osm_12176751195",
-      "to_node": "osm_12176751196",
-      "length_m": 5.12,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_191",
-      "from_node": "osm_12176769035",
-      "to_node": "osm_12346969191",
-      "length_m": 5.14,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_192",
-      "from_node": "e_217289272_7_m1",
-      "to_node": "e_1567277345_0_m2",
-      "length_m": 5.16,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_193",
-      "from_node": "osm_11276063045",
-      "to_node": "osm_12172044140",
-      "length_m": 5.2,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_194",
+      "id": "curb_85",
       "from_node": "osm_11276063067",
       "to_node": "osm_14272955053",
       "length_m": 5.25,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_195",
-      "from_node": "osm_11276073920",
-      "to_node": "e_230039415_0_m1",
-      "length_m": 5.34,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_196",
+      "id": "curb_86",
       "from_node": "osm_12176461329",
       "to_node": "e_1567568079_1_m2",
       "length_m": 5.34,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_197",
+      "id": "curb_87",
       "from_node": "osm_9785311413",
       "to_node": "osm_11276063015",
       "length_m": 5.43,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_198",
-      "from_node": "osm_2385652881",
-      "to_node": "e_1216934780_10_m1",
-      "length_m": 5.48,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_199",
-      "from_node": "e_217289313_2_m1",
-      "to_node": "e_1216934774_10_m2",
-      "length_m": 5.52,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_200",
-      "from_node": "e_229526896_4_m1",
-      "to_node": "e_1567568079_1_m1",
-      "length_m": 5.54,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_201",
-      "from_node": "e_217289313_12_m2",
-      "to_node": "e_1216934776_36_m3",
-      "length_m": 5.55,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_202",
+      "id": "curb_88",
       "from_node": "e_229526896_1_m2",
       "to_node": "e_1567568078_1_m1",
       "length_m": 5.57,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_203",
-      "from_node": "osm_14272955098",
-      "to_node": "e_230039432_14_m1",
-      "length_m": 5.57,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_204",
+      "id": "curb_89",
       "from_node": "e_230039412_1_m6",
       "to_node": "e_1216937277_4_m6",
       "length_m": 5.61,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_205",
-      "from_node": "osm_9785393438",
-      "to_node": "osm_14283100117",
-      "length_m": 5.61,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_206",
+      "id": "curb_90",
       "from_node": "osm_9785317294",
       "to_node": "e_1216934776_14_m1",
       "length_m": 5.62,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_207",
-      "from_node": "e_1216934780_22_m1",
-      "to_node": "e_1567277360_0_m1",
-      "length_m": 5.63,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_208",
-      "from_node": "osm_2241169173",
-      "to_node": "e_1567277372_4_m3",
-      "length_m": 5.64,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_209",
+      "id": "curb_91",
       "from_node": "e_229526896_3_m2",
       "to_node": "e_1567568079_0_m2",
       "length_m": 5.64,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_210",
+      "id": "curb_92",
       "from_node": "osm_9785393444",
       "to_node": "osm_9785393595",
       "length_m": 5.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_211",
+      "id": "curb_93",
       "from_node": "e_217289272_12_m2",
       "to_node": "e_1567277346_0_m5",
       "length_m": 5.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_212",
-      "from_node": "osm_11276073889",
-      "to_node": "e_230039432_10_m1",
-      "length_m": 5.72,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_213",
-      "from_node": "e_229526896_5_m1",
-      "to_node": "e_1567568079_1_m3",
-      "length_m": 5.72,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_214",
-      "from_node": "e_229526896_2_m1",
-      "to_node": "e_1567568078_0_m1",
-      "length_m": 5.73,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_215",
+      "id": "curb_94",
       "from_node": "osm_12176768928",
       "to_node": "osm_12346969192",
       "length_m": 5.74,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_216",
+      "id": "curb_95",
       "from_node": "osm_9785393645",
       "to_node": "e_1065511232_1_m2",
       "length_m": 5.75,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_217",
+      "id": "curb_96",
       "from_node": "e_230039432_22_m3",
       "to_node": "e_1315487280_18_m2",
       "length_m": 5.75,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_218",
+      "id": "curb_97",
       "from_node": "osm_2381106852",
       "to_node": "e_1216934783_17_m2",
       "length_m": 5.75,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_219",
+      "id": "curb_98",
       "from_node": "e_230039432_1_m1",
       "to_node": "e_1567277372_4_m2",
       "length_m": 5.85,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_220",
-      "from_node": "e_217289272_13_m3",
-      "to_node": "e_1315487280_5_m2",
-      "length_m": 5.86,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_221",
-      "from_node": "e_214611220_2_m1",
-      "to_node": "e_1568194480_1_m1",
-      "length_m": 5.88,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_222",
-      "from_node": "osm_14312084703",
-      "to_node": "e_228842504_2_m2",
-      "length_m": 5.92,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_223",
-      "from_node": "e_217289272_11_m2",
-      "to_node": "e_1567277346_0_m2",
-      "length_m": 5.92,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_224",
-      "from_node": "e_1216934780_10_m5",
-      "to_node": "e_1567277353_5_m4",
-      "length_m": 5.93,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_225",
-      "from_node": "osm_12176768856",
-      "to_node": "osm_12176768866",
-      "length_m": 5.93,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_226",
+      "id": "curb_99",
       "from_node": "e_230039432_21_m6",
       "to_node": "e_1216934775_1_m1",
       "length_m": 5.93,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_227",
-      "from_node": "e_230039432_1_m2",
-      "to_node": "e_1567277372_4_m1",
-      "length_m": 6.0,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_228",
-      "from_node": "e_217289272_7_m2",
-      "to_node": "e_1315487280_9_m1",
-      "length_m": 6.04,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_229",
-      "from_node": "e_230039408_6_m4",
-      "to_node": "e_1216937277_33_m2",
-      "length_m": 6.04,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_230",
-      "from_node": "e_1315487280_10_m2",
-      "to_node": "e_1567277348_9_m1",
-      "length_m": 6.08,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_231",
-      "from_node": "e_1315487280_9_m2",
-      "to_node": "e_1567277348_11_m1",
-      "length_m": 6.1,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_232",
+      "id": "curb_100",
       "from_node": "e_1216934775_2_m1",
       "to_node": "e_1315487280_18_m9",
       "length_m": 6.14,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_233",
-      "from_node": "e_229526896_4_m1",
-      "to_node": "e_1065502227_5_m1",
-      "length_m": 6.14,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "id": "curb_101",
+      "from_node": "osm_11276073886",
+      "to_node": "osm_14283100115",
+      "length_m": 6.23,
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_234",
-      "from_node": "e_1065511266_0_m1",
-      "to_node": "e_1078150661_1_m6",
-      "length_m": 6.3,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_235",
+      "id": "curb_102",
       "from_node": "e_230039432_10_m2",
       "to_node": "e_1216934776_13_m1",
       "length_m": 6.31,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_236",
-      "from_node": "e_229526896_5_m2",
-      "to_node": "e_1567568079_1_m4",
-      "length_m": 6.34,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_237",
-      "from_node": "e_1216934780_22_m1",
-      "to_node": "e_1315053843_6_m2",
-      "length_m": 6.37,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_238",
+      "id": "curb_103",
       "from_node": "osm_11276074228",
       "to_node": "e_230039432_14_m2",
       "length_m": 6.41,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_239",
+      "id": "curb_104",
       "from_node": "e_228842504_1_m2",
       "to_node": "e_1571036593_0_m2",
       "length_m": 6.45,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_240",
-      "from_node": "e_1065511267_0_m2",
-      "to_node": "e_1315519860_3_m3",
-      "length_m": 6.46,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_241",
-      "from_node": "e_230039407_12_m6",
-      "to_node": "e_1334608446_6_m1",
-      "length_m": 6.47,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_242",
-      "from_node": "e_1216934775_2_m2",
-      "to_node": "e_1315487280_18_m10",
-      "length_m": 6.47,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_243",
+      "id": "curb_105",
       "from_node": "osm_9785393637",
       "to_node": "osm_12346969193",
       "length_m": 6.48,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_244",
+      "id": "curb_106",
       "from_node": "osm_12172044143",
       "to_node": "osm_12172044145",
       "length_m": 6.48,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_245",
+      "id": "curb_107",
       "from_node": "osm_12176768887",
       "to_node": "e_1315487280_5_m5",
       "length_m": 6.5,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_246",
-      "from_node": "e_230039407_9_m6",
-      "to_node": "e_1065511232_1_m3",
-      "length_m": 6.54,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "id": "curb_108",
+      "from_node": "osm_14276377570",
+      "to_node": "e_1315487280_5_m2",
+      "length_m": 6.5,
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_247",
-      "from_node": "e_230039408_14_m4",
-      "to_node": "e_1216937277_28_m1",
-      "length_m": 6.56,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_248",
+      "id": "curb_109",
       "from_node": "osm_12346969188",
       "to_node": "e_230039412_0_m1",
       "length_m": 6.57,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_249",
-      "from_node": "osm_11276073875",
-      "to_node": "e_230039415_0_m1",
-      "length_m": 6.57,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_250",
-      "from_node": "osm_11276073892",
-      "to_node": "osm_14272957808",
-      "length_m": 6.64,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_251",
-      "from_node": "e_1065511266_0_m5",
-      "to_node": "e_1216934777_4_m1",
-      "length_m": 6.65,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_252",
+      "id": "curb_110",
       "from_node": "osm_11276073927",
       "to_node": "e_230039408_8_m1",
       "length_m": 6.65,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_253",
+      "id": "curb_111",
       "from_node": "osm_11276063031",
       "to_node": "osm_11276073930",
       "length_m": 6.68,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_254",
-      "from_node": "e_230039407_8_m2",
-      "to_node": "e_1315519861_4_m1",
-      "length_m": 6.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_255",
-      "from_node": "osm_2241169163",
-      "to_node": "osm_14282945521",
-      "length_m": 6.7,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_256",
-      "from_node": "e_230039432_21_m5",
-      "to_node": "e_1216934775_1_m2",
-      "length_m": 6.78,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_257",
+      "id": "curb_112",
       "from_node": "e_230039408_14_m3",
       "to_node": "e_1216937277_28_m2",
       "length_m": 6.84,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_258",
-      "from_node": "e_230039407_10_m1",
-      "to_node": "e_1065511232_1_m1",
-      "length_m": 6.84,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_259",
-      "from_node": "osm_9785420554",
-      "to_node": "osm_14272955066",
-      "length_m": 6.84,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_260",
-      "from_node": "osm_9785393638",
-      "to_node": "e_1065511232_4_m6",
-      "length_m": 6.89,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_261",
+      "id": "curb_113",
       "from_node": "e_230039407_8_m1",
       "to_node": "e_1315519861_4_m2",
       "length_m": 6.91,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_262",
+      "id": "curb_114",
       "from_node": "e_1065511232_1_m3",
       "to_node": "e_1216934773_1_m2",
       "length_m": 6.92,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_263",
-      "from_node": "e_230039412_1_m5",
-      "to_node": "e_1216937277_4_m5",
-      "length_m": 6.92,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_264",
+      "id": "curb_115",
       "from_node": "e_230039407_7_m1",
       "to_node": "e_1065511232_4_m5",
       "length_m": 6.97,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_265",
+      "id": "curb_116",
       "from_node": "e_1216934776_13_m1",
       "to_node": "e_1567277353_5_m3",
       "length_m": 6.97,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_266",
-      "from_node": "osm_13347414309",
-      "to_node": "e_1315487280_18_m8",
-      "length_m": 7.0,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_267",
+      "id": "curb_117",
       "from_node": "e_1065511266_0_m4",
       "to_node": "e_1216934777_4_m2",
       "length_m": 7.02,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_268",
+      "id": "curb_118",
       "from_node": "e_1315519861_0_m2",
       "to_node": "e_1334608446_6_m2",
       "length_m": 7.02,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_269",
-      "from_node": "osm_12172044146",
-      "to_node": "e_229526896_5_m1",
-      "length_m": 7.05,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_270",
-      "from_node": "osm_14276377575",
-      "to_node": "e_1315487280_5_m8",
-      "length_m": 7.06,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_271",
-      "from_node": "osm_11276074229",
-      "to_node": "e_230039432_10_m3",
-      "length_m": 7.07,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_272",
-      "from_node": "osm_14276377571",
-      "to_node": "e_1567277346_0_m6",
-      "length_m": 7.08,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_273",
-      "from_node": "e_230039407_7_m2",
-      "to_node": "e_1065511232_4_m4",
-      "length_m": 7.12,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_274",
-      "from_node": "osm_12176768929",
-      "to_node": "e_1315519861_4_m3",
-      "length_m": 7.14,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_275",
-      "from_node": "osm_14272957839",
-      "to_node": "osm_14272957843",
-      "length_m": 7.14,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_276",
+      "id": "curb_119",
       "from_node": "osm_14276377576",
       "to_node": "e_217289272_11_m1",
       "length_m": 7.16,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_277",
-      "from_node": "e_1065511267_0_m4",
-      "to_node": "e_1315519860_3_m1",
+      "id": "curb_120",
+      "from_node": "osm_9785420554",
+      "to_node": "osm_12176768874",
       "length_m": 7.18,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_278",
+      "id": "curb_121",
       "from_node": "e_1216934780_22_m5",
       "to_node": "e_1567568083_1_m2",
       "length_m": 7.19,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_279",
-      "from_node": "osm_11276074229",
-      "to_node": "e_1567277353_5_m2",
-      "length_m": 7.2,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "id": "curb_122",
+      "from_node": "e_214611220_2_m2",
+      "to_node": "e_1568194480_1_m2",
+      "length_m": 7.25,
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_280",
-      "from_node": "e_230039408_14_m2",
-      "to_node": "e_1216937277_28_m3",
-      "length_m": 7.2,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_281",
-      "from_node": "e_1315519860_3_m1",
-      "to_node": "e_1334608446_3_m1",
-      "length_m": 7.21,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_282",
-      "from_node": "osm_11276074224",
-      "to_node": "e_230039432_14_m1",
-      "length_m": 7.21,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_283",
+      "id": "curb_123",
       "from_node": "osm_12176768929",
       "to_node": "e_1065511232_4_m3",
       "length_m": 7.28,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_284",
-      "from_node": "osm_2385652915",
-      "to_node": "osm_11276073948",
-      "length_m": 7.28,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_285",
-      "from_node": "e_230039432_22_m2",
-      "to_node": "e_1315487280_18_m3",
-      "length_m": 7.29,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_286",
-      "from_node": "osm_14276377572",
-      "to_node": "e_1567277346_0_m5",
-      "length_m": 7.29,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_287",
+      "id": "curb_124",
       "from_node": "e_230039407_7_m1",
       "to_node": "e_1315519861_4_m5",
       "length_m": 7.3,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_288",
-      "from_node": "e_230039407_7_m2",
-      "to_node": "e_1315519861_4_m4",
-      "length_m": 7.3,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_289",
+      "id": "curb_125",
       "from_node": "e_1078150661_1_m5",
       "to_node": "e_1216934777_4_m4",
       "length_m": 7.32,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_290",
-      "from_node": "osm_14272955066",
-      "to_node": "e_1315487280_10_m1",
-      "length_m": 7.33,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_291",
+      "id": "curb_126",
       "from_node": "e_229526896_1_m2",
       "to_node": "e_1065502227_1_m2",
       "length_m": 7.37,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_292",
-      "from_node": "e_230039407_8_m1",
-      "to_node": "e_1065511232_4_m2",
-      "length_m": 7.4,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_293",
-      "from_node": "e_217289272_13_m2",
-      "to_node": "e_1315487280_5_m3",
-      "length_m": 7.4,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_294",
+      "id": "curb_127",
       "from_node": "e_1065511266_0_m2",
       "to_node": "e_1078150661_1_m5",
       "length_m": 7.41,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_295",
+      "id": "curb_128",
       "from_node": "e_217289272_13_m1",
       "to_node": "e_1567277346_0_m7",
       "length_m": 7.46,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_296",
-      "from_node": "osm_9785393638",
-      "to_node": "osm_12346969194",
-      "length_m": 7.46,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_297",
-      "from_node": "e_230039432_9_m1",
-      "to_node": "e_1216934776_14_m2",
-      "length_m": 7.48,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_298",
+      "id": "curb_129",
       "from_node": "e_230039408_14_m1",
       "to_node": "e_1216937277_28_m4",
       "length_m": 7.5,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_299",
+      "id": "curb_130",
       "from_node": "e_230039407_8_m2",
       "to_node": "e_1065511232_4_m1",
       "length_m": 7.52,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_300",
-      "from_node": "e_1065511266_0_m3",
-      "to_node": "e_1216934777_4_m3",
-      "length_m": 7.58,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_301",
-      "from_node": "e_1078150661_1_m1",
-      "to_node": "e_1216934777_4_m1",
-      "length_m": 7.59,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_302",
+      "id": "curb_131",
       "from_node": "e_230039432_21_m4",
       "to_node": "e_1216934775_1_m3",
       "length_m": 7.6,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_303",
-      "from_node": "osm_14276377574",
-      "to_node": "e_1315487280_5_m7",
-      "length_m": 7.64,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_304",
-      "from_node": "osm_9785393637",
-      "to_node": "osm_12176768928",
-      "length_m": 7.65,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_305",
+      "id": "curb_132",
       "from_node": "osm_2241169179",
       "to_node": "e_1567277360_0_m2",
       "length_m": 7.67,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_306",
-      "from_node": "e_217289272_13_m2",
-      "to_node": "e_1567277346_0_m8",
-      "length_m": 7.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_307",
+      "id": "curb_133",
       "from_node": "osm_9785420552",
       "to_node": "osm_11276073882",
       "length_m": 7.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_308",
+      "id": "curb_134",
       "from_node": "e_230039408_6_m1",
       "to_node": "e_1216937277_33_m5",
       "length_m": 7.71,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_309",
-      "from_node": "e_1216934780_22_m1",
-      "to_node": "e_1567568083_0_m1",
-      "length_m": 7.72,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_310",
+      "id": "curb_135",
       "from_node": "e_217289272_13_m3",
       "to_node": "e_1567277346_0_m9",
       "length_m": 7.72,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_311",
+      "id": "curb_136",
       "from_node": "e_1216934780_22_m2",
       "to_node": "e_1567568083_0_m2",
       "length_m": 7.81,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_312",
-      "from_node": "e_1065511232_4_m1",
-      "to_node": "e_1216934773_4_m1",
-      "length_m": 7.9,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_313",
-      "from_node": "osm_2241169188",
-      "to_node": "osm_14272957829",
-      "length_m": 7.92,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_314",
-      "from_node": "e_1315519860_3_m4",
-      "to_node": "e_1334608446_3_m4",
-      "length_m": 7.95,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_315",
-      "from_node": "e_217289272_13_m4",
-      "to_node": "e_1567277346_0_m10",
-      "length_m": 7.98,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_316",
-      "from_node": "e_230039419_0_m2",
-      "to_node": "e_1334608446_0_m1",
-      "length_m": 8.01,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_317",
-      "from_node": "osm_12176461341",
-      "to_node": "e_230039432_21_m3",
-      "length_m": 8.04,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_318",
+      "id": "curb_137",
       "from_node": "e_230039407_9_m5",
       "to_node": "e_1065511232_1_m4",
       "length_m": 8.08,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_319",
+      "id": "curb_138",
       "from_node": "e_230039407_12_m5",
       "to_node": "e_1334608446_6_m2",
       "length_m": 8.09,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_320",
-      "from_node": "osm_9785317261",
-      "to_node": "osm_12172044144",
-      "length_m": 8.18,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_321",
-      "from_node": "e_1216934780_28_m1",
-      "to_node": "e_1567568083_6_m1",
-      "length_m": 8.2,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_322",
+      "id": "curb_139",
       "from_node": "osm_11276074225",
       "to_node": "e_1567277353_5_m1",
       "length_m": 8.28,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_323",
+      "id": "curb_140",
       "from_node": "e_230039412_1_m4",
       "to_node": "e_1216937277_4_m4",
       "length_m": 8.31,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_324",
-      "from_node": "e_1065511267_0_m1",
-      "to_node": "e_1334608446_3_m4",
-      "length_m": 8.42,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "id": "curb_141",
+      "from_node": "e_1567277345_6_m2",
+      "to_node": "e_1567277348_6_m3",
+      "length_m": 8.45,
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_325",
+      "id": "curb_142",
       "from_node": "e_1216934775_1_m3",
       "to_node": "e_1315487280_18_m7",
       "length_m": 8.46,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_326",
+      "id": "curb_143",
       "from_node": "osm_14276377568",
       "to_node": "e_1567277346_0_m10",
       "length_m": 8.49,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_327",
-      "from_node": "e_1216934780_28_m1",
-      "to_node": "e_1315053843_2_m1",
-      "length_m": 8.58,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_328",
-      "from_node": "osm_11276063016",
-      "to_node": "osm_11276063049",
-      "length_m": 8.64,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_329",
-      "from_node": "osm_10838086357",
-      "to_node": "osm_14282945532",
-      "length_m": 8.77,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_330",
-      "from_node": "e_229526896_1_m1",
-      "to_node": "e_1065502227_1_m1",
-      "length_m": 8.85,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_331",
-      "from_node": "e_228842504_1_m3",
-      "to_node": "e_1571036593_0_m3",
-      "length_m": 8.86,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_332",
-      "from_node": "e_230039412_8_m1",
-      "to_node": "e_1216937277_12_m1",
-      "length_m": 8.92,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_333",
+      "id": "curb_144",
       "from_node": "e_230039432_22_m1",
       "to_node": "e_1315487280_18_m4",
       "length_m": 8.99,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_334",
+      "id": "curb_145",
       "from_node": "osm_14312064496",
       "to_node": "e_228842504_1_m5",
       "length_m": 9.03,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_335",
+      "id": "curb_146",
       "from_node": "osm_9785317263",
       "to_node": "e_229526896_3_m1",
       "length_m": 9.08,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_336",
-      "from_node": "e_217289272_13_m1",
-      "to_node": "e_1315487280_5_m4",
-      "length_m": 9.09,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_337",
+      "id": "curb_147",
       "from_node": "e_1315487280_5_m6",
       "to_node": "e_1567277346_0_m4",
       "length_m": 9.11,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_338",
-      "from_node": "e_1315519861_0_m3",
-      "to_node": "e_1334608446_6_m3",
-      "length_m": 9.17,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_339",
-      "from_node": "e_1216934774_10_m2",
-      "to_node": "e_1567277355_4_m2",
-      "length_m": 9.19,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_340",
-      "from_node": "osm_11276063042",
-      "to_node": "osm_14272957804",
-      "length_m": 9.22,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_341",
-      "from_node": "e_230039407_9_m1",
-      "to_node": "e_1315519861_2_m6",
-      "length_m": 9.23,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_342",
-      "from_node": "e_1568194477_9_m2",
-      "to_node": "e_1568194480_1_m1",
-      "length_m": 9.28,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_343",
-      "from_node": "osm_14276377563",
-      "to_node": "e_1315053843_2_m2",
-      "length_m": 9.28,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_344",
+      "id": "curb_148",
       "from_node": "e_230039407_9_m2",
       "to_node": "e_1315519861_2_m5",
       "length_m": 9.33,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_345",
+      "id": "curb_149",
       "from_node": "osm_11276063055",
       "to_node": "osm_12176768935",
       "length_m": 9.34,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_346",
+      "id": "curb_150",
       "from_node": "osm_14312084701",
       "to_node": "e_228842504_2_m1",
       "length_m": 9.36,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_347",
-      "from_node": "e_1065511266_0_m3",
-      "to_node": "e_1078150661_1_m4",
-      "length_m": 9.4,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_348",
-      "from_node": "e_1065511232_1_m2",
-      "to_node": "e_1216934773_1_m1",
-      "length_m": 9.56,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_349",
-      "from_node": "e_1315053843_5_m3",
-      "to_node": "e_1567277360_0_m3",
-      "length_m": 9.58,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_350",
-      "from_node": "e_1216934780_22_m4",
-      "to_node": "e_1567568083_1_m1",
-      "length_m": 9.58,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_351",
+      "id": "curb_151",
       "from_node": "e_1216937277_49_m1",
       "to_node": "e_1315053862_3_m2",
       "length_m": 9.61,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_352",
+      "id": "curb_152",
       "from_node": "osm_12176461336",
       "to_node": "e_230039432_21_m5",
       "length_m": 9.63,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_353",
+      "id": "curb_153",
       "from_node": "e_1065511232_4_m6",
       "to_node": "e_1216934773_5_m4",
       "length_m": 9.65,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_354",
-      "from_node": "osm_2385653021",
-      "to_node": "osm_9785317262",
-      "length_m": 9.66,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "id": "curb_154",
+      "from_node": "osm_14276377577",
+      "to_node": "e_1567277346_0_m1",
+      "length_m": 9.83,
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_355",
-      "from_node": "e_230039407_9_m3",
-      "to_node": "e_1315519861_2_m4",
-      "length_m": 9.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_356",
-      "from_node": "e_1315053843_5_m1",
-      "to_node": "e_1567568083_1_m2",
-      "length_m": 9.84,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_357",
-      "from_node": "e_230039412_1_m3",
-      "to_node": "e_1216937277_4_m3",
-      "length_m": 9.88,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_358",
-      "from_node": "osm_12176769032",
-      "to_node": "e_230039407_9_m4",
-      "length_m": 9.91,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_359",
+      "id": "curb_155",
       "from_node": "osm_14312064496",
       "to_node": "e_1571036593_0_m4",
       "length_m": 9.92,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_360",
+      "id": "curb_156",
       "from_node": "e_230039432_21_m2",
       "to_node": "e_1216934775_2_m1",
       "length_m": 9.93,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_361",
-      "from_node": "osm_10838086461",
-      "to_node": "e_1165228333_0_m1",
-      "length_m": 9.93,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_362",
-      "from_node": "e_1568194477_9_m1",
-      "to_node": "e_1568194480_1_m2",
-      "length_m": 9.94,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_363",
-      "from_node": "osm_9785420573",
-      "to_node": "e_1216934774_10_m1",
-      "length_m": 9.96,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_364",
-      "from_node": "osm_14312064495",
-      "to_node": "e_1571036593_0_m3",
-      "length_m": 9.96,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_365",
-      "from_node": "e_1216934775_1_m2",
-      "to_node": "e_1315487280_18_m6",
-      "length_m": 10.0,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_366",
-      "from_node": "e_230039407_12_m4",
-      "to_node": "e_1315519861_0_m3",
-      "length_m": 10.1,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_367",
+      "id": "curb_157",
       "from_node": "osm_9785420548",
       "to_node": "e_1216937277_33_m1",
       "length_m": 10.1,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_368",
-      "from_node": "e_1065511232_4_m5",
-      "to_node": "e_1216934773_5_m3",
-      "length_m": 10.12,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "id": "curb_158",
+      "from_node": "e_1216934780_22_m4",
+      "to_node": "e_1315053843_5_m2",
+      "length_m": 10.24,
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_369",
+      "id": "curb_159",
       "from_node": "e_230039407_9_m4",
       "to_node": "e_1315519861_2_m3",
       "length_m": 10.27,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_370",
+      "id": "curb_160",
       "from_node": "osm_11276073881",
       "to_node": "e_230039415_0_m3",
       "length_m": 10.27,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_371",
-      "from_node": "osm_14312064499",
-      "to_node": "osm_14312084703",
-      "length_m": 10.28,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_372",
-      "from_node": "e_230039432_21_m1",
-      "to_node": "e_1315487280_18_m10",
-      "length_m": 10.34,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_373",
+      "id": "curb_161",
       "from_node": "e_1065511232_4_m4",
       "to_node": "e_1216934773_5_m2",
       "length_m": 10.56,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_374",
-      "from_node": "e_230039432_10_m4",
-      "to_node": "e_1567277353_5_m1",
-      "length_m": 10.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "id": "curb_162",
+      "from_node": "osm_9785420542",
+      "to_node": "osm_11276073893",
+      "length_m": 10.74,
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_375",
-      "from_node": "osm_12176751196",
-      "to_node": "e_1315487280_18_m5",
-      "length_m": 10.75,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_376",
+      "id": "curb_163",
       "from_node": "e_1078150661_1_m2",
       "to_node": "e_1216934777_4_m2",
       "length_m": 10.75,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_377",
-      "from_node": "osm_11276063019",
-      "to_node": "e_1315053885_1_m1",
-      "length_m": 10.76,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "id": "curb_164",
+      "from_node": "e_1216934780_10_m1",
+      "to_node": "e_1567277353_5_m1",
+      "length_m": 10.81,
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_378",
+      "id": "curb_165",
       "from_node": "e_230039407_9_m3",
       "to_node": "e_1065511232_2_m1",
       "length_m": 10.85,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_379",
+      "id": "curb_166",
       "from_node": "e_230039407_12_m3",
       "to_node": "e_1315519861_0_m4",
       "length_m": 10.88,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_380",
-      "from_node": "e_230039407_9_m5",
-      "to_node": "e_1315519861_2_m2",
-      "length_m": 10.89,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_381",
-      "from_node": "e_1216934774_2_m3",
-      "to_node": "e_1567277347_2_m1",
-      "length_m": 11.01,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_382",
-      "from_node": "e_1165228301_2_m1",
-      "to_node": "e_1165228302_1_m1",
-      "length_m": 11.02,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_383",
-      "from_node": "e_230039408_5_m1",
-      "to_node": "e_1216937277_33_m6",
-      "length_m": 11.05,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_384",
-      "from_node": "osm_2380129149",
-      "to_node": "e_1571036593_0_m5",
-      "length_m": 11.14,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_385",
-      "from_node": "e_1065511232_4_m3",
-      "to_node": "e_1216934773_5_m1",
-      "length_m": 11.14,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_386",
+      "id": "curb_167",
       "from_node": "e_1315519861_0_m4",
       "to_node": "e_1334608446_6_m4",
       "length_m": 11.3,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_387",
+      "id": "curb_168",
       "from_node": "osm_12176751200",
       "to_node": "e_1216934780_2_m2",
       "length_m": 11.31,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     },
     {
-      "id": "ped_x_388",
-      "from_node": "osm_12172044145",
-      "to_node": "osm_14276377549",
-      "length_m": 11.34,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_389",
-      "from_node": "osm_2241169160",
-      "to_node": "osm_14282945518",
-      "length_m": 11.36,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_390",
-      "from_node": "osm_14272955081",
-      "to_node": "e_1567277345_7_m1",
-      "length_m": 11.43,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_391",
+      "id": "curb_169",
       "from_node": "e_230039412_1_m2",
       "to_node": "e_1216937277_4_m2",
       "length_m": 11.45,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_392",
-      "from_node": "e_1315519861_0_m6",
-      "to_node": "e_1334608446_6_m5",
-      "length_m": 11.47,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_393",
-      "from_node": "osm_11276073893",
-      "to_node": "osm_14041457761",
-      "length_m": 11.52,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_394",
-      "from_node": "e_1083933820_11_m2",
-      "to_node": "e_1115980504_0_m2",
-      "length_m": 11.57,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_395",
-      "from_node": "e_230039407_12_m2",
-      "to_node": "e_1315519861_0_m5",
-      "length_m": 11.59,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_396",
-      "from_node": "osm_5671662589",
-      "to_node": "osm_12172044149",
-      "length_m": 11.6,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_397",
-      "from_node": "osm_12346969181",
-      "to_node": "osm_12346969183",
-      "length_m": 11.6,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_398",
-      "from_node": "e_230039407_9_m6",
-      "to_node": "e_1315519861_2_m1",
-      "length_m": 11.66,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_399",
-      "from_node": "osm_14282945547",
-      "to_node": "e_217289313_12_m2",
-      "length_m": 11.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_400",
-      "from_node": "osm_11276073915",
-      "to_node": "e_1065511232_4_m2",
-      "length_m": 11.72,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_401",
-      "from_node": "osm_8503647264",
-      "to_node": "e_1115980504_0_m3",
-      "length_m": 11.74,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_402",
-      "from_node": "e_230039407_9_m2",
-      "to_node": "e_1065511232_2_m2",
-      "length_m": 11.8,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_403",
-      "from_node": "e_1216937277_48_m1",
-      "to_node": "e_1315053862_3_m3",
-      "length_m": 11.91,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_404",
-      "from_node": "osm_14041457760",
-      "to_node": "e_1216937277_31_m1",
-      "length_m": 11.96,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_405",
-      "from_node": "e_1315519865_0_m1",
-      "to_node": "e_1315519865_2_m1",
-      "length_m": 12.02,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_406",
-      "from_node": "osm_2385653011",
-      "to_node": "osm_9884693418",
-      "length_m": 12.11,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_407",
-      "from_node": "osm_2241169423",
-      "to_node": "e_1567277347_2_m1",
-      "length_m": 12.13,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_408",
-      "from_node": "osm_12176461333",
-      "to_node": "osm_14312064436",
-      "length_m": 12.16,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_409",
-      "from_node": "osm_12172044014",
-      "to_node": "e_1315053862_3_m5",
-      "length_m": 12.27,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_410",
-      "from_node": "osm_8871627149",
-      "to_node": "osm_12176461313",
-      "length_m": 12.28,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_411",
-      "from_node": "e_230039412_8_m2",
-      "to_node": "e_1216937277_12_m2",
-      "length_m": 12.43,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_412",
-      "from_node": "e_1216934776_36_m1",
-      "to_node": "e_1567277347_2_m1",
-      "length_m": 12.45,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_413",
-      "from_node": "e_230039407_12_m1",
-      "to_node": "e_1315519861_0_m6",
-      "length_m": 12.53,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_414",
-      "from_node": "e_1065502227_4_m1",
-      "to_node": "e_1567568079_0_m2",
-      "length_m": 12.62,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_415",
-      "from_node": "e_228842499_1_m1",
-      "to_node": "e_1315053873_1_m1",
-      "length_m": 12.69,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_416",
-      "from_node": "e_1083933820_11_m1",
-      "to_node": "e_1115980504_0_m1",
-      "length_m": 12.78,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_417",
-      "from_node": "osm_12176769035",
-      "to_node": "e_230039407_9_m1",
-      "length_m": 12.86,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_418",
-      "from_node": "osm_9785317261",
-      "to_node": "osm_14276377546",
-      "length_m": 12.96,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_419",
-      "from_node": "e_230039412_1_m1",
-      "to_node": "e_1216937277_4_m1",
-      "length_m": 13.03,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_420",
-      "from_node": "osm_12176461336",
-      "to_node": "e_1315487280_18_m7",
-      "length_m": 13.06,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_421",
-      "from_node": "osm_9785393595",
-      "to_node": "osm_11276073929",
-      "length_m": 13.11,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_422",
-      "from_node": "osm_12172042548",
-      "to_node": "osm_14283100127",
-      "length_m": 13.22,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_423",
-      "from_node": "osm_3326585985",
-      "to_node": "e_230039431_4_m6",
-      "length_m": 13.26,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_424",
-      "from_node": "osm_13291202778",
-      "to_node": "e_230039408_8_m1",
-      "length_m": 13.35,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_425",
-      "from_node": "osm_2380129155",
-      "to_node": "e_1448679945_0_m1",
-      "length_m": 13.49,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_426",
-      "from_node": "e_1065502227_1_m1",
-      "to_node": "e_1567568078_1_m2",
-      "length_m": 13.57,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_427",
-      "from_node": "osm_12176768983",
-      "to_node": "e_1065511264_2_m2",
-      "length_m": 13.63,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_428",
-      "from_node": "osm_13291202776",
-      "to_node": "e_230039408_9_m1",
-      "length_m": 13.71,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_429",
-      "from_node": "osm_9884693465",
-      "to_node": "osm_12176751133",
-      "length_m": 14.04,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_430",
-      "from_node": "osm_2380129157",
-      "to_node": "e_1448679945_3_m1",
-      "length_m": 14.07,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_431",
-      "from_node": "osm_9785317263",
-      "to_node": "e_1567568079_0_m1",
-      "length_m": 14.19,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_432",
-      "from_node": "e_228842505_1_m2",
-      "to_node": "e_1315053873_1_m1",
-      "length_m": 14.37,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_433",
-      "from_node": "e_230039408_8_m2",
-      "to_node": "e_1448679945_2_m1",
-      "length_m": 14.86,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_434",
-      "from_node": "e_230039407_10_m1",
-      "to_node": "e_1315519861_1_m2",
-      "length_m": 14.93,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_435",
-      "from_node": "osm_9785311410",
-      "to_node": "osm_9785311415",
-      "length_m": 15.16,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_436",
-      "from_node": "osm_10838086387",
-      "to_node": "osm_14282945522",
-      "length_m": 15.44,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_437",
-      "from_node": "e_1315519863_0_m2",
-      "to_node": "e_1315519865_2_m1",
-      "length_m": 15.48,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_438",
-      "from_node": "osm_11276063005",
-      "to_node": "osm_12172044152",
-      "length_m": 15.74,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_439",
-      "from_node": "osm_8503647230",
-      "to_node": "osm_8503647270",
-      "length_m": 15.94,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_440",
-      "from_node": "e_1216937277_31_m1",
-      "to_node": "e_1448679945_0_m1",
-      "length_m": 16.09,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_441",
-      "from_node": "e_1315519864_0_m1",
-      "to_node": "e_1315519865_0_m1",
-      "length_m": 16.11,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_442",
-      "from_node": "osm_14272955072",
-      "to_node": "osm_14282945543",
-      "length_m": 16.17,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_443",
-      "from_node": "osm_12172044064",
-      "to_node": "e_228842505_1_m1",
-      "length_m": 16.22,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_444",
-      "from_node": "osm_10838086414",
-      "to_node": "osm_14282945525",
-      "length_m": 16.27,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_445",
-      "from_node": "e_1165228302_1_m1",
-      "to_node": "e_1568194477_9_m2",
-      "length_m": 16.28,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_446",
-      "from_node": "e_230039431_3_m1",
-      "to_node": "e_1165228334_3_m3",
-      "length_m": 16.41,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_447",
-      "from_node": "osm_2375056724",
-      "to_node": "osm_12172044065",
-      "length_m": 16.6,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_448",
-      "from_node": "e_1115980504_0_m3",
-      "to_node": "e_1115980504_4_m1",
-      "length_m": 16.61,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_449",
-      "from_node": "osm_2241169348",
-      "to_node": "e_1165228334_3_m2",
-      "length_m": 16.63,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_450",
-      "from_node": "osm_2380129156",
-      "to_node": "osm_13291202777",
-      "length_m": 16.76,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_451",
-      "from_node": "osm_12172044157",
-      "to_node": "e_1078150660_0_m1",
-      "length_m": 16.85,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_452",
-      "from_node": "e_1115980504_0_m1",
-      "to_node": "e_1115980504_4_m4",
-      "length_m": 16.87,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_453",
-      "from_node": "e_230039431_3_m2",
-      "to_node": "e_1165228334_3_m4",
-      "length_m": 17.0,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_454",
-      "from_node": "e_1315519863_0_m1",
-      "to_node": "e_1315519865_2_m2",
-      "length_m": 17.05,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_455",
-      "from_node": "osm_10838086388",
-      "to_node": "e_1568194477_9_m1",
-      "length_m": 17.05,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_456",
-      "from_node": "osm_10838086549",
-      "to_node": "e_230039431_2_m1",
-      "length_m": 17.63,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_457",
-      "from_node": "osm_1851268670",
-      "to_node": "osm_10838073492",
-      "length_m": 17.95,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_458",
-      "from_node": "e_214611212_8_m1",
-      "to_node": "e_742780451_0_m2",
-      "length_m": 18.39,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_459",
-      "from_node": "e_1216937277_32_m1",
-      "to_node": "e_1448679945_2_m1",
-      "length_m": 18.43,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_460",
-      "from_node": "e_230039431_3_m3",
-      "to_node": "e_1165228334_3_m5",
-      "length_m": 18.44,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_461",
-      "from_node": "e_230039431_2_m3",
-      "to_node": "e_1165228334_3_m1",
-      "length_m": 18.71,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_462",
-      "from_node": "e_1115980504_0_m2",
-      "to_node": "e_1115980504_4_m3",
-      "length_m": 19.25,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_463",
-      "from_node": "osm_12176768708",
-      "to_node": "e_1567277348_9_m1",
-      "length_m": 19.3,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_464",
-      "from_node": "osm_14041457748",
-      "to_node": "osm_14264504394",
-      "length_m": 19.52,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_465",
-      "from_node": "osm_2375056749",
-      "to_node": "osm_14312064493",
-      "length_m": 19.55,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_466",
-      "from_node": "osm_2241169454",
-      "to_node": "e_1165228334_3_m6",
-      "length_m": 20.35,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_467",
-      "from_node": "e_230039412_8_m1",
-      "to_node": "e_1567568078_1_m1",
-      "length_m": 20.63,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_468",
-      "from_node": "e_230039431_4_m1",
-      "to_node": "e_1165228334_3_m7",
-      "length_m": 20.86,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_469",
-      "from_node": "osm_11276073950",
-      "to_node": "e_1315519861_1_m1",
-      "length_m": 21.21,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_470",
-      "from_node": "e_230039431_4_m2",
-      "to_node": "e_1165228334_3_m8",
-      "length_m": 21.26,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_471",
-      "from_node": "osm_10838086550",
-      "to_node": "e_230039431_4_m3",
-      "length_m": 21.78,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_472",
-      "from_node": "osm_10207164273",
-      "to_node": "e_174437851_7_m7",
-      "length_m": 32.54,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_473",
-      "from_node": "osm_3326586034",
-      "to_node": "e_229526896_2_m1",
-      "length_m": 34.45,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_474",
-      "from_node": "osm_10838086353",
-      "to_node": "e_174437851_12_m2",
-      "length_m": 37.51,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_475",
-      "from_node": "osm_2385652969",
-      "to_node": "osm_2385652977",
-      "length_m": 38.7,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_476",
-      "from_node": "osm_14041457743",
-      "to_node": "e_214611238_5_m5",
-      "length_m": 39.7,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_477",
-      "from_node": "osm_9785393493",
-      "to_node": "e_230039430_0_m2",
-      "length_m": 49.15,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_478",
-      "from_node": "osm_9785393520",
-      "to_node": "osm_9785393532",
-      "length_m": 53.24,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_479",
-      "from_node": "osm_9785393519",
-      "to_node": "e_1065511257_1_m5",
-      "length_m": 54.35,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_480",
-      "from_node": "e_1065511255_10_m3",
-      "to_node": "e_1065511257_4_m5",
-      "length_m": 54.37,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_481",
-      "from_node": "osm_2241169305",
-      "to_node": "osm_14041457741",
-      "length_m": 56.88,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_482",
-      "from_node": "osm_10838086458",
-      "to_node": "e_230039430_1_m1",
-      "length_m": 56.99,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_483",
-      "from_node": "osm_10838086551",
-      "to_node": "e_1567277346_0_m2",
-      "length_m": 61.15,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_484",
-      "from_node": "osm_2385652998",
-      "to_node": "osm_14312064496",
-      "length_m": 61.18,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_485",
-      "from_node": "osm_9785393612",
-      "to_node": "osm_9785420586",
-      "length_m": 62.65,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_486",
-      "from_node": "osm_1851268670",
-      "to_node": "osm_10207164230",
-      "length_m": 65.97,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_487",
-      "from_node": "osm_6953363169",
-      "to_node": "osm_12176768913",
-      "length_m": 68.85,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_488",
-      "from_node": "osm_9785393623",
-      "to_node": "osm_12176768990",
-      "length_m": 69.34,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_489",
-      "from_node": "osm_9785420549",
-      "to_node": "osm_11276073882",
-      "length_m": 69.77,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_490",
-      "from_node": "e_1165228333_0_m5",
-      "to_node": "e_1567277346_0_m7",
-      "length_m": 70.09,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_491",
-      "from_node": "osm_10838086356",
-      "to_node": "e_174437851_14_m1",
-      "length_m": 70.26,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_492",
-      "from_node": "osm_2385652957",
-      "to_node": "osm_11276074233",
-      "length_m": 71.16,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_493",
-      "from_node": "osm_14272957805",
-      "to_node": "e_174437851_8_m1",
-      "length_m": 76.52,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_494",
-      "from_node": "osm_14272957803",
-      "to_node": "e_174437851_7_m3",
-      "length_m": 76.99,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_495",
-      "from_node": "e_1065502231_0_m3",
-      "to_node": "e_1571036593_0_m4",
-      "length_m": 78.33,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_496",
-      "from_node": "osm_12176768992",
-      "to_node": "e_1065511291_2_m1",
-      "length_m": 81.32,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_497",
-      "from_node": "osm_11276073927",
-      "to_node": "e_1567277345_8_m9",
-      "length_m": 89.35,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_498",
-      "from_node": "osm_9785393623",
-      "to_node": "e_1334608446_6_m4",
-      "length_m": 91.04,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_499",
-      "from_node": "e_1216937277_33_m5",
-      "to_node": "e_1567277345_8_m4",
-      "length_m": 91.32,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_500",
-      "from_node": "e_1165228334_3_m4",
-      "to_node": "e_1567277346_0_m7",
-      "length_m": 94.42,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
-      "is_lit": true,
-      "Accessible": true
-    },
-    {
-      "id": "ped_x_501",
-      "from_node": "osm_6953363168",
-      "to_node": "e_1567568083_0_m2",
-      "length_m": 99.85,
-      "name": "Yaya Geçidi / Bağlantı Yolu",
+      "name": "Yaya Geçidi / Kaldırım Bağlantısı",
       "is_lit": true,
       "Accessible": true
     }

@@ -148,19 +148,18 @@ def _inject_virtual_terminal(
     fallback_node_id: str,
 ) -> None:
     """
-    Connects a virtual terminal node (`__start__` or `__target__`) to both endpoints of all
-    nearby open walkway edges (within 18m of the closest edge). This prevents 180-degree
-    U-turns where snapping to only one endpoint forces walking backwards along the segment,
-    and connects across parallel sidewalk/road lanes immediately.
+    Projects (`lat`, `lon`) orthogonally onto the single closest open walkway edge `(u, v)`
+    at projection node `virt_proj`, and connects `virt_proj` to both `u` and `v`.
+    Thus the route stays 100% glued to the drawn walkway and can immediately go in either direction.
     """
-    nodes[virt_id] = {"id": virt_id, "lat": lat, "lon": lon}
-
-    candidates: list[tuple[float, str, str, float, float, str]] = []
+    best_edge = None
+    best_proj_lat = lat
+    best_proj_lon = lon
     min_ortho = float("inf")
 
     for e in edges:
         eid = e["id"]
-        if eid in blocked_edges:
+        if eid in blocked_edges or eid.startswith("curb_"):
             continue
         u_id, v_id = e["from_node"], e["to_node"]
         u, v = nodes.get(u_id), nodes.get(v_id)
@@ -171,28 +170,28 @@ def _inject_virtual_terminal(
         )
         if ortho_d < min_ortho:
             min_ortho = ortho_d
-        if ortho_d <= 35.0:
-            du = haversine_m(proj_lat, proj_lon, u["lat"], u["lon"])
-            dv = haversine_m(proj_lat, proj_lon, v["lat"], v["lon"])
-            candidates.append((ortho_d, u_id, v_id, du, dv, eid))
+            best_edge = e
+            best_proj_lat = proj_lat
+            best_proj_lon = proj_lon
 
-    cutoff = min(30.0, min_ortho + 16.0)
-    connected = 0
-    for ortho_d, u_id, v_id, du, dv, eid in candidates:
-        if ortho_d <= cutoff:
-            wu = round(ortho_d + du, 2)
-            wv = round(ortho_d + dv, 2)
-            adj[virt_id].append((u_id, wu, eid))
-            adj[u_id].append((virt_id, wu, eid))
-            adj[virt_id].append((v_id, wv, eid))
-            adj[v_id].append((virt_id, wv, eid))
-            connected += 1
-
-    if connected == 0 and fallback_node_id in nodes:
-        fn = nodes[fallback_node_id]
-        d = round(haversine_m(lat, lon, fn["lat"], fn["lon"]), 2)
-        adj[virt_id].append((fallback_node_id, d, ""))
-        adj[fallback_node_id].append((virt_id, d, ""))
+    if best_edge is not None:
+        u_id, v_id = best_edge["from_node"], best_edge["to_node"]
+        u, v = nodes[u_id], nodes[v_id]
+        eid = best_edge["id"]
+        nodes[virt_id] = {"id": virt_id, "lat": best_proj_lat, "lon": best_proj_lon}
+        du = round(haversine_m(best_proj_lat, best_proj_lon, u["lat"], u["lon"]), 2)
+        dv = round(haversine_m(best_proj_lat, best_proj_lon, v["lat"], v["lon"]), 2)
+        adj[virt_id].append((u_id, du, eid))
+        adj[u_id].append((virt_id, du, eid))
+        adj[virt_id].append((v_id, dv, eid))
+        adj[v_id].append((virt_id, dv, eid))
+    else:
+        nodes[virt_id] = {"id": virt_id, "lat": lat, "lon": lon}
+        if fallback_node_id in nodes:
+            fn = nodes[fallback_node_id]
+            d = round(haversine_m(lat, lon, fn["lat"], fn["lon"]), 2)
+            adj[virt_id].append((fallback_node_id, d, ""))
+            adj[fallback_node_id].append((virt_id, d, ""))
 
 
 def _smooth_hairpins(coords: list[list[float]]) -> list[list[float]]:

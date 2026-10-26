@@ -442,8 +442,6 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 
     const walkwayFeatures: GeoJSON.Feature[] = [];
     (walkGraph?.edges || []).forEach((edge) => {
-      // Hide synthetic cross-lane connectors from visual clutter while keeping them active in A* routing
-      if (edge.id.startsWith('ped_x_')) return;
       const u = nodeMap.get(edge.from_node);
       const v = nodeMap.get(edge.to_node);
       if (!u || !v) return;

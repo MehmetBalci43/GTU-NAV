@@ -12,7 +12,7 @@ export interface SnappedLocationResult {
 /**
  * İki WGS84 koordinatı arasındaki mesafeyi metre cinsinden hesaplar (Haversine).
  */
-export function haversineDistanceM(lat1: number, lon1: number, lat2: number, lon2: number): number {
+export function haversineDistanceM(lat1: number, lon1: float, lat2: number, lon2: number): number {
   const R = 6371000;
   const p1 = (lat1 * Math.PI) / 180;
   const p2 = (lat2 * Math.PI) / 180;
@@ -24,6 +24,8 @@ export function haversineDistanceM(lat1: number, lon1: number, lat2: number, lon
   return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+type float = number;
+
 /**
  * Aşama 1: 1.8m Jitter Kalkanı ve Hafif 2B Kalman Filtresi
  * Bina aralarında Multipath Error nedeniyle zıplayan ham GPS sinyalini yumuşatır.
@@ -31,7 +33,7 @@ export function haversineDistanceM(lat1: number, lon1: number, lat2: number, lon
 class LightweightKalman2D {
   private lat: number | null = null;
   private lon: number | null = null;
-  private variance = 9.0; // m^2
+  private variance = 9.0;
 
   reset(): void {
     this.lat = null;
@@ -49,13 +51,20 @@ class LightweightKalman2D {
     }
 
     const deltaM = haversineDistanceM(this.lat, this.lon, rawLat, rawLon);
+    // Eğer ani sıçrama > 12m ise (simülatör adımı veya haritadan yeni konum seçimi), gecikme yapmadan doğrudan yeni konuma kilitlen
+    if (deltaM > 12.0) {
+      this.lat = rawLat;
+      this.lon = rawLon;
+      this.variance = clampedAcc * clampedAcc;
+      return { lat: rawLat, lon: rawLon };
+    }
+
     // 1.8m Jitter Kalkanı: Dururken GPS hata yarıçapı içindeki küçük titremeleri yok say
     if (deltaM < 1.8 && clampedAcc >= deltaM) {
       return { lat: this.lat, lon: this.lon };
     }
 
-    // Süreç gürültüsü Q (yaya yürüyüş ivmesi)
-    const processNoiseQ = 3.2;
+    const processNoiseQ = 14.0;
     this.variance += processNoiseQ;
 
     const measurementNoiseR = clampedAcc * clampedAcc;
@@ -126,17 +135,18 @@ function projectPointOnSegment(
 
 /**
  * Yoldan Sapmayan Navigasyon (Snap-to-Path):
- * Kullanıcının Kalman ile filtrelenmiş GPS konumunu aktif yürüyüş rotası çizgisine dik izdüşümle mıknatıslar.
- * Eğer mesafe <= 15m ise nokta tam yürüyüş çizgisinin üzerinde ilerler (bina içine girmez).
- * Eğer mesafe > 18m ise kullanıcının rotadan saptığını (isOffRoute = true) bildirir.
+ * Kullanıcının GPS konumunu aktif yürüyüş rotası çizgisine dik izdüşümle mıknatıslar.
  */
 export function snapLocationToRoute(
   rawLat: number,
   rawLon: number,
   routeCoords: [number, number][],
-  accuracyM: number = 5.0
+  accuracyM: number = 5.0,
+  bypassKalmanLag: boolean = false
 ): SnappedLocationResult {
-  const smoothed = smoothGpsCoordinate(rawLat, rawLon, accuracyM);
+  const smoothed = bypassKalmanLag
+    ? { lat: rawLat, lon: rawLon }
+    : smoothGpsCoordinate(rawLat, rawLon, accuracyM);
   const sLat = smoothed.lat;
   const sLon = smoothed.lon;
 
