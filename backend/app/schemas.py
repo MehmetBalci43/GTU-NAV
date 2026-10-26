@@ -21,6 +21,10 @@ class BuildingSchema(BaseModel):
     entrance_name: str
     entrance_lat: float
     entrance_lon: float
+    secondary_entrance_node_id: Optional[str] = None
+    secondary_entrance_name: Optional[str] = None
+    secondary_entrance_lat: Optional[float] = None
+    secondary_entrance_lon: Optional[float] = None
     polygon_coords: list[Any]
     description: Optional[str] = None
     free_rooms_count: int = 0
@@ -33,6 +37,8 @@ class BuildingEntranceUpdate(BaseModel):
     entrance_lat: float
     entrance_lon: float
     entrance_name: Optional[str] = None
+    entrance_slot: int = 1  # 1 = primary entrance, 2 = secondary entrance
+    clear_secondary: bool = False
 
 
 class BuildingCreateOrUpdate(BaseModel):

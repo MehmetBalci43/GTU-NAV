@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import or_
+from sqlalchemy import or_, text
 from sqlalchemy.orm import Session
 
 from app.ai.ticket_classifier import analyze_written_ticket, get_or_load_model
@@ -47,6 +47,17 @@ def init_db() -> None:
     if _DB_INITIALIZED:
         return
     Base.metadata.create_all(bind=engine)
+    with engine.begin() as conn:
+        for col_sql in (
+            "ALTER TABLE buildings ADD COLUMN secondary_entrance_node_id VARCHAR(64)",
+            "ALTER TABLE buildings ADD COLUMN secondary_entrance_name VARCHAR(100)",
+            "ALTER TABLE buildings ADD COLUMN secondary_entrance_lat FLOAT",
+            "ALTER TABLE buildings ADD COLUMN secondary_entrance_lon FLOAT",
+        ):
+            try:
+                conn.execute(text(col_sql))
+            except Exception:
+                pass
     db = SessionLocal()
     try:
         seed_database(db)
@@ -262,23 +273,6 @@ def calculate_route(req: RouteRequest, db: Session = Depends(get_db)) -> RouteRe
     init_db()
     graph = load_walk_graph()
 
-    target_lat = req.target_lat
-    target_lon = req.target_lon
-    target_node_id = None
-    target_entrance_name = "Seçilen Kampüs Noktası"
-
-    if req.target_building_id:
-        b = db.query(Building).filter(Building.id == req.target_building_id).first()
-        if not b:
-            raise HTTPException(status_code=404, detail="Hedef bina bulunamadı.")
-        target_lat = b.entrance_lat
-        target_lon = b.entrance_lon
-        target_node_id = b.entrance_node_id
-        target_entrance_name = b.entrance_name
-
-    if target_lat is None or target_lon is None:
-        raise HTTPException(status_code=422, detail="Hedef bina veya koordinat belirtilmelidir.")
-
     active_closures = (
         db.query(MapAlert)
         .filter(MapAlert.status == "active", MapAlert.blocks_route == True)  # noqa: E712
@@ -286,15 +280,50 @@ def calculate_route(req: RouteRequest, db: Session = Depends(get_db)) -> RouteRe
     )
     blocked_edges = {a.edge_id for a in active_closures if a.edge_id}
 
+    if req.target_building_id:
+        b = db.query(Building).filter(Building.id == req.target_building_id).first()
+        if not b:
+            raise HTTPException(status_code=404, detail="Hedef bina bulunamadı.")
+
+        primary_res = compute_pedestrian_route(
+            graph=graph,
+            start_lat=req.start_lat,
+            start_lon=req.start_lon,
+            target_lat=b.entrance_lat,
+            target_lon=b.entrance_lon,
+            blocked_edges=blocked_edges,
+            target_node_id=b.entrance_node_id,
+            target_entrance_name=b.entrance_name,
+        )
+
+        if b.secondary_entrance_lat is not None and b.secondary_entrance_lon is not None:
+            secondary_res = compute_pedestrian_route(
+                graph=graph,
+                start_lat=req.start_lat,
+                start_lon=req.start_lon,
+                target_lat=b.secondary_entrance_lat,
+                target_lon=b.secondary_entrance_lon,
+                blocked_edges=blocked_edges,
+                target_node_id=b.secondary_entrance_node_id,
+                target_entrance_name=b.secondary_entrance_name or f"{b.code} 2. Giriş Kapısı",
+            )
+            if secondary_res["distance_m"] < primary_res["distance_m"]:
+                return RouteResponse(**secondary_res)
+
+        return RouteResponse(**primary_res)
+
+    if req.target_lat is None or req.target_lon is None:
+        raise HTTPException(status_code=422, detail="Hedef bina veya koordinat belirtilmelidir.")
+
     result = compute_pedestrian_route(
         graph=graph,
         start_lat=req.start_lat,
         start_lon=req.start_lon,
-        target_lat=target_lat,
-        target_lon=target_lon,
+        target_lat=req.target_lat,
+        target_lon=req.target_lon,
         blocked_edges=blocked_edges,
-        target_node_id=target_node_id,
-        target_entrance_name=target_entrance_name,
+        target_node_id=None,
+        target_entrance_name="Seçilen Kampüs Noktası",
     )
     return RouteResponse(**result)
 
@@ -512,16 +541,33 @@ def update_building_entrance(
     if not b:
         raise HTTPException(status_code=404, detail="Bina bulunamadı.")
 
+    if req.clear_secondary:
+        b.secondary_entrance_node_id = None
+        b.secondary_entrance_name = None
+        b.secondary_entrance_lat = None
+        b.secondary_entrance_lon = None
+        db.commit()
+        db.refresh(b)
+        sync_buildings_to_json(db)
+        return BuildingSchema.model_validate(b)
+
     graph = load_walk_graph()
     nodes_map = {n["id"]: n for n in graph.get("nodes", [])}
     nearest_nid = find_nearest_node(nodes_map, req.entrance_lat, req.entrance_lon)
     snapped_node = nodes_map[nearest_nid]
 
-    b.entrance_node_id = nearest_nid
-    b.entrance_lat = snapped_node["lat"]
-    b.entrance_lon = snapped_node["lon"]
-    if req.entrance_name:
-        b.entrance_name = req.entrance_name
+    if req.entrance_slot == 2:
+        b.secondary_entrance_node_id = nearest_nid
+        b.secondary_entrance_lat = snapped_node["lat"]
+        b.secondary_entrance_lon = snapped_node["lon"]
+        b.secondary_entrance_name = req.entrance_name or f"{b.code} 2. Giriş Kapısı"
+    else:
+        b.entrance_node_id = nearest_nid
+        b.entrance_lat = snapped_node["lat"]
+        b.entrance_lon = snapped_node["lon"]
+        if req.entrance_name:
+            b.entrance_name = req.entrance_name
+
     db.commit()
     db.refresh(b)
     sync_buildings_to_json(db)

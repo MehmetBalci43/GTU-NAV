@@ -68,6 +68,10 @@ def sync_buildings_to_json(db: Session) -> None:
                 "entrance_node_id": b.entrance_node_id,
                 "entrance_lat": b.entrance_lat,
                 "entrance_lon": b.entrance_lon,
+                "secondary_entrance_node_id": b.secondary_entrance_node_id,
+                "secondary_entrance_name": b.secondary_entrance_name,
+                "secondary_entrance_lat": b.secondary_entrance_lat,
+                "secondary_entrance_lon": b.secondary_entrance_lon,
             }
         )
         serialized.append(entry)
@@ -98,6 +102,10 @@ def seed_database(db: Session) -> None:
                         entrance_name=b["entrance_name"],
                         entrance_lat=b["entrance_lat"],
                         entrance_lon=b["entrance_lon"],
+                        secondary_entrance_node_id=b.get("secondary_entrance_node_id"),
+                        secondary_entrance_name=b.get("secondary_entrance_name"),
+                        secondary_entrance_lat=b.get("secondary_entrance_lat"),
+                        secondary_entrance_lon=b.get("secondary_entrance_lon"),
                         polygon_coords=b["polygon_coords"],
                         description=b.get("description", ""),
                     )
@@ -127,6 +135,10 @@ def seed_database(db: Session) -> None:
             entrance_name=b["entrance_name"],
             entrance_lat=b["entrance_lat"],
             entrance_lon=b["entrance_lon"],
+            secondary_entrance_node_id=b.get("secondary_entrance_node_id"),
+            secondary_entrance_name=b.get("secondary_entrance_name"),
+            secondary_entrance_lat=b.get("secondary_entrance_lat"),
+            secondary_entrance_lon=b.get("secondary_entrance_lon"),
             polygon_coords=b["polygon_coords"],
             description=b["description"],
         )

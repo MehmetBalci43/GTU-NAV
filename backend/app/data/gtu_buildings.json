@@ -100,7 +100,11 @@
     ],
     "entrance_node_id": "osm_12176768877",
     "entrance_lat": 40.808127,
-    "entrance_lon": 29.356468
+    "entrance_lon": 29.356468,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "elmb",
@@ -143,7 +147,11 @@
     ],
     "entrance_node_id": "osm_14282945540",
     "entrance_lat": 40.806461,
-    "entrance_lon": 29.355891
+    "entrance_lon": 29.355891,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "tbb",
@@ -286,7 +294,11 @@
     ],
     "entrance_node_id": "osm_9785420557",
     "entrance_lat": 40.805185,
-    "entrance_lon": 29.359233
+    "entrance_lon": 29.359233,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "kmb",
@@ -365,7 +377,11 @@
     ],
     "entrance_node_id": "osm_6953363162",
     "entrance_lat": 40.806073,
-    "entrance_lon": 29.358598
+    "entrance_lon": 29.358598,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "mab",
@@ -472,7 +488,11 @@
     ],
     "entrance_node_id": "osm_14282945550",
     "entrance_lat": 40.807633,
-    "entrance_lon": 29.359515
+    "entrance_lon": 29.359515,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "ibf",
@@ -511,7 +531,11 @@
     ],
     "entrance_node_id": "osm_9785420551",
     "entrance_lat": 40.808866,
-    "entrance_lon": 29.362634
+    "entrance_lon": 29.362634,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "hemb",
@@ -550,7 +574,11 @@
     ],
     "entrance_node_id": "osm_12176461337",
     "entrance_lat": 40.807059,
-    "entrance_lon": 29.361952
+    "entrance_lon": 29.361952,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "biyo",
@@ -593,7 +621,11 @@
     ],
     "entrance_node_id": "osm_12176768702",
     "entrance_lat": 40.806853,
-    "entrance_lon": 29.363227
+    "entrance_lon": 29.363227,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "hubf",
@@ -632,7 +664,11 @@
     ],
     "entrance_node_id": "osm_14276377554",
     "entrance_lat": 40.806137,
-    "entrance_lon": 29.357979
+    "entrance_lon": 29.357979,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "mim_n",
@@ -703,7 +739,11 @@
     ],
     "entrance_node_id": "osm_12176447072",
     "entrance_lat": 40.810716,
-    "entrance_lon": 29.362064
+    "entrance_lon": 29.362064,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "ydb",
@@ -834,7 +874,11 @@
     ],
     "entrance_node_id": "osm_9884667514",
     "entrance_lat": 40.81164,
-    "entrance_lon": 29.362284
+    "entrance_lon": 29.362284,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "eblok",
@@ -877,7 +921,11 @@
     ],
     "entrance_node_id": "osm_11276073879",
     "entrance_lat": 40.80935,
-    "entrance_lon": 29.360296
+    "entrance_lon": 29.360296,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "fblok",
@@ -940,7 +988,11 @@
     ],
     "entrance_node_id": "osm_9785420552",
     "entrance_lat": 40.809079,
-    "entrance_lon": 29.361431
+    "entrance_lon": 29.361431,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "fiz_h",
@@ -979,7 +1031,11 @@
     ],
     "entrance_node_id": "osm_2381109719",
     "entrance_lat": 40.809973,
-    "entrance_lon": 29.36171
+    "entrance_lon": 29.36171,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "muh_dek",
@@ -1034,7 +1090,11 @@
     ],
     "entrance_node_id": "osm_9785449542",
     "entrance_lat": 40.812905,
-    "entrance_lon": 29.361384
+    "entrance_lon": 29.361384,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "kut",
@@ -1109,7 +1169,11 @@
     ],
     "entrance_node_id": "osm_12176461335",
     "entrance_lat": 40.806679,
-    "entrance_lon": 29.359134
+    "entrance_lon": 29.359134,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "ymk",
@@ -1176,7 +1240,11 @@
     ],
     "entrance_node_id": "osm_12172042538",
     "entrance_lat": 40.810136,
-    "entrance_lon": 29.361888
+    "entrance_lon": 29.361888,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "kelebek",
@@ -1219,7 +1287,11 @@
     ],
     "entrance_node_id": "osm_14312064456",
     "entrance_lat": 40.811693,
-    "entrance_lon": 29.361818
+    "entrance_lon": 29.361818,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "rek",
@@ -1274,7 +1346,11 @@
     ],
     "entrance_node_id": "osm_12176768989",
     "entrance_lat": 40.811507,
-    "entrance_lon": 29.357046
+    "entrance_lon": 29.357046,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "oidb",
@@ -1337,7 +1413,11 @@
     ],
     "entrance_node_id": "osm_12176768991",
     "entrance_lat": 40.811177,
-    "entrance_lon": 29.357148
+    "entrance_lon": 29.357148,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "bidb",
@@ -1436,7 +1516,11 @@
     ],
     "entrance_node_id": "osm_2380129164",
     "entrance_lat": 40.808819,
-    "entrance_lon": 29.363747
+    "entrance_lon": 29.363747,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "kkm",
@@ -1499,7 +1583,11 @@
     ],
     "entrance_node_id": "osm_12346969191",
     "entrance_lat": 40.814487,
-    "entrance_lon": 29.359965
+    "entrance_lon": 29.359965,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "anakapi",
@@ -1586,7 +1674,11 @@
     ],
     "entrance_node_id": "osm_14312064461",
     "entrance_lat": 40.809001,
-    "entrance_lon": 29.364935
+    "entrance_lon": 29.364935,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "mar",
@@ -1701,7 +1793,11 @@
     ],
     "entrance_node_id": "osm_8503647230",
     "entrance_lat": 40.807563,
-    "entrance_lon": 29.364243
+    "entrance_lon": 29.364243,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "kyk_kiz_yurdu",
@@ -1748,7 +1844,11 @@
     ],
     "entrance_node_id": "osm_9933047066",
     "entrance_lat": 40.806441,
-    "entrance_lon": 29.364693
+    "entrance_lon": 29.364693,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "b_igzide_237",
@@ -1786,7 +1886,11 @@
     ],
     "entrance_node_id": "osm_14312064441",
     "entrance_lat": 40.80634,
-    "entrance_lon": 29.359613
+    "entrance_lon": 29.359613,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   },
   {
     "id": "b_mta_351",
@@ -1824,6 +1928,110 @@
     ],
     "entrance_node_id": "e_1567568082_1_m1",
     "entrance_lat": 40.806085,
-    "entrance_lon": 29.358278
+    "entrance_lon": 29.358278,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
+  },
+  {
+    "id": "b_ky_543",
+    "code": "KÖY",
+    "name": "Kız Öğrenci Yurdu",
+    "category": "admin",
+    "floors_count": 3,
+    "entrance_name": "Ana Giriş Kapısı",
+    "description": "Kız Öğrenci Yurdu kampüs binası.",
+    "lat": 40.805714,
+    "lon": 29.36397,
+    "polygon_coords": [
+      [
+        [
+          [
+            29.36387,
+            40.806383
+          ],
+          [
+            29.363782,
+            40.80604
+          ],
+          [
+            29.364076,
+            40.805997
+          ],
+          [
+            29.364163,
+            40.80634
+          ],
+          [
+            29.36387,
+            40.806383
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            29.363622,
+            40.805496
+          ],
+          [
+            29.363703,
+            40.805856
+          ],
+          [
+            29.364019,
+            40.805815
+          ],
+          [
+            29.363938,
+            40.805455
+          ],
+          [
+            29.363622,
+            40.805496
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            29.364294,
+            40.805747
+          ],
+          [
+            29.364534,
+            40.805714
+          ],
+          [
+            29.364366,
+            40.805014
+          ],
+          [
+            29.363565,
+            40.805125
+          ],
+          [
+            29.363607,
+            40.805302
+          ],
+          [
+            29.364169,
+            40.805225
+          ],
+          [
+            29.364294,
+            40.805747
+          ]
+        ]
+      ]
+    ],
+    "entrance_node_id": "e_1567277352_7_m3",
+    "entrance_lat": 40.805911,
+    "entrance_lon": 29.363339,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
   }
 ]

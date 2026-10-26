@@ -33,6 +33,10 @@ class Building(Base):
     entrance_name = Column(String(100), nullable=False, default="Ana Giriş Kapısı")
     entrance_lat = Column(Float, nullable=False)
     entrance_lon = Column(Float, nullable=False)
+    secondary_entrance_node_id = Column(String(64), nullable=True)
+    secondary_entrance_name = Column(String(100), nullable=True)
+    secondary_entrance_lat = Column(Float, nullable=True)
+    secondary_entrance_lon = Column(Float, nullable=True)
     polygon_coords = Column(JSON, nullable=False, default=list)  # [[[lon, lat], ...]]
     description = Column(Text, nullable=True)
 
