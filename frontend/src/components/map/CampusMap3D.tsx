@@ -376,15 +376,6 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
   const [currentBearing, setCurrentBearing] = useState<number>(0);
   const [currentZoom, setCurrentZoom] = useState<number>(15.6);
 
-  useEffect(() => {
-    onControlsReady?.({
-      basemapMode,
-      is3DPitch,
-      toggleBasemap: (m) => handleToggleBasemap(m),
-      togglePitch: () => handleTogglePitch(),
-    });
-  }, [basemapMode, is3DPitch, onControlsReady]);
-
   const callbacksRef = useRef({
     adminMapMode,
     blockedEdgeIds,
@@ -822,6 +813,21 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       map.setLayoutProperty('campus-buildings-3d', 'visibility', next3D ? 'visible' : 'none');
     }
   };
+
+  const onControlsReadyRef = useRef(onControlsReady);
+  useEffect(() => {
+    onControlsReadyRef.current = onControlsReady;
+  }, [onControlsReady]);
+
+  useEffect(() => {
+    onControlsReadyRef.current?.({
+      basemapMode,
+      is3DPitch,
+      toggleBasemap: (m) => handleToggleBasemap(m),
+      togglePitch: () => handleTogglePitch(),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [basemapMode, is3DPitch, isMapLoaded]);
 
   // Render GeoJSON Layers (Mini Motorways Walkways, Diorama Buildings, Entrances, Active Route)
   useEffect(() => {

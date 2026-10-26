@@ -376,7 +376,7 @@ export const App: React.FC = () => {
         }}
         onPickUserStartCoords={handleUserPickStartOnMap}
         onCancelMapMode={() => setAdminMapMode('none')}
-        onControlsReady={(actions) => setMapControls(actions)}
+        onControlsReady={setMapControls}
         isLiveGpsActive={isLiveGpsActive}
         onToggleLiveGps={() => {
           if (!isLiveGpsActive) {

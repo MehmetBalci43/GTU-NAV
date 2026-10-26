@@ -119,21 +119,26 @@ export const InteractiveBottomSheet: React.FC<InteractiveBottomSheetProps> = ({
     }
   }, [selectedBuilding]);
 
+  const onHeightChangeRef = useRef(onHeightChange);
+  useEffect(() => {
+    onHeightChangeRef.current = onHeightChange;
+  }, [onHeightChange]);
+
   // Sync detent changes
-  const applyDetent = useCallback((nextDetent: BottomSheetDetent) => {
+  const applyDetent = useCallback((nextDetent: BottomSheetDetent, withHaptic: boolean = false) => {
     setDetent(nextDetent);
     setCustomHeight(null);
     setIsTransitioning(true);
     const h = getDetentHeight(nextDetent);
-    onHeightChange?.(h);
-    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    onHeightChangeRef.current?.(h);
+    if (withHaptic && typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try {
         navigator.vibrate(8);
       } catch {
         // Ignore vibration errors if blocked
       }
     }
-  }, [getDetentHeight, onHeightChange]);
+  }, [getDetentHeight]);
 
   // When a building is selected, open sheet to medium or keep peek
   useEffect(() => {
@@ -142,7 +147,7 @@ export const InteractiveBottomSheet: React.FC<InteractiveBottomSheetProps> = ({
     } else {
       applyDetent('peek');
     }
-  }, [selectedBuilding?.id]);
+  }, [selectedBuilding?.id, applyDetent]);
 
   // When user types in search box, expand to large detent automatically
   useEffect(() => {
@@ -154,8 +159,8 @@ export const InteractiveBottomSheet: React.FC<InteractiveBottomSheetProps> = ({
   // Report height on mount or resize
   useEffect(() => {
     const h = customHeight ?? getDetentHeight(detent);
-    onHeightChange?.(h);
-  }, [detent, customHeight, getDetentHeight, onHeightChange]);
+    onHeightChangeRef.current?.(h);
+  }, [detent, customHeight, getDetentHeight]);
 
   // ---------------------------------------------------------------------------
   // Touch Drag Listeners (Spring Physics & Velocity Tracking)
@@ -209,9 +214,9 @@ export const InteractiveBottomSheet: React.FC<InteractiveBottomSheetProps> = ({
     if (velocity > 0.35) {
       // Swiping UP quickly
       if (currentH < mediumH) {
-        applyDetent('medium');
+        applyDetent('medium', true);
       } else {
-        applyDetent('large');
+        applyDetent('large', true);
       }
       return;
     }
@@ -219,13 +224,13 @@ export const InteractiveBottomSheet: React.FC<InteractiveBottomSheetProps> = ({
     if (velocity < -0.35) {
       // Swiping DOWN quickly
       if (currentH > mediumH) {
-        applyDetent('medium');
+        applyDetent('medium', true);
       } else if (selectedBuilding && currentH <= mediumH + 40) {
         // If building is open and flicked down hard, close building
         onCloseBuilding();
-        applyDetent('peek');
+        applyDetent('peek', true);
       } else {
-        applyDetent('peek');
+        applyDetent('peek', true);
       }
       return;
     }
@@ -236,19 +241,19 @@ export const InteractiveBottomSheet: React.FC<InteractiveBottomSheetProps> = ({
     const distToLarge = Math.abs(currentH - largeH);
 
     if (distToPeek <= distToMed && distToPeek <= distToLarge) {
-      applyDetent('peek');
+      applyDetent('peek', true);
     } else if (distToMed <= distToLarge) {
-      applyDetent('medium');
+      applyDetent('medium', true);
     } else {
-      applyDetent('large');
+      applyDetent('large', true);
     }
   };
 
   // Cycle detent on grabber tap
   const handleGrabberTap = () => {
-    if (detent === 'peek') applyDetent('medium');
-    else if (detent === 'medium') applyDetent('large');
-    else applyDetent('peek');
+    if (detent === 'peek') applyDetent('medium', true);
+    else if (detent === 'medium') applyDetent('large', true);
+    else applyDetent('peek', true);
   };
 
   // While full active navigation is underway, hide this sheet so map is 100% visible
