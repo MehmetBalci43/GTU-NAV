@@ -9,6 +9,11 @@ export type GpsTrackingStatus =
   | 'permission_denied'
   | 'unsupported';
 
+export interface GpsErrorModalState {
+  title: string;
+  message: string;
+}
+
 interface UseLiveGeolocationOptions {
   onPositionUpdate?: (lat: number, lon: number, accuracyM: number) => void;
   onNotice?: (message: string) => void;
@@ -19,14 +24,15 @@ interface UseLiveGeolocationOptions {
  * Manages navigator.geolocation independently from the core A* routing engine.
  *
  * Guarantees:
- * 1. Off-campus coordinates (common on PC Wi-Fi/ISP geolocation) NEVER leak into the core navigation origin.
- * 2. Geolocation errors/denials NEVER trigger route cancellation or red error banners.
- * 3. 100% opt-in: stays idle until explicitly activated.
+ * 1. Off-campus coordinates (common on PC Wi-Fi/ISP geolocation) NEVER activate GPS mode or leak into the core navigation origin.
+ * 2. When outside campus, immediately stops watching and triggers an explicit error dialog ("Kampüs Sınırları Dışındasınız").
+ * 3. 100% opt-in: stays completely hidden/idle unless explicitly activated from the menu.
  */
 export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeolocationOptions = {}) {
   const [isLiveGpsActive, setIsLiveGpsActive] = useState<boolean>(false);
   const [gpsStatus, setGpsStatus] = useState<GpsTrackingStatus>('idle');
   const [gpsAccuracyMeters, setGpsAccuracyMeters] = useState<number | null>(null);
+  const [gpsErrorModal, setGpsErrorModal] = useState<GpsErrorModalState | null>(null);
 
   const watchIdRef = useRef<number | null>(null);
   const onPositionUpdateRef = useRef(onPositionUpdate);
@@ -50,42 +56,68 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
     setGpsAccuracyMeters(null);
   }, []);
 
+  const clearGpsErrorModal = useCallback(() => {
+    setGpsErrorModal(null);
+  }, []);
+
   const startLiveGps = useCallback(() => {
     if (watchIdRef.current !== null) return;
 
     if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
       setGpsStatus('unsupported');
-      onNoticeRef.current?.('Tarayıcınız canlı GPS konum servisini desteklemiyor.');
+      setIsLiveGpsActive(false);
+      setGpsErrorModal({
+        title: 'GPS Desteklenmiyor',
+        message: 'Tarayıcınız canlı GPS konum servisini desteklemiyor.',
+      });
       return;
     }
 
-    setIsLiveGpsActive(true);
+    setGpsErrorModal(null);
     setGpsStatus('searching');
-    onNoticeRef.current?.('📡 Canlı GPS uydularına bağlanılıyor...');
+    onNoticeRef.current?.('📡 Canlı GPS konumu kontrol ediliyor...');
 
     const id = navigator.geolocation.watchPosition(
       (pos) => {
         const { latitude, longitude, accuracy } = pos.coords;
-        setGpsAccuracyMeters(accuracy || 5);
 
-        // Strict boundary check: Protect campus navigation from off-campus browser geolocation
+        // Strict boundary check: If user is at home / outside GTÜ campus, stop immediately and show error dialog!
         if (!isWithinCampusBounds(latitude, longitude)) {
+          if (watchIdRef.current !== null && 'geolocation' in navigator) {
+            navigator.geolocation.clearWatch(watchIdRef.current);
+            watchIdRef.current = null;
+          }
+          setIsLiveGpsActive(false);
           setGpsStatus('out_of_campus');
-          onNoticeRef.current?.(
-            '📍 GPS konumunuz GTÜ Kampüsü dışında algılandı. Masaüstü simülasyon modu devrede.'
-          );
-          // Do NOT feed off-campus coordinates to the campus navigation engine!
+          setGpsAccuracyMeters(null);
+          setGpsErrorModal({
+            title: 'Kampüs Sınırları Dışındasınız',
+            message:
+              'Mevcut konumunuz GTÜ Çayırova Yerleşkesi sınırları dışında algılandı. Canlı GPS takibi yalnızca kampüs içerisindeyken açılabilir. Kampüs dışındayken harita üzerinden rota çizebilir ve yürüyüş simülatörünü kullanabilirsiniz.',
+          });
           return;
         }
 
+        // Verified inside GTÜ campus! Now activate Live GPS mode
+        setIsLiveGpsActive(true);
         setGpsStatus('active');
+        setGpsAccuracyMeters(accuracy || 5);
         onPositionUpdateRef.current?.(latitude, longitude, accuracy || 4.0);
       },
       (err) => {
         console.warn('Live GPS watchPosition warning:', err.message);
+        if (watchIdRef.current !== null && 'geolocation' in navigator) {
+          navigator.geolocation.clearWatch(watchIdRef.current);
+          watchIdRef.current = null;
+        }
         setGpsStatus('permission_denied');
         setIsLiveGpsActive(false);
-        onNoticeRef.current?.('⚠️ GPS konum izni alınamadı. Simülatörü kullanabilirsiniz.');
+        setGpsAccuracyMeters(null);
+        setGpsErrorModal({
+          title: 'Canlı GPS Konumu Alınamadı',
+          message:
+            'Cihazınızın konum izni kapalı veya GPS sinyali alınamadı. Lütfen tarayıcı konum iznini kontrol edin.',
+        });
       },
       {
         enableHighAccuracy: true,
@@ -98,13 +130,13 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
   }, []);
 
   const toggleLiveGps = useCallback(() => {
-    if (isLiveGpsActive) {
+    if (isLiveGpsActive || gpsStatus === 'searching') {
       stopLiveGps();
       onNoticeRef.current?.('Canlı GPS takibi durduruldu.');
     } else {
       startLiveGps();
     }
-  }, [isLiveGpsActive, stopLiveGps, startLiveGps]);
+  }, [isLiveGpsActive, gpsStatus, stopLiveGps, startLiveGps]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -119,6 +151,8 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
     isLiveGpsActive,
     gpsStatus,
     gpsAccuracyMeters,
+    gpsErrorModal,
+    clearGpsErrorModal,
     startLiveGps,
     stopLiveGps,
     toggleLiveGps,

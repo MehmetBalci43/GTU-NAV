@@ -305,17 +305,15 @@ export function useNavigation(blockedEdgeIds: string[]) {
     setTargetBuildingId(null);
     setSimProgress(0);
     setRouteError(null);
-    setUserPos({
-      rawLat: CAMPUS_CONFIG.defaultSimStartCoord.lat,
-      rawLon: CAMPUS_CONFIG.defaultSimStartCoord.lon,
-      snappedLat: CAMPUS_CONFIG.defaultSimStartCoord.lat,
-      snappedLon: CAMPUS_CONFIG.defaultSimStartCoord.lon,
+    setUserPos((prev) => ({
+      ...prev,
+      rawLat: prev.snappedLat,
+      rawLon: prev.snappedLon,
       isSnapped: false,
       offRouteDistanceMeters: 0,
       remainingMeters: 0,
       remainingMinutes: 0,
-      source: 'default',
-    });
+    }));
   }, []);
 
   return {

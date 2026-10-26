@@ -67,7 +67,8 @@ export const App: React.FC = () => {
 
   const {
     isLiveGpsActive,
-    gpsStatus,
+    gpsErrorModal,
+    clearGpsErrorModal,
     toggleLiveGps,
     stopLiveGps,
   } = useLiveGeolocation({
@@ -280,6 +281,13 @@ export const App: React.FC = () => {
         onToggleBasemap={mapControls?.toggleBasemap}
         is3DPitch={mapControls?.is3DPitch ?? false}
         onTogglePitch={mapControls?.togglePitch}
+        isLiveGpsActive={isLiveGpsActive}
+        onToggleLiveGps={() => {
+          if (!isLiveGpsActive) {
+            setIsSimulatingWalk(false);
+          }
+          toggleLiveGps();
+        }}
       />
 
       {/* Tactile Toast / Reroute Notification Pill */}
@@ -377,13 +385,6 @@ export const App: React.FC = () => {
         onPickUserStartCoords={handleUserPickStartOnMap}
         onCancelMapMode={() => setAdminMapMode('none')}
         onControlsReady={setMapControls}
-        isLiveGpsActive={isLiveGpsActive}
-        onToggleLiveGps={() => {
-          if (!isLiveGpsActive) {
-            setIsSimulatingWalk(false);
-          }
-          toggleLiveGps();
-        }}
       />
 
       {/* Mobile Native Apple Maps Interactive Bottom Sheet (Peek / Medium / Large Detents) */}
@@ -426,6 +427,13 @@ export const App: React.FC = () => {
         }}
         onOpenAnnouncements={() => setIsAnnouncementsModalOpen(true)}
         announcements={announcements}
+        isLiveGpsActive={isLiveGpsActive}
+        onToggleLiveGps={() => {
+          if (!isLiveGpsActive) {
+            setIsSimulatingWalk(false);
+          }
+          toggleLiveGps();
+        }}
         onHeightChange={setMobileSheetHeight}
       />
 
@@ -546,6 +554,43 @@ export const App: React.FC = () => {
         initialClassroomId={ticketTarget.classroomId}
         onClose={() => setIsWrittenTicketOpen(false)}
       />
+
+      {/* Out-of-Campus / GPS Error Modal */}
+      {gpsErrorModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={clearGpsErrorModal}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white dark:bg-[#1E222D] border-2 border-zinc-950 shadow-hard-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/80 border-2 border-zinc-950 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 font-black text-lg">
+                !
+              </div>
+              <div>
+                <h3 className="text-base font-black text-zinc-950 dark:text-zinc-100">
+                  {gpsErrorModal.title}
+                </h3>
+                <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
+                  {gpsErrorModal.message}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-zinc-200 dark:border-white/10">
+              <button
+                type="button"
+                onClick={clearGpsErrorModal}
+                className="px-4 py-2 rounded-xl bg-sky-400 hover:bg-sky-500 text-zinc-950 font-black text-xs border-2 border-zinc-950 shadow-hard-sm active:scale-95 transition"
+              >
+                Tamam, Anladım
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

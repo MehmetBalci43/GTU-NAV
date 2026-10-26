@@ -218,14 +218,16 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                   {isSimulatingWalk ? 'Duraklat' : 'Simülatörü Başlat'}
                 </TactileButton>
 
-                <TactileButton
-                  size="sm"
-                  variant={isLiveGpsActive ? 'accent' : 'secondary'}
-                  icon={<Radio className="w-3.5 h-3.5" />}
-                  onClick={onToggleLiveGps}
-                >
-                  {isLiveGpsActive ? 'Canlı GPS Açık' : 'Canlı GPS'}
-                </TactileButton>
+                {isLiveGpsActive && (
+                  <TactileButton
+                    size="sm"
+                    variant="accent"
+                    icon={<Radio className="w-3.5 h-3.5 animate-pulse" />}
+                    onClick={onToggleLiveGps}
+                  >
+                    GPS Kapat
+                  </TactileButton>
+                )}
 
                 <TactileButton
                   size="sm"

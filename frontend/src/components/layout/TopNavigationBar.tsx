@@ -21,6 +21,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  Radio,
 } from 'lucide-react';
 import {
   CampusAnnouncement,
@@ -67,6 +68,8 @@ interface TopNavigationBarProps {
   onToggleBasemap?: () => void;
   is3DPitch?: boolean;
   onTogglePitch?: () => void;
+  isLiveGpsActive?: boolean;
+  onToggleLiveGps?: () => void;
 }
 
 export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
@@ -94,6 +97,8 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
   onToggleBasemap,
   is3DPitch = false,
   onTogglePitch,
+  isLiveGpsActive = false,
+  onToggleLiveGps,
 }) => {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
   const [localAnnOpen, setLocalAnnOpen] = useState<boolean>(false);
@@ -344,21 +349,21 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
                 Marmaray
               </TactileButton>
 
-              {/* HIG Pull-Down Button: Bildir ▾ (Groups Saha Uyarısı & AI Bildirim into an elegant popover) */}
+              {/* HIG Pull-Down Button: Bildir / Araçlar ▾ */}
               <div className="relative">
                 <TactileButton
                   size="sm"
                   variant={isReportDropdownOpen ? 'primary' : 'secondary'}
                   icon={<AlertTriangle className="w-3.5 h-3.5 text-amber-500" />}
                   onClick={() => setIsReportDropdownOpen((prev) => !prev)}
-                  title="Bildirim ve Saha Uyarı Menüsü"
+                  title="Bildirim, Saha Uyarısı ve Konum Menüsü"
                 >
-                  <span>Bildir</span>
+                  <span>Bildir & Araçlar</span>
                   <ChevronDown className="w-3 h-3 ml-0.5 opacity-70" />
                 </TactileButton>
 
                 {isReportDropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-lg z-50 p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="absolute right-0 top-full mt-2 w-60 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-lg z-50 p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-100">
                     <button
                       type="button"
                       onClick={() => {
@@ -392,6 +397,38 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
                         <div className="text-[10px] text-zinc-500 dark:text-zinc-400">Doğal dille idareye yazılı ilet</div>
                       </div>
                     </button>
+
+                    {onToggleLiveGps && (
+                      <>
+                        <div className="border-t border-zinc-200 dark:border-zinc-800 my-1" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsReportDropdownOpen(false);
+                            onToggleLiveGps();
+                          }}
+                          className="w-full text-left p-2 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2.5 transition"
+                        >
+                          <div
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${
+                              isLiveGpsActive
+                                ? 'bg-emerald-500 text-zinc-950 border-emerald-600'
+                                : 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-300 border-emerald-300'
+                            }`}
+                          >
+                            <Radio className={`w-4 h-4 ${isLiveGpsActive ? 'animate-pulse' : ''}`} />
+                          </div>
+                          <div>
+                            <div className="font-black text-xs">
+                              {isLiveGpsActive ? 'Canlı GPS Takibini Kapat' : 'Canlı GPS Konumunu Aç'}
+                            </div>
+                            <div className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                              {isLiveGpsActive ? 'Aktif • Kampüs içi konum' : 'Yalnızca kampüs içinde çalışır'}
+                            </div>
+                          </div>
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>

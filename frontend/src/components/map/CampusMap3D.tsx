@@ -12,7 +12,6 @@ import {
   Box,
   Map as MapIcon,
   MapPin,
-  Radio,
 } from 'lucide-react';
 import {
   Building,
@@ -1612,18 +1611,6 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           </TactileButton>
         )}
 
-        {onToggleLiveGps && (
-          <TactileButton
-            size="sm"
-            variant={isLiveGpsActive ? 'primary' : 'secondary'}
-            icon={<Radio className={`w-3.5 h-3.5 ${isLiveGpsActive ? 'text-emerald-300 animate-pulse' : 'text-zinc-400'}`} />}
-            onClick={onToggleLiveGps}
-            title={isLiveGpsActive ? 'Canlı GPS Konumunu Durdur' : 'Bilgisayar/Telefonda Canlı GPS Konumunu Aç'}
-          >
-            {isLiveGpsActive ? 'GPS Açık' : 'Canlı GPS'}
-          </TactileButton>
-        )}
-
         <TactileIconButton
           size="sm"
           variant="secondary"
@@ -1732,22 +1719,6 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             }`}
           >
             <MapPin className="w-5 h-5" />
-          </button>
-        )}
-
-        {onToggleLiveGps && (
-          <button
-            type="button"
-            onClick={onToggleLiveGps}
-            aria-label={isLiveGpsActive ? 'Canlı GPS Konumunu Kapat' : 'Canlı GPS Konumunu Aç'}
-            title={isLiveGpsActive ? 'Canlı GPS Konumunu Kapat' : 'Canlı GPS Konumunu Aç'}
-            className={`w-11 h-11 rounded-2xl flex items-center justify-center border shadow-hard-md active:scale-95 transition ${
-              isLiveGpsActive
-                ? 'bg-emerald-400 text-zinc-950 border-zinc-950 ring-2 ring-emerald-300'
-                : 'bg-white/95 dark:bg-[#1E222D]/95 text-emerald-600 dark:text-emerald-400 border-zinc-300 dark:border-white/10'
-            }`}
-          >
-            <Radio className={`w-5 h-5 ${isLiveGpsActive ? 'animate-pulse' : ''}`} />
           </button>
         )}
 

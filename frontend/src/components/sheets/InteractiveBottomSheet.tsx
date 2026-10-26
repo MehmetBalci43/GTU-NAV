@@ -16,6 +16,7 @@ import {
   Calendar,
   Sparkles,
   Zap,
+  Radio,
 } from 'lucide-react';
 import {
   Building,
@@ -54,6 +55,8 @@ export interface InteractiveBottomSheetProps {
   onOpenWrittenTicketModal: () => void;
   onOpenAnnouncements: () => void;
   announcements: CampusAnnouncement[];
+  isLiveGpsActive?: boolean;
+  onToggleLiveGps?: () => void;
 
   // Real-time height callback for MapLibre dynamic camera padding
   onHeightChange?: (heightPx: number) => void;
@@ -88,6 +91,8 @@ export const InteractiveBottomSheet: React.FC<InteractiveBottomSheetProps> = ({
   onOpenWrittenTicketModal,
   onOpenAnnouncements,
   announcements,
+  isLiveGpsActive = false,
+  onToggleLiveGps,
   onHeightChange,
 }) => {
   const [detent, setDetent] = useState<BottomSheetDetent>('peek');
@@ -704,7 +709,49 @@ export const InteractiveBottomSheet: React.FC<InteractiveBottomSheetProps> = ({
                 </button>
               </div>
 
-              {/* 5. Kampüs Duyuruları (On-Demand Service Row) */}
+              {/* 5. Canlı GPS Konum Servisi (On-Demand Service Row) */}
+              {onToggleLiveGps && (
+                <button
+                  type="button"
+                  onClick={onToggleLiveGps}
+                  className={`mt-2.5 w-full p-3 rounded-2xl border flex items-center justify-between text-left active:scale-[0.98] transition ${
+                    isLiveGpsActive
+                      ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-400 dark:border-emerald-600/50'
+                      : 'bg-zinc-50 dark:bg-zinc-800/60 border-zinc-200 dark:border-white/5'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold shrink-0 border ${
+                        isLiveGpsActive
+                          ? 'bg-emerald-500 text-zinc-950 border-emerald-600'
+                          : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700/50'
+                      }`}
+                    >
+                      <Radio className={`w-4 h-4 ${isLiveGpsActive ? 'animate-pulse' : ''}`} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-black text-zinc-900 dark:text-zinc-100 truncate">
+                        {isLiveGpsActive ? 'Canlı GPS Takibi Aktif' : 'Canlı GPS Konumu ile Yürü'}
+                      </div>
+                      <div className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 truncate">
+                        {isLiveGpsActive ? 'Kapatmak için dokunun' : 'Yalnızca GTÜ Kampüsü içinde çalışır'}
+                      </div>
+                    </div>
+                  </div>
+                  <span
+                    className={`px-2 py-0.5 rounded-md text-[10px] font-black shrink-0 ${
+                      isLiveGpsActive
+                        ? 'bg-emerald-400 text-zinc-950'
+                        : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-800 dark:text-zinc-200'
+                    }`}
+                  >
+                    {isLiveGpsActive ? 'Açık' : 'Başlat'}
+                  </span>
+                </button>
+              )}
+
+              {/* 6. Kampüs Duyuruları (On-Demand Service Row) */}
               {announcements.length > 0 && (
                 <button
                   type="button"

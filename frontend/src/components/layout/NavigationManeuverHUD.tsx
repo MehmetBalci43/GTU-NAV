@@ -193,38 +193,38 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
               ) : null}
             </div>
 
-            <div className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+              <div className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
               {userPos.isSnapped ? (
                 <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                   <Magnet className="w-3.5 h-3.5 shrink-0" />
-                  <span>Snap-to-Path Yola Kilitli ({userPos.offRouteDistanceMeters}m sapma filtrelendi)</span>
+                  <span>Snap-to-Path Yola Kilitli ({userPos.offRouteDistanceMeters}m sapma düzeltildi)</span>
                 </span>
               ) : (
                 <span className="flex items-center gap-1">
                   <Compass className="w-3.5 h-3.5 text-sky-500 shrink-0" />
-                  <span>{isLiveGpsActive ? 'Canlı GPS sinyali alınıyor...' : 'Serbest Konum • Canlı GPS veya simülatörü açın'}</span>
+                  <span>{isLiveGpsActive ? 'Canlı GPS sinyali alınıyor...' : 'Serbest Konum • Simülatörle test edin'}</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* Action Controls: Live GPS Toggle, Simulator, End Route */}
+          {/* Action Controls: Simulator, End Route (Live GPS only shown if already activated from menu) */}
           <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
-            {onToggleLiveGps && (
+            {isLiveGpsActive && onToggleLiveGps && (
               <TactileButton
                 size="sm"
-                variant={isLiveGpsActive ? 'primary' : 'secondary'}
-                icon={<Radio className={`w-3.5 h-3.5 ${isLiveGpsActive ? 'animate-pulse' : ''}`} />}
+                variant="primary"
+                icon={<Radio className="w-3.5 h-3.5 animate-pulse" />}
                 onClick={onToggleLiveGps}
-                title={isLiveGpsActive ? 'Canlı GPS Takibini Durdur' : 'Telefonda Canlı GPS ile Yürü'}
+                title="Canlı GPS Takibini Durdur"
               >
-                {isLiveGpsActive ? 'Canlı GPS: Açık' : 'Canlı GPS'}
+                GPS Kapat
               </TactileButton>
             )}
 
             <TactileButton
               size="sm"
-              variant={isSimulatingWalk ? 'warning' : 'neutral'}
+              variant={isSimulatingWalk ? 'warning' : 'primary'}
               icon={
                 isSimulatingWalk ? (
                   <Pause className="w-3.5 h-3.5" />
