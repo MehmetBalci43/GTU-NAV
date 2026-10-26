@@ -12,6 +12,7 @@ import {
   Box,
   Map as MapIcon,
   MapPin,
+  Radio,
 } from 'lucide-react';
 import {
   Building,
@@ -21,6 +22,7 @@ import {
 } from '../../types/campus';
 import { CAMPUS_CONFIG } from '../../config/campusConfig';
 import { ALERT_TYPES } from '../../config/alertTypes';
+import { isWithinCampusBounds } from '../../services/campusBounds';
 import { UserPositionState } from '../../hooks/useNavigation';
 import { TactileButton, TactileIconButton } from '../ui/Primitives';
 
@@ -36,6 +38,13 @@ export type AdminMapInteractionMode =
 
 export type BasemapStyleMode = 'diorama' | 'satellite' | 'street';
 export type ThemeMode = 'night' | 'day';
+
+export interface MapControlActions {
+  basemapMode: BasemapStyleMode;
+  is3DPitch: boolean;
+  toggleBasemap: (mode?: BasemapStyleMode) => void;
+  togglePitch: () => void;
+}
 
 interface CampusMap3DProps {
   buildings: Building[];
@@ -64,6 +73,9 @@ interface CampusMap3DProps {
   onPickAlertCoords: (lat: number, lon: number, nearestEdgeId?: string | null) => void;
   onPickUserStartCoords?: (lat: number, lon: number) => void;
   onCancelMapMode?: () => void;
+  onControlsReady?: (actions: MapControlActions) => void;
+  isLiveGpsActive?: boolean;
+  onToggleLiveGps?: () => void;
 }
 
 // Mini Motorways Palette
@@ -335,6 +347,9 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
   onPickAlertCoords,
   onPickUserStartCoords,
   onCancelMapMode,
+  onControlsReady,
+  isLiveGpsActive = false,
+  onToggleLiveGps,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -360,6 +375,15 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
   const [showBuildingLabels, setShowBuildingLabels] = useState<boolean>(true);
   const [currentBearing, setCurrentBearing] = useState<number>(0);
   const [currentZoom, setCurrentZoom] = useState<number>(15.6);
+
+  useEffect(() => {
+    onControlsReady?.({
+      basemapMode,
+      is3DPitch,
+      toggleBasemap: (m) => handleToggleBasemap(m),
+      togglePitch: () => handleTogglePitch(),
+    });
+  }, [basemapMode, is3DPitch, onControlsReady]);
 
   const callbacksRef = useRef({
     adminMapMode,
@@ -458,28 +482,49 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       setCurrentZoom(map.getZoom());
     });
 
-    // 1. WebKit / Safari trackpad 2-finger rotation gesture
+    // 1. WebKit / Safari trackpad 2-finger gesture (Simultaneous Zoom & Rotate)
     const canvas = map.getCanvas();
     let gestureStartBearing = 0;
+    let gestureStartZoom = 0;
+
     const onGestureStart = (e: any) => {
+      // Do not intercept multi-touch on real touchscreens (let MapLibre touchZoomRotate handle it natively!)
+      if ('ontouchstart' in window && navigator.maxTouchPoints > 1) {
+        return;
+      }
       e.preventDefault();
       gestureStartBearing = map.getBearing();
+      gestureStartZoom = map.getZoom();
     };
+
     const onGestureChange = (e: any) => {
+      // Do not intercept touches on touchscreens so mobile pinch zoom & rotate works 100% naturally
+      if ('ontouchstart' in window && navigator.maxTouchPoints > 1) {
+        return;
+      }
       e.preventDefault();
+
+      // Simultaneous Trackpad Zoom & Rotate
+      if (typeof e.scale === 'number' && e.scale > 0) {
+        const targetZoom = gestureStartZoom + Math.log2(e.scale);
+        map.setZoom(Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), targetZoom)));
+      }
       if (typeof e.rotation === 'number') {
         map.setBearing(gestureStartBearing - e.rotation);
       }
     };
-    canvas.addEventListener('gesturestart', onGestureStart);
-    canvas.addEventListener('gesturechange', onGestureChange);
+    canvas.addEventListener('gesturestart', onGestureStart, { passive: false });
+    canvas.addEventListener('gesturechange', onGestureChange, { passive: false });
 
-    // 2. Windows Precision Touchpad / Wheel with Shift or Alt key
+    // 2. Windows / Precision Touchpad & Wheel
+    // (ctrlKey is touchpad pinch-zoom handled natively by MapLibre scrollZoom; Shift or Alt rotates)
     const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey) return; // Leave pinch-to-zoom to MapLibre's scrollZoom
+
       if (e.shiftKey || e.altKey) {
         e.preventDefault();
         const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-        map.setBearing(map.getBearing() + delta * 0.3);
+        map.setBearing(map.getBearing() + delta * 0.25);
       }
     };
     canvas.addEventListener('wheel', onWheel, { passive: false });
@@ -631,7 +676,8 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
   }, []);
 
   // Update theme & basemap paint properties
-  const handleToggleBasemap = (nextMode: BasemapStyleMode) => {
+  const handleToggleBasemap = (targetMode?: BasemapStyleMode) => {
+    const nextMode = targetMode || (basemapMode === 'diorama' ? 'satellite' : 'diorama');
     setBasemapMode(nextMode);
     const map = mapRef.current;
     if (!map || !isMapLoaded) return;
@@ -1427,35 +1473,45 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     const map = mapRef.current;
     if (!map) return;
 
-    if (!userMarkerRef.current) {
-      const root = document.createElement('div');
-      root.style.zIndex = '40';
-      const dot = document.createElement('div');
-      dot.className =
-        'w-6 h-6 rounded-full bg-sky-500 border-[3px] border-zinc-950 shadow-[0_0_12px_rgba(14,165,233,0.9)] flex items-center justify-center';
-      const innerDot = document.createElement('div');
-      innerDot.className = 'w-2 h-2 rounded-full bg-white';
-      dot.appendChild(innerDot);
-      root.appendChild(dot);
-      userMarkerRef.current = new maplibregl.Marker({ element: root, anchor: 'center' })
-        .setLngLat([userPos.snappedLon, userPos.snappedLat])
-        .addTo(map);
-    } else {
-      userMarkerRef.current.setLngLat([userPos.snappedLon, userPos.snappedLat]);
+    const validSnapped = isWithinCampusBounds(userPos.snappedLat, userPos.snappedLon);
+    const validRaw = isWithinCampusBounds(userPos.rawLat, userPos.rawLon);
+
+    if (validSnapped) {
+      if (!userMarkerRef.current) {
+        const root = document.createElement('div');
+        root.style.zIndex = '40';
+        const dot = document.createElement('div');
+        dot.className =
+          'w-6 h-6 rounded-full bg-sky-500 border-[3px] border-zinc-950 shadow-[0_0_12px_rgba(14,165,233,0.9)] flex items-center justify-center';
+        const innerDot = document.createElement('div');
+        innerDot.className = 'w-2 h-2 rounded-full bg-white';
+        dot.appendChild(innerDot);
+        root.appendChild(dot);
+        userMarkerRef.current = new maplibregl.Marker({ element: root, anchor: 'center' })
+          .setLngLat([userPos.snappedLon, userPos.snappedLat])
+          .addTo(map);
+      } else {
+        userMarkerRef.current.setLngLat([userPos.snappedLon, userPos.snappedLat]);
+      }
     }
 
-    if (!rawGpsMarkerRef.current) {
-      const rawRoot = document.createElement('div');
-      rawRoot.style.zIndex = '35';
-      const rawDot = document.createElement('div');
-      rawDot.className =
-        'w-3.5 h-3.5 rounded-full bg-amber-400/70 border border-zinc-950 pointer-events-none';
-      rawRoot.appendChild(rawDot);
-      rawGpsMarkerRef.current = new maplibregl.Marker({ element: rawRoot, anchor: 'center' })
-        .setLngLat([userPos.rawLon, userPos.rawLat])
-        .addTo(map);
-    } else {
-      rawGpsMarkerRef.current.setLngLat([userPos.rawLon, userPos.rawLat]);
+    if (validRaw && userPos.source === 'gps') {
+      if (!rawGpsMarkerRef.current) {
+        const rawRoot = document.createElement('div');
+        rawRoot.style.zIndex = '35';
+        const rawDot = document.createElement('div');
+        rawDot.className =
+          'w-3.5 h-3.5 rounded-full bg-amber-400/70 border border-zinc-950 pointer-events-none';
+        rawRoot.appendChild(rawDot);
+        rawGpsMarkerRef.current = new maplibregl.Marker({ element: rawRoot, anchor: 'center' })
+          .setLngLat([userPos.rawLon, userPos.rawLat])
+          .addTo(map);
+      } else {
+        rawGpsMarkerRef.current.setLngLat([userPos.rawLon, userPos.rawLat]);
+      }
+    } else if (rawGpsMarkerRef.current && userPos.source !== 'gps') {
+      rawGpsMarkerRef.current.remove();
+      rawGpsMarkerRef.current = null;
     }
   }, [userPos]);
 
@@ -1550,6 +1606,18 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           </TactileButton>
         )}
 
+        {onToggleLiveGps && (
+          <TactileButton
+            size="sm"
+            variant={isLiveGpsActive ? 'primary' : 'secondary'}
+            icon={<Radio className={`w-3.5 h-3.5 ${isLiveGpsActive ? 'text-emerald-300 animate-pulse' : 'text-zinc-400'}`} />}
+            onClick={onToggleLiveGps}
+            title={isLiveGpsActive ? 'Canlı GPS Konumunu Durdur' : 'Bilgisayar/Telefonda Canlı GPS Konumunu Aç'}
+          >
+            {isLiveGpsActive ? 'GPS Açık' : 'Canlı GPS'}
+          </TactileButton>
+        )}
+
         <TactileIconButton
           size="sm"
           variant="secondary"
@@ -1636,30 +1704,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         </TactileIconButton>
       </div>
 
-      {/* ==================================================================== */}
-      {/*             MOBILE TOP-RIGHT COMPACT LAYER PILL                      */}
-      {/* ==================================================================== */}
-      <div className="md:hidden fixed top-3 right-3 z-20 flex items-center gap-1 p-1 rounded-xl bg-white/90 dark:bg-[#1E222D]/90 border border-zinc-300 dark:border-white/10 shadow-sm backdrop-blur-md">
-        <button
-          type="button"
-          onClick={() => handleToggleBasemap(basemapMode === 'diorama' ? 'satellite' : 'diorama')}
-          className="px-2 py-1 text-[11px] font-black rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-white/5 active:scale-95 transition"
-        >
-          {basemapMode === 'diorama' ? 'Maket' : 'Uydu'}
-        </button>
 
-        <button
-          type="button"
-          onClick={handleTogglePitch}
-          className={`px-2 py-1 text-[11px] font-black rounded-lg border active:scale-95 transition ${
-            is3DPitch
-              ? 'bg-sky-400 text-zinc-950 border-sky-500'
-              : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border-zinc-200 dark:border-white/5'
-          }`}
-        >
-          {is3DPitch ? '3B' : '2B'}
-        </button>
-      </div>
 
       {/* ==================================================================== */}
       {/*       MOBILE BOTTOM-RIGHT THUMB ZONE (ABOVE BOTTOM SHEET)            */}
@@ -1681,6 +1726,22 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             }`}
           >
             <MapPin className="w-5 h-5" />
+          </button>
+        )}
+
+        {onToggleLiveGps && (
+          <button
+            type="button"
+            onClick={onToggleLiveGps}
+            aria-label={isLiveGpsActive ? 'Canlı GPS Konumunu Kapat' : 'Canlı GPS Konumunu Aç'}
+            title={isLiveGpsActive ? 'Canlı GPS Konumunu Kapat' : 'Canlı GPS Konumunu Aç'}
+            className={`w-11 h-11 rounded-2xl flex items-center justify-center border shadow-hard-md active:scale-95 transition ${
+              isLiveGpsActive
+                ? 'bg-emerald-400 text-zinc-950 border-zinc-950 ring-2 ring-emerald-300'
+                : 'bg-white/95 dark:bg-[#1E222D]/95 text-emerald-600 dark:text-emerald-400 border-zinc-300 dark:border-white/10'
+            }`}
+          >
+            <Radio className={`w-5 h-5 ${isLiveGpsActive ? 'animate-pulse' : ''}`} />
           </button>
         )}
 
