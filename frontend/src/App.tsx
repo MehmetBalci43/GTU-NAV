@@ -117,6 +117,11 @@ export const App: React.FC = () => {
     lat: number;
     lon: number;
   } | null>(null);
+  const [pickedSecondaryEntranceCoords, setPickedSecondaryEntranceCoords] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
+  const [activeEntrancePickerSlot, setActiveEntrancePickerSlot] = useState<1 | 2>(1);
   const [drawnEdgePoints, setDrawnEdgePoints] = useState<{ lat: number; lon: number }[]>([]);
   const [toastBanner, setToastBanner] = useState<string | null>(null);
 
@@ -126,17 +131,22 @@ export const App: React.FC = () => {
   };
 
   const handleToggleFootprint = (osmWayId: number, name: string) => {
+    // Ensure the left side-panel wizard is open and active immediately when a footprint is clicked
+    setSelectedBuildingId(null);
+    setIsAdminDrawerOpen(true);
+    setAdminMapMode('add_building');
+
     setSelectedFootprints((prev) => {
       const exists = prev.some((fp) => fp.osm_way_id === osmWayId);
       if (exists) {
-        showToast(`Ayak izi seçimi kaldırıldı (#${osmWayId})`);
+        showToast(`Bina bloğu seçimi kaldırıldı (#${osmWayId})`);
         return prev.filter((fp) => fp.osm_way_id !== osmWayId);
       }
       const rawFp = walkGraph?.extra_building_footprints?.find(
         (f) => f.osm_way_id === osmWayId
       );
       if (rawFp) {
-        showToast(`Ayak izi seçildi: ${name || rawFp.name}`);
+        showToast(`Bina bloğu seçildi: ${name || rawFp.name}`);
         return [...prev, rawFp];
       }
       return prev;
@@ -226,8 +236,9 @@ export const App: React.FC = () => {
     }
   };
 
-  // State-enforced drawer visibility: Never allow panel collision!
-  const isLeftPanelVisible = currentState === 'ADMIN_LIVEOPS' && adminMapMode === 'none';
+  // State-enforced drawer visibility: Keep Admin Command Center open on the left during building wizard steps!
+  const isLeftPanelVisible =
+    isAdmin && isAdminDrawerOpen && adminMapMode !== 'move_entrance';
   // Building detail sheet is visible when selected, BUT hidden while navigating so map is 100% visible on mobile
   const isRightPanelVisible =
     currentState === 'BUILDING_SELECTED' &&
@@ -302,9 +313,9 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* Tactile Toast / Reroute Notification Pill */}
+      {/* Tactile Toast / Reroute Notification Pill (Positioned at top-28 with spring animation so it never collides with top bars) */}
       {(rerouteNotice || routeError || toastBanner) && adminMapMode === 'none' && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 text-zinc-950 dark:text-zinc-100 font-black text-xs shadow-hard-md pointer-events-none transition-all">
+        <div className="fixed top-28 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-950 text-zinc-950 dark:text-zinc-100 font-black text-xs shadow-hard-md pointer-events-none animate-toast-pop">
           {rerouteNotice || routeError || toastBanner}
         </div>
       )}
@@ -347,6 +358,7 @@ export const App: React.FC = () => {
         activeRoute={activeRoute}
         userPos={userPos}
         adminMapMode={adminMapMode}
+        isAdmin={isAdmin}
         isLeftDrawerOpen={isLeftPanelVisible}
         isRightDrawerOpen={isRightPanelVisible}
         bottomSheetHeight={mobileSheetHeight}
@@ -359,9 +371,14 @@ export const App: React.FC = () => {
         selectedFootprintIds={selectedFootprints.map((fp) => fp.osm_way_id)}
         onAdminToggleFootprintSelection={handleToggleFootprint}
         onAdminPickEntranceCoords={(lat, lon) => {
-          setPickedEntranceCoords({ lat, lon });
+          if (activeEntrancePickerSlot === 2) {
+            setPickedSecondaryEntranceCoords({ lat, lon });
+            showToast(`2. giriş kapısı seçildi: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+          } else {
+            setPickedEntranceCoords({ lat, lon });
+            showToast(`1. giriş kapısı seçildi: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+          }
           setAdminMapMode('none');
-          showToast(`Giriş kapısı seçildi: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
         }}
         onSelectBuilding={(bId) => {
           if (isAdminDrawerOpen) setIsAdminDrawerOpen(false);
@@ -509,9 +526,16 @@ export const App: React.FC = () => {
         selectedBuildingId={selectedBuildingId}
         pickedCoords={pickedBuildingCoords}
         pickedEntranceCoords={pickedEntranceCoords}
+        pickedSecondaryEntranceCoords={pickedSecondaryEntranceCoords}
+        activeEntrancePickerSlot={activeEntrancePickerSlot}
+        onSetActiveEntrancePickerSlot={setActiveEntrancePickerSlot}
         selectedFootprints={selectedFootprints}
-        onClearSelectedFootprints={() => setSelectedFootprints([])}
+        onClearSelectedFootprints={() => {
+          setSelectedFootprints([]);
+          setPickedBuildingCoords(null);
+        }}
         onClearPickedEntranceCoords={() => setPickedEntranceCoords(null)}
+        onClearPickedSecondaryEntranceCoords={() => setPickedSecondaryEntranceCoords(null)}
         drawnEdgePoints={drawnEdgePoints}
         onSetAdminMapMode={setAdminMapMode}
         onClearDrawnEdgePoints={() => setDrawnEdgePoints([])}

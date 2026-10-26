@@ -54,6 +54,7 @@ interface CampusMap3DProps {
   activeRoute: RouteResponse | null;
   userPos: UserPositionState;
   adminMapMode: AdminMapInteractionMode;
+  isAdmin?: boolean;
   isLeftDrawerOpen?: boolean;
   isRightDrawerOpen?: boolean;
   bottomSheetHeight?: number;
@@ -329,6 +330,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
   activeRoute,
   userPos,
   adminMapMode,
+  isAdmin = false,
   isLeftDrawerOpen = false,
   isRightDrawerOpen = false,
   bottomSheetHeight = 92,
@@ -377,6 +379,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 
   const callbacksRef = useRef({
     adminMapMode,
+    isAdmin,
     blockedEdgeIds,
     onSelectBuilding,
     onAdminToggleEdge,
@@ -392,6 +395,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
   useEffect(() => {
     callbacksRef.current = {
       adminMapMode,
+      isAdmin,
       blockedEdgeIds,
       onSelectBuilding,
       onAdminToggleEdge,
@@ -405,6 +409,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     };
   }, [
     adminMapMode,
+    isAdmin,
     blockedEdgeIds,
     onSelectBuilding,
     onAdminToggleEdge,
@@ -650,6 +655,22 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           const bId = String(bFeatures[0].properties?.id || '');
           if (bId) {
             cb.onSelectBuilding(bId);
+            return;
+          }
+        }
+      }
+
+      // If Admin clicks an unmapped OSM building footprint even in normal mode, launch the step-by-step building wizard!
+      if (cb.isAdmin && map.getLayer('extra-footprints-fill')) {
+        const fpFeatures = map.queryRenderedFeatures(e.point, {
+          layers: ['extra-footprints-fill'],
+        });
+        if (fpFeatures.length > 0) {
+          const wayId = Number(fpFeatures[0].properties?.osm_way_id);
+          const fpName = String(fpFeatures[0].properties?.name || '');
+          if (wayId) {
+            cb.onAdminToggleFootprintSelection?.(wayId, fpName);
+            return;
           }
         }
       }
@@ -1581,10 +1602,10 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     >
       <div ref={mapContainerRef} className="w-full h-full isolate" />
 
-      {/* Interactive Map Picking Banner (Strictly centered, no bounce transform collision) */}
+      {/* Interactive Map Picking Banner (Positioned at top-24 below top bars, no bounce collision) */}
       {adminMapMode !== 'none' && (
-        <div className="fixed top-20 inset-x-0 z-50 flex justify-center pointer-events-none px-4">
-          <div className="pointer-events-auto px-4 py-2 rounded-2xl bg-amber-400 text-zinc-950 font-black text-xs shadow-hard-md border-2 border-zinc-950 flex items-center gap-3 animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed top-24 inset-x-0 z-50 flex justify-center pointer-events-none px-4">
+          <div className="pointer-events-auto px-4 py-2 rounded-2xl bg-amber-400 text-zinc-950 font-black text-xs shadow-hard-md border-2 border-zinc-950 flex items-center gap-3">
             <span>
               {adminMapMode === 'pick_user_start' &&
                 '📍 Haritada yürüyüşe başlamak istediğiniz noktaya tıklayın'}

@@ -52,6 +52,9 @@ class BuildingCreateOrUpdate(BaseModel):
     entrance_lat: Optional[float] = None
     entrance_lon: Optional[float] = None
     entrance_name: Optional[str] = None
+    secondary_entrance_lat: Optional[float] = None
+    secondary_entrance_lon: Optional[float] = None
+    secondary_entrance_name: Optional[str] = None
     polygon_coords: Optional[list[Any]] = None
     osm_way_ids: Optional[list[int]] = None
     description: Optional[str] = None

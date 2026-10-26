@@ -110,7 +110,10 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
     building.secondary_entrance_lat != null && building.secondary_entrance_lon != null;
 
   return (
-    <aside className="hidden md:flex fixed md:top-20 md:right-4 md:bottom-6 md:w-[404px] z-40 pointer-events-auto flex-col animate-in slide-in-from-right-6 fade-in duration-200 ease-out">
+    <aside
+      key={building.id}
+      className="hidden md:flex fixed md:top-24 md:right-4 md:bottom-6 md:w-[404px] z-40 pointer-events-auto flex-col animate-sheet-right"
+    >
       <TactileCard className="flex-1 flex flex-col overflow-hidden p-0 border border-zinc-300 dark:border-white/10 shadow-hard-lg dark:shadow-hard-night-lg bg-white dark:bg-[#1E222D]">
         {/* Header */}
         <div className="p-4 border-b border-zinc-200 dark:border-white/10 flex items-start justify-between gap-3 bg-zinc-50/80 dark:bg-zinc-900/60 relative">
@@ -242,20 +245,22 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
         <div className="p-3 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-white/10 space-y-2.5">
           <div className="grid grid-cols-2 gap-2">
             <TactileButton
+              size="sm"
               variant="accent"
               loading={isCalculatingRoute}
               icon={<Navigation className="w-3.5 h-3.5 shrink-0" />}
               onClick={() => onStartRoute(building.id)}
-              className="w-full justify-center text-xs"
+              className="w-full justify-center px-2.5 py-2 text-xs"
             >
               Bina Girişine Yürü
             </TactileButton>
 
             <TactileButton
+              size="sm"
               variant="secondary"
               icon={<FileText className="w-3.5 h-3.5 text-sky-500 shrink-0" />}
               onClick={() => onOpenWrittenTicketForBuilding(building.id)}
-              className="w-full justify-center text-xs"
+              className="w-full justify-center px-2.5 py-2 text-xs"
             >
               Talep / Arıza Yaz
             </TactileButton>

@@ -223,6 +223,9 @@ export const api = {
     entrance_lat?: number;
     entrance_lon?: number;
     entrance_name?: string;
+    secondary_entrance_lat?: number;
+    secondary_entrance_lon?: number;
+    secondary_entrance_name?: string;
     polygon_coords?: any;
     osm_way_ids?: number[];
     description?: string;

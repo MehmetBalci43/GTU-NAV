@@ -237,3 +237,56 @@
 .maplibregl-popup-tip {
   border-top-color: #18181B !important;
 }
+
+/* ========================================================================== */
+/*           APPLE HIG SPRING SHEET & TOAST ENTRANCE ANIMATIONS               */
+/* ========================================================================== */
+
+@keyframes sheetSlideInRight {
+  0% {
+    transform: translate3d(28px, 0, 0) scale(0.985);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes sheetSlideInLeft {
+  0% {
+    transform: translate3d(-28px, 0, 0) scale(0.985);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes toastPopIn {
+  0% {
+    transform: translate(-50%, -10px) scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-sheet-right {
+  animation: sheetSlideInRight 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.animate-sheet-left {
+  animation: sheetSlideInLeft 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.animate-toast-pop {
+  animation: toastPopIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+

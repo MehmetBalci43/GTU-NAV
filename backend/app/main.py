@@ -588,6 +588,17 @@ def create_or_update_building(
     nearest_nid = find_nearest_node(nodes_map, ent_lat, ent_lon)
     snapped_node = nodes_map[nearest_nid]
 
+    sec_nid = None
+    sec_lat = None
+    sec_lon = None
+    sec_name = None
+    if req.secondary_entrance_lat is not None and req.secondary_entrance_lon is not None:
+        sec_nid = find_nearest_node(nodes_map, req.secondary_entrance_lat, req.secondary_entrance_lon)
+        sec_node = nodes_map[sec_nid]
+        sec_lat = sec_node["lat"]
+        sec_lon = sec_node["lon"]
+        sec_name = req.secondary_entrance_name or f"{req.code} 2. Giriş Kapısı"
+
     d = 0.00024
     default_poly = [[[req.lon - d, req.lat - d], [req.lon + d, req.lat - d], [req.lon + d, req.lat + d], [req.lon - d, req.lat + d], [req.lon - d, req.lat - d]]]
 
@@ -603,6 +614,11 @@ def create_or_update_building(
         b.entrance_lat = snapped_node["lat"]
         b.entrance_lon = snapped_node["lon"]
         b.entrance_name = req.entrance_name or f"{req.code} Ana Giriş Kapısı"
+        if sec_nid is not None:
+            b.secondary_entrance_node_id = sec_nid
+            b.secondary_entrance_lat = sec_lat
+            b.secondary_entrance_lon = sec_lon
+            b.secondary_entrance_name = sec_name
         if req.polygon_coords:
             b.polygon_coords = req.polygon_coords
         if req.description is not None:
@@ -620,6 +636,10 @@ def create_or_update_building(
             entrance_name=req.entrance_name or f"{req.code} Ana Giriş Kapısı",
             entrance_lat=snapped_node["lat"],
             entrance_lon=snapped_node["lon"],
+            secondary_entrance_node_id=sec_nid,
+            secondary_entrance_name=sec_name,
+            secondary_entrance_lat=sec_lat,
+            secondary_entrance_lon=sec_lon,
             polygon_coords=req.polygon_coords or default_poly,
             description=req.description or f"{req.name} kampüs binası.",
         )
