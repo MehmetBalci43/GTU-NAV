@@ -69,21 +69,21 @@ interface CampusMap3DProps {
 // Mini Motorways Palette
 const PALETTES = {
   night: {
-    canvas: '#1E222D',
-    roadCasing: '#141822',
-    roadFill: '#384156',
-    buildingShadow: 'rgba(0, 0, 0, 0.40)',
-    buildingRim: 'rgba(0, 0, 0, 0.35)',
-    stroke: '#0D1117',
+    canvas: '#1A1D27',
+    roadCasing: '#12151E',
+    roadFill: '#2E3547',
+    buildingShadow: 'rgba(0, 0, 0, 0.45)',
+    buildingRim: 'rgba(0, 0, 0, 0.25)',
+    stroke: 'rgba(255, 255, 255, 0.10)',
     text: '#F8FAFC',
   },
   day: {
-    canvas: '#F4F5F7',
-    roadCasing: '#CBD5E1',
+    canvas: '#F6F4EE',
+    roadCasing: '#E0D9CB',
     roadFill: '#FFFFFF',
-    buildingShadow: 'rgba(0, 0, 0, 0.18)',
-    buildingRim: 'rgba(0, 0, 0, 0.20)',
-    stroke: '#18181B',
+    buildingShadow: 'rgba(32, 24, 16, 0.15)',
+    buildingRim: 'rgba(0, 0, 0, 0.08)',
+    stroke: 'rgba(0, 0, 0, 0.07)',
     text: '#09090B',
   },
 };
@@ -94,6 +94,137 @@ const CAT_COLORS: Record<string, string> = {
   dining: '#FBBF24',   // Amber
   admin: '#38BDF8',    // Sky
   transit: '#34D399',  // Mint
+};
+
+// Mini Motorways Procedural Textures (Grid Mat & Boundary Diagonal Hatch)
+function generateGridPattern(theme: ThemeMode): ImageData {
+  const size = 32;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) return new ImageData(size, size);
+
+  ctx.fillStyle = theme === 'night' ? '#1A1D27' : '#F6F4EE';
+  ctx.fillRect(0, 0, size, size);
+
+  ctx.strokeStyle =
+    theme === 'night'
+      ? 'rgba(255, 255, 255, 0.05)'
+      : 'rgba(210, 203, 188, 0.45)';
+  ctx.lineWidth = 1;
+
+  ctx.beginPath();
+  ctx.moveTo(0, size - 0.5);
+  ctx.lineTo(size, size - 0.5);
+  ctx.moveTo(size - 0.5, 0);
+  ctx.lineTo(size - 0.5, size);
+  ctx.stroke();
+
+  return ctx.getImageData(0, 0, size, size);
+}
+
+function generateDiagonalHatch(theme: ThemeMode): ImageData {
+  const size = 16;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) return new ImageData(size, size);
+
+  ctx.fillStyle = theme === 'night' ? '#141620' : '#EFECE3';
+  ctx.fillRect(0, 0, size, size);
+
+  ctx.strokeStyle =
+    theme === 'night'
+      ? 'rgba(255, 255, 255, 0.08)'
+      : 'rgba(195, 187, 170, 0.55)';
+  ctx.lineWidth = 1.5;
+
+  ctx.beginPath();
+  ctx.moveTo(-size / 2, size / 2);
+  ctx.lineTo(size / 2, -size / 2);
+
+  ctx.moveTo(0, size);
+  ctx.lineTo(size, 0);
+
+  ctx.moveTo(size / 2, size * 1.5);
+  ctx.lineTo(size * 1.5, size / 2);
+  ctx.stroke();
+
+  return ctx.getImageData(0, 0, size, size);
+}
+
+function updatePatternImages(map: maplibregl.Map, theme: ThemeMode) {
+  try {
+    const gridData = generateGridPattern(theme);
+    if (map.hasImage('grid-pattern')) {
+      map.updateImage('grid-pattern', gridData);
+    } else {
+      map.addImage('grid-pattern', gridData);
+    }
+
+    const hatchData = generateDiagonalHatch(theme);
+    if (map.hasImage('diagonal-hatch')) {
+      map.updateImage('diagonal-hatch', hatchData);
+    } else {
+      map.addImage('diagonal-hatch', hatchData);
+    }
+  } catch (e) {
+    console.warn('Could not register map pattern textures', e);
+  }
+}
+
+// Campus diorama boundary mask (donut cutout around GTÜ)
+const campusMaskGeoJSON: GeoJSON.FeatureCollection = {
+  type: 'FeatureCollection',
+  features: [
+    {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          // Outer boundary
+          [
+            [29.25, 40.7],
+            [29.48, 40.7],
+            [29.48, 40.92],
+            [29.25, 40.92],
+            [29.25, 40.7],
+          ],
+          // Inner diorama board cutout hole
+          [
+            [29.3525, 40.8035],
+            [29.368, 40.8035],
+            [29.368, 40.816],
+            [29.3525, 40.816],
+            [29.3525, 40.8035],
+          ],
+        ],
+      },
+    },
+  ],
+};
+
+const campusBoundaryGeoJSON: GeoJSON.FeatureCollection = {
+  type: 'FeatureCollection',
+  features: [
+    {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [29.3525, 40.8035],
+          [29.368, 40.8035],
+          [29.368, 40.816],
+          [29.3525, 40.816],
+          [29.3525, 40.8035],
+        ],
+      },
+    },
+  ],
 };
 
 function createUnifiedMapStyle(): maplibregl.StyleSpecification {
@@ -122,7 +253,7 @@ function createUnifiedMapStyle(): maplibregl.StyleSpecification {
         id: 'canvas-background',
         type: 'background',
         paint: {
-          'background-color': '#1E222D',
+          'background-color': '#1A1D27',
         },
       },
       {
@@ -355,6 +486,41 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 
     map.on('load', () => {
       setIsMapLoaded(true);
+
+      // Register Mini Motorways procedural textures
+      updatePatternImages(map, 'night');
+      if (map.getLayer('canvas-background')) {
+        map.setPaintProperty('canvas-background', 'background-pattern', 'grid-pattern');
+      }
+
+      // Add campus diorama boundary mask & line (Playfield cutout)
+      if (!map.getSource('campus-mask')) {
+        map.addSource('campus-mask', { type: 'geojson', data: campusMaskGeoJSON });
+        map.addLayer({
+          id: 'campus-mask-fill',
+          type: 'fill',
+          source: 'campus-mask',
+          paint: {
+            'fill-pattern': 'diagonal-hatch',
+            'fill-opacity': 0.85,
+          },
+        });
+      }
+
+      if (!map.getSource('campus-boundary')) {
+        map.addSource('campus-boundary', { type: 'geojson', data: campusBoundaryGeoJSON });
+        map.addLayer({
+          id: 'campus-boundary-line',
+          type: 'line',
+          source: 'campus-boundary',
+          paint: {
+            'line-color': 'rgba(255, 255, 255, 0.12)',
+            'line-width': 1.5,
+            'line-dasharray': [3, 2],
+          },
+        });
+      }
+
       const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
       map.fitBounds(CAMPUS_CONFIG.campusBounds, {
         padding: {
@@ -484,6 +650,27 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         nextMode === 'street' ? 'visible' : 'none'
       );
     }
+    if (map.getLayer('canvas-background')) {
+      map.setLayoutProperty(
+        'canvas-background',
+        'visibility',
+        nextMode === 'diorama' ? 'visible' : 'none'
+      );
+    }
+    if (map.getLayer('campus-mask-fill')) {
+      map.setLayoutProperty(
+        'campus-mask-fill',
+        'visibility',
+        nextMode === 'diorama' ? 'visible' : 'none'
+      );
+    }
+    if (map.getLayer('campus-boundary-line')) {
+      map.setLayoutProperty(
+        'campus-boundary-line',
+        'visibility',
+        nextMode === 'diorama' ? 'visible' : 'none'
+      );
+    }
   };
 
   const handleToggleTheme = () => {
@@ -493,9 +680,23 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     const map = mapRef.current;
     if (!map || !isMapLoaded) return;
 
+    // Update procedural textures
+    updatePatternImages(map, nextTheme);
+
     const p = PALETTES[nextTheme];
     if (map.getLayer('canvas-background')) {
       map.setPaintProperty('canvas-background', 'background-color', p.canvas);
+      map.setPaintProperty('canvas-background', 'background-pattern', 'grid-pattern');
+    }
+    if (map.getLayer('campus-mask-fill')) {
+      map.setPaintProperty('campus-mask-fill', 'fill-pattern', 'diagonal-hatch');
+    }
+    if (map.getLayer('campus-boundary-line')) {
+      map.setPaintProperty(
+        'campus-boundary-line',
+        'line-color',
+        nextTheme === 'night' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'
+      );
     }
     if (map.getLayer('walkways-casing')) {
       map.setPaintProperty('walkways-casing', 'line-color', p.roadCasing);
@@ -510,7 +711,39 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       map.setPaintProperty('buildings-rim', 'fill-color', p.buildingRim);
     }
     if (map.getLayer('buildings-stroke')) {
-      map.setPaintProperty('buildings-stroke', 'line-color', p.stroke);
+      map.setPaintProperty('buildings-stroke', 'line-color', [
+        'case',
+        ['==', ['get', 'id'], selectedBuildingId || ''],
+        '#0284C7',
+        p.stroke,
+      ]);
+    }
+    if (map.getLayer('building-entrances-circle')) {
+      map.setPaintProperty(
+        'building-entrances-circle',
+        'circle-stroke-color',
+        nextTheme === 'night' ? '#0F172A' : '#FFFFFF'
+      );
+    }
+    if (map.getLayer('extra-footprints-fill')) {
+      map.setPaintProperty('extra-footprints-fill', 'fill-color', [
+        'case',
+        ['boolean', ['get', 'is_selected'], false],
+        '#10B981',
+        ['boolean', ['get', 'is_interactive'], false],
+        nextTheme === 'night' ? '#F59E0B' : '#FBBF24',
+        nextTheme === 'night' ? '#272E3E' : '#E8E4D9',
+      ]);
+    }
+    if (map.getLayer('extra-footprints-stroke')) {
+      map.setPaintProperty('extra-footprints-stroke', 'line-color', [
+        'case',
+        ['boolean', ['get', 'is_selected'], false],
+        '#065F46',
+        ['boolean', ['get', 'is_interactive'], false],
+        '#D97706',
+        nextTheme === 'night' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+      ]);
     }
   };
 
@@ -584,10 +817,16 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 
     if (map.getSource('walkway-edges')) {
       (map.getSource('walkway-edges') as maplibregl.GeoJSONSource).setData(walkwaysGeoJSON);
+      if (map.getLayer('walkways-casing')) {
+        map.setPaintProperty('walkways-casing', 'line-color', p.roadCasing);
+      }
+      if (map.getLayer('walkways-fill')) {
+        map.setPaintProperty('walkways-fill', 'line-color', p.roadFill);
+      }
     } else {
       map.addSource('walkway-edges', { type: 'geojson', data: walkwaysGeoJSON });
 
-      // Layer 1: Road Casing (Bottom tube border)
+      // Layer 1: Road Casing (Bottom tube border & soft cushion)
       map.addLayer({
         id: 'walkways-casing',
         type: 'line',
@@ -595,11 +834,18 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
           'line-color': p.roadCasing,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 14, 4.5, 17, 8],
+          'line-width': [
+            'interpolate', ['linear'], ['zoom'],
+            13, 5,
+            15, 8.5,
+            17, 13.5,
+            19, 20,
+          ],
+          'line-opacity': themeMode === 'night' ? 0.95 : 0.85,
         },
       });
 
-      // Layer 2: Road Fill (Top tube surface)
+      // Layer 2: Road Fill (Top tube surface / tactile road ribbon)
       map.addLayer({
         id: 'walkways-fill',
         type: 'line',
@@ -608,7 +854,13 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
           'line-color': p.roadFill,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 14, 2.5, 17, 5],
+          'line-width': [
+            'interpolate', ['linear'], ['zoom'],
+            13, 3,
+            15, 5.5,
+            17, 9.5,
+            19, 15,
+          ],
         },
       });
 
@@ -639,7 +891,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       });
     }
 
-    // 2. Extra OSM Footprints
+    // 2. Extra OSM Footprints (Subtle background parcels)
     const extraFootprintsGeoJSON: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
       features: (walkGraph?.extra_building_footprints || []).map((fp) => {
@@ -669,7 +921,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           '#10B981',
           ['boolean', ['get', 'is_interactive'], false],
           themeMode === 'night' ? '#F59E0B' : '#FBBF24',
-          themeMode === 'night' ? '#333B4F' : '#E2E8F0',
+          themeMode === 'night' ? '#272E3E' : '#E8E4D9',
         ]);
         map.setPaintProperty('extra-footprints-fill', 'fill-opacity', [
           'case',
@@ -677,7 +929,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           0.88,
           ['boolean', ['get', 'is_interactive'], false],
           0.65,
-          0.5,
+          0.14,
         ]);
       }
       if (map.getLayer('extra-footprints-stroke')) {
@@ -687,7 +939,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           '#065F46',
           ['boolean', ['get', 'is_interactive'], false],
           '#D97706',
-          themeMode === 'night' ? '#1E222D' : '#94A3B8',
+          themeMode === 'night' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
         ]);
         map.setPaintProperty('extra-footprints-stroke', 'line-width', [
           'case',
@@ -695,7 +947,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           2.5,
           ['boolean', ['get', 'is_interactive'], false],
           1.8,
-          1,
+          0.5,
         ]);
       }
     } else {
@@ -711,7 +963,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             '#10B981',
             ['boolean', ['get', 'is_interactive'], false],
             themeMode === 'night' ? '#F59E0B' : '#FBBF24',
-            themeMode === 'night' ? '#333B4F' : '#E2E8F0',
+            themeMode === 'night' ? '#272E3E' : '#E8E4D9',
           ],
           'fill-opacity': [
             'case',
@@ -719,7 +971,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             0.88,
             ['boolean', ['get', 'is_interactive'], false],
             0.65,
-            0.5,
+            0.14,
           ],
         },
       });
@@ -734,7 +986,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             '#065F46',
             ['boolean', ['get', 'is_interactive'], false],
             '#D97706',
-            themeMode === 'night' ? '#1E222D' : '#94A3B8',
+            themeMode === 'night' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
           ],
           'line-width': [
             'case',
@@ -742,7 +994,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             2.5,
             ['boolean', ['get', 'is_interactive'], false],
             1.8,
-            1,
+            0.5,
           ],
         },
       });
@@ -777,6 +1029,26 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 
     if (map.getSource('campus-buildings')) {
       (map.getSource('campus-buildings') as maplibregl.GeoJSONSource).setData(buildingsGeoJSON);
+      if (map.getLayer('buildings-shadow')) {
+        map.setPaintProperty('buildings-shadow', 'fill-color', p.buildingShadow);
+      }
+      if (map.getLayer('buildings-rim')) {
+        map.setPaintProperty('buildings-rim', 'fill-color', p.buildingRim);
+      }
+      if (map.getLayer('buildings-stroke')) {
+        map.setPaintProperty('buildings-stroke', 'line-color', [
+          'case',
+          ['==', ['get', 'id'], selectedBuildingId || ''],
+          '#0284C7',
+          p.stroke,
+        ]);
+        map.setPaintProperty('buildings-stroke', 'line-width', [
+          'case',
+          ['==', ['get', 'id'], selectedBuildingId || ''],
+          2.5,
+          1,
+        ]);
+      }
     } else {
       map.addSource('campus-buildings', { type: 'geojson', data: buildingsGeoJSON });
 
@@ -791,14 +1063,14 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           'fill-translate': [
             'interpolate', ['linear'], ['zoom'],
             13, ['literal', [2, 2]],
-            15, ['literal', [5, 5]],
-            17, ['literal', [9, 9]],
+            15, ['literal', [4.5, 4.5]],
+            17, ['literal', [8, 8]],
           ],
           'fill-translate-anchor': 'viewport',
         },
       });
 
-      // Layer 6: Building Base Rim (darker bottom token edge)
+      // Layer 6: Building Base Rim (Darker bottom edge for token depth)
       map.addLayer({
         id: 'buildings-rim',
         type: 'fill',
@@ -808,9 +1080,9 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           'fill-color': p.buildingRim,
           'fill-translate': [
             'interpolate', ['linear'], ['zoom'],
-            13, ['literal', [0.8, 0.8]],
-            15, ['literal', [1.8, 1.8]],
-            17, ['literal', [3.0, 3.0]],
+            13, ['literal', [0.6, 0.6]],
+            15, ['literal', [1.4, 1.4]],
+            17, ['literal', [2.2, 2.2]],
           ],
           'fill-translate-anchor': 'viewport',
         },
@@ -824,19 +1096,29 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         layout: { visibility: is3DPitch ? 'none' : 'visible' },
         paint: {
           'fill-color': ['get', 'color'],
-          'fill-opacity': 0.96,
+          'fill-opacity': 0.98,
         },
       });
 
-      // Layer 8: Building 2px Neo-Brutal Border
+      // Layer 8: Building Tactile Bevel Rim (No more harsh black marker outline!)
       map.addLayer({
         id: 'buildings-stroke',
         type: 'line',
         source: 'campus-buildings',
         layout: { visibility: is3DPitch ? 'none' : 'visible' },
         paint: {
-          'line-color': p.stroke,
-          'line-width': 2,
+          'line-color': [
+            'case',
+            ['==', ['get', 'id'], selectedBuildingId || ''],
+            '#0284C7',
+            p.stroke,
+          ],
+          'line-width': [
+            'case',
+            ['==', ['get', 'id'], selectedBuildingId || ''],
+            2.5,
+            1,
+          ],
         },
       });
 
@@ -855,7 +1137,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       });
     }
 
-    // 4. Building Entrances
+    // 4. Building Entrances (LOD Anti-Noise: only visible when building is selected or Z >= 16.5)
     const entrancesGeoJSON: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
       features: buildings.map((b) => ({
@@ -873,22 +1155,45 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 
     if (map.getSource('building-entrances')) {
       (map.getSource('building-entrances') as maplibregl.GeoJSONSource).setData(entrancesGeoJSON);
+      if (map.getLayer('building-entrances-circle')) {
+        map.setFilter('building-entrances-circle', [
+          'any',
+          ['==', ['get', 'id'], selectedBuildingId || ''],
+          ['>=', ['zoom'], 16.5],
+        ]);
+        map.setPaintProperty('building-entrances-circle', 'circle-stroke-color', themeMode === 'night' ? '#0F172A' : '#FFFFFF');
+      }
     } else {
       map.addSource('building-entrances', { type: 'geojson', data: entrancesGeoJSON });
       map.addLayer({
         id: 'building-entrances-circle',
         type: 'circle',
         source: 'building-entrances',
+        filter: [
+          'any',
+          ['==', ['get', 'id'], selectedBuildingId || ''],
+          ['>=', ['zoom'], 16.5],
+        ],
         paint: {
-          'circle-radius': 5,
-          'circle-color': '#10B981',
-          'circle-stroke-color': '#18181B',
+          'circle-radius': [
+            'case',
+            ['==', ['get', 'id'], selectedBuildingId || ''],
+            6.5,
+            4,
+          ],
+          'circle-color': [
+            'case',
+            ['==', ['get', 'id'], selectedBuildingId || ''],
+            '#10B981',
+            '#34D399',
+          ],
+          'circle-stroke-color': themeMode === 'night' ? '#0F172A' : '#FFFFFF',
           'circle-stroke-width': 2,
         },
       });
     }
 
-    // 5. Active Pedestrian Route
+    // 5. Active Pedestrian Route (Tactile Highway Ribbon)
     const routeGeoJSON: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
       features:
@@ -911,18 +1216,37 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       if (activeRoute && map.getLayer('active-route-line')) {
         // Flash amber A* algorithmic wave (Jury Wow Effect)
         map.setPaintProperty('active-route-line', 'line-color', '#F59E0B');
-        map.setPaintProperty('active-route-glow', 'line-color', '#FBBF24');
-        map.setPaintProperty('active-route-glow', 'line-opacity', 0.85);
+        if (map.getLayer('active-route-casing')) {
+          map.setPaintProperty('active-route-casing', 'line-color', '#D97706');
+        }
         setTimeout(() => {
           if (mapRef.current && mapRef.current.getLayer('active-route-line')) {
-            mapRef.current.setPaintProperty('active-route-line', 'line-color', '#10B981');
-            mapRef.current.setPaintProperty('active-route-glow', 'line-color', '#38BDF8');
-            mapRef.current.setPaintProperty('active-route-glow', 'line-opacity', 0.35);
+            mapRef.current.setPaintProperty('active-route-line', 'line-color', '#38BDF8');
+            if (mapRef.current.getLayer('active-route-casing')) {
+              mapRef.current.setPaintProperty('active-route-casing', 'line-color', '#0369A1');
+            }
           }
         }, 450);
       }
     } else {
       map.addSource('active-route', { type: 'geojson', data: routeGeoJSON });
+
+      // Route Shadow (Tactile 135° drop shadow)
+      map.addLayer({
+        id: 'active-route-shadow',
+        type: 'line',
+        source: 'active-route',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color':
+            themeMode === 'night'
+              ? 'rgba(0, 0, 0, 0.40)'
+              : 'rgba(15, 23, 42, 0.16)',
+          'line-width': 13,
+          'line-translate': [2, 2],
+          'line-translate-anchor': 'viewport',
+        },
+      });
 
       // Route Casing
       map.addLayer({
@@ -931,21 +1255,9 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         source: 'active-route',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#082F49',
-          'line-width': 10,
-          'line-opacity': 0.8,
-        },
-      });
-
-      // Route Glow
-      map.addLayer({
-        id: 'active-route-glow',
-        type: 'line',
-        source: 'active-route',
-        paint: {
-          'line-color': '#38BDF8',
-          'line-width': 16,
-          'line-opacity': 0.35,
+          'line-color': '#0369A1',
+          'line-width': 9.5,
+          'line-opacity': 0.9,
         },
       });
 
@@ -956,7 +1268,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         source: 'active-route',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#10B981',
+          'line-color': '#38BDF8',
           'line-width': 5.5,
           'line-opacity': 1,
         },
@@ -1188,7 +1500,9 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
   return (
     <div
       className={`relative w-full h-full select-none ${
-        themeMode === 'night' ? 'dark-theme' : ''
+        themeMode === 'night'
+          ? 'dark-theme mini-motorways-canvas-night'
+          : 'mini-motorways-canvas-day'
       } ${
         adminMapMode !== 'none' ? 'cursor-crosshair' : ''
       }`}

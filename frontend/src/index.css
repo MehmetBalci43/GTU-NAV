@@ -57,6 +57,23 @@
   .rim-light {
     box-shadow: 4px 4px 0px #080A0F, inset 1px 1px 0px rgba(255, 255, 255, 0.08);
   }
+
+  /* Mini Motorways Diorama Board Patterns */
+  .mini-motorways-canvas-day {
+    background-color: #F6F4EE !important;
+    background-image: 
+      linear-gradient(to right, rgba(210, 203, 188, 0.38) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(210, 203, 188, 0.38) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .mini-motorways-canvas-night {
+    background-color: #1A1D27 !important;
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
 }
 
 /* ========================================================================== */
@@ -67,14 +84,14 @@
   display: inline-flex;
   align-items: center;
   gap: 3.5px;
-  height: 22px;
-  padding: 0 7px;
+  height: 23px;
+  padding: 0 8px;
   border-radius: 9999px;
   background: #FFFFFF;
-  color: #09090B;
-  border: 1.5px solid #18181B;
-  box-shadow: 1.5px 1.5px 0px #18181B;
-  font-size: 10.5px;
+  color: #0F172A;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08), 0 1px 1px rgba(0, 0, 0, 0.04);
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: -0.2px;
   cursor: pointer;
@@ -86,15 +103,15 @@
 
 .apple-poi-badge:hover {
   transform: scale(1.08);
-  box-shadow: 2.5px 2.5px 0px #18181B;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
   z-index: 30;
 }
 
 .apple-poi-badge.selected {
   background: #38BDF8 !important;
-  color: #09090B !important;
-  border: 2px solid #18181B !important;
-  box-shadow: 2.5px 2.5px 0px #18181B !important;
+  color: #082F49 !important;
+  border: 1.5px solid #0284C7 !important;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.38) !important;
   transform: scale(1.12);
   z-index: 50 !important;
 }
@@ -115,18 +132,24 @@
 }
 
 .apple-poi-badge.selected .room-count {
-  color: #09090B;
+  color: #082F49;
 }
 
 /* Dark Mode Overrides */
 .dark-theme .apple-poi-badge {
-  background: #242938;
+  background: #232838;
   color: #F8FAFC;
-  border: 1.5px solid #0D1117;
-  box-shadow: 1.5px 1.5px 0px #080A0F, inset 1px 1px 0px rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 .dark-theme .apple-poi-badge .room-count {
   color: #34D399;
+}
+.dark-theme .apple-poi-badge.selected {
+  background: #38BDF8 !important;
+  color: #082F49 !important;
+  border: 1.5px solid #7DD3FC !important;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.40) !important;
 }
 
 /* Micro Tooltip on Hover */
