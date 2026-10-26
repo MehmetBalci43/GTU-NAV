@@ -10,6 +10,8 @@ import {
   X,
   Compass,
   Magnet,
+  Radio,
+  LocateFixed,
 } from 'lucide-react';
 import { RouteResponse } from '../../types/campus';
 import { UserPositionState } from '../../hooks/useNavigation';
@@ -20,6 +22,8 @@ interface NavigationManeuverHUDProps {
   userPos: UserPositionState;
   isSimulatingWalk: boolean;
   onToggleSimulateWalk: () => void;
+  isLiveGpsActive?: boolean;
+  onToggleLiveGps?: () => void;
   onClearRoute: () => void;
 }
 
@@ -100,6 +104,8 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
   userPos,
   isSimulatingWalk,
   onToggleSimulateWalk,
+  isLiveGpsActive = false,
+  onToggleLiveGps,
   onClearRoute,
 }) => {
   const maneuver = useMemo(() => {
@@ -160,40 +166,65 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
         </div>
       </div>
 
-      {/* 2. BOTTOM ACTIVE NAVIGATION & SIMULATOR ISLAND */}
+      {/* 2. BOTTOM ACTIVE NAVIGATION & SENSOR ISLAND */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 pointer-events-auto w-[92vw] sm:w-auto max-w-xl">
         <TactileCard className="p-3 sm:px-4 sm:py-2.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 bg-white dark:bg-[#1E222D]">
           {/* Destination & Remaining Summary */}
           <div className="flex-1 min-w-[200px]">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="font-black text-xs sm:text-sm text-zinc-950 dark:text-zinc-100 truncate">
                 {activeRoute.target_entrance_name}
               </span>
               <span className="px-2 py-0.5 rounded-lg bg-sky-400 text-zinc-950 font-black text-xs tabular-nums border border-zinc-950 shrink-0">
                 {userPos.remainingMeters} m (~{userPos.remainingMinutes} dk)
               </span>
+
+              {/* Real-time GPS vs Simulator Status Badge */}
+              {isLiveGpsActive ? (
+                <span className="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-300 font-black text-[10px] border border-emerald-500/40 flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                  <span>Canlı GPS Devrede</span>
+                </span>
+              ) : isSimulatingWalk ? (
+                <span className="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-950/80 dark:text-amber-300 font-black text-[10px] border border-amber-500/40 flex items-center gap-1">
+                  <Play className="w-2.5 h-2.5 fill-current" />
+                  <span>Simülatör Yürüyor</span>
+                </span>
+              ) : null}
             </div>
 
             <div className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
               {userPos.isSnapped ? (
                 <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                   <Magnet className="w-3.5 h-3.5 shrink-0" />
-                  <span>Snap-to-Path Yola Kilitli ({userPos.offRouteDistanceMeters}m sapma düzeltildi)</span>
+                  <span>Snap-to-Path Yola Kilitli ({userPos.offRouteDistanceMeters}m sapma filtrelendi)</span>
                 </span>
               ) : (
                 <span className="flex items-center gap-1">
                   <Compass className="w-3.5 h-3.5 text-sky-500 shrink-0" />
-                  <span>Serbest Konum • Simülatörle test edin</span>
+                  <span>{isLiveGpsActive ? 'Canlı GPS sinyali alınıyor...' : 'Serbest Konum • Canlı GPS veya simülatörü açın'}</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Controls: Live GPS Toggle, Simulator, End Route */}
           <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
+            {onToggleLiveGps && (
+              <TactileButton
+                size="sm"
+                variant={isLiveGpsActive ? 'primary' : 'secondary'}
+                icon={<Radio className={`w-3.5 h-3.5 ${isLiveGpsActive ? 'animate-pulse' : ''}`} />}
+                onClick={onToggleLiveGps}
+                title={isLiveGpsActive ? 'Canlı GPS Takibini Durdur' : 'Telefonda Canlı GPS ile Yürü'}
+              >
+                {isLiveGpsActive ? 'Canlı GPS: Açık' : 'Canlı GPS'}
+              </TactileButton>
+            )}
+
             <TactileButton
               size="sm"
-              variant={isSimulatingWalk ? 'warning' : 'primary'}
+              variant={isSimulatingWalk ? 'warning' : 'neutral'}
               icon={
                 isSimulatingWalk ? (
                   <Pause className="w-3.5 h-3.5" />
@@ -202,6 +233,7 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
                 )
               }
               onClick={onToggleSimulateWalk}
+              title="Masaüstü Yürüyüş Simülatörünü Aç/Kapat"
             >
               {isSimulatingWalk ? 'Duraklat' : 'Simüle Et'}
             </TactileButton>

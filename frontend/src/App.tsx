@@ -2,10 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useCampusData } from './hooks/useCampusData';
 import { useNavigation } from './hooks/useNavigation';
+import { useLiveGeolocation } from './hooks/useLiveGeolocation';
 import { useBuildingRooms } from './hooks/useBuildingRooms';
 import { SearchResultItem } from './types/campus';
 import { MARMARAY_SCHEDULE_CONFIG } from './config/marmaraySchedule';
-import { CampusMap3D, AdminMapInteractionMode } from './components/map/CampusMap3D';
+import { CampusMap3D, AdminMapInteractionMode, MapControlActions } from './components/map/CampusMap3D';
 import { TopNavigationBar, QuickCampusFilter } from './components/layout/TopNavigationBar';
 import { BuildingDetailSheet } from './components/sheets/BuildingDetailSheet';
 import { InteractiveBottomSheet } from './components/sheets/InteractiveBottomSheet';
@@ -54,17 +55,34 @@ export const App: React.FC = () => {
     isCalculatingRoute,
     routeError,
     rerouteNotice,
+    setRerouteNotice,
     isSimulatingWalk,
     setIsSimulatingWalk,
-    isLiveGpsActive,
-    toggleLiveGps,
+    simProgress,
     computeRouteToBuilding,
     applyRawCoordinates,
+    setUserStartCoords,
     clearNavigation,
   } = useNavigation(blockedEdgeIds);
 
+  const {
+    isLiveGpsActive,
+    gpsStatus,
+    toggleLiveGps,
+    stopLiveGps,
+  } = useLiveGeolocation({
+    onPositionUpdate: (lat, lon, accuracyM) => {
+      applyRawCoordinates(lat, lon, 'gps', accuracyM);
+    },
+    onNotice: (notice) => {
+      setRerouteNotice(notice);
+      setTimeout(() => setRerouteNotice((prev) => (prev === notice ? null : prev)), 5000);
+    },
+  });
+
   const [activeFilter, setActiveFilter] = useState<QuickCampusFilter>('all');
   const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
+  const [mapControls, setMapControls] = useState<MapControlActions | null>(null);
   const { roomsData, isLoadingRooms, reportBusy, clearBusy } =
     useBuildingRooms(selectedBuildingId);
 
@@ -161,10 +179,15 @@ export const App: React.FC = () => {
   const selectedBuilding =
     buildings.find((b) => b.id === selectedBuildingId) || null;
 
-  const handleSelectSearchResult = (item: SearchResultItem) => {
+  const handleStartNavigation = async (buildingId: string) => {
+    const route = await computeRouteToBuilding(buildingId);
+    return route;
+  };
+
+  const handleSelectSearchResult = async (item: SearchResultItem) => {
     setSearchQuery('');
     setSelectedBuildingId(item.building_id);
-    computeRouteToBuilding(item.building_id);
+    await handleStartNavigation(item.building_id);
   };
 
   const handleAdminMoveEntranceOnMap = async (lat: number, lon: number) => {
@@ -253,6 +276,10 @@ export const App: React.FC = () => {
         isAdminDrawerOpen={isAdminDrawerOpen}
         isAnnouncementsModalOpen={isAnnouncementsModalOpen}
         onSetAnnouncementsModalOpen={setIsAnnouncementsModalOpen}
+        basemapMode={mapControls?.basemapMode ?? 'diorama'}
+        onToggleBasemap={mapControls?.toggleBasemap}
+        is3DPitch={mapControls?.is3DPitch ?? false}
+        onTogglePitch={mapControls?.togglePitch}
       />
 
       {/* Tactile Toast / Reroute Notification Pill */}
@@ -268,9 +295,22 @@ export const App: React.FC = () => {
           activeRoute={activeRoute}
           userPos={userPos}
           isSimulatingWalk={isSimulatingWalk}
-          onToggleSimulateWalk={() => setIsSimulatingWalk((prev) => !prev)}
+          onToggleSimulateWalk={() => {
+            if (!isSimulatingWalk) {
+              stopLiveGps();
+            }
+            setIsSimulatingWalk((prev) => !prev);
+          }}
+          isLiveGpsActive={isLiveGpsActive}
+          onToggleLiveGps={() => {
+            if (!isLiveGpsActive) {
+              setIsSimulatingWalk(false);
+            }
+            toggleLiveGps();
+          }}
           onClearRoute={() => {
             clearNavigation();
+            stopLiveGps();
             setSelectedBuildingId(null);
             showToast('Navigasyon sonlandırıldı');
           }}
@@ -307,9 +347,9 @@ export const App: React.FC = () => {
           if (isAdminDrawerOpen) setIsAdminDrawerOpen(false);
           setSelectedBuildingId(bId);
         }}
-        onQuickRouteToBuilding={(bId) => {
+        onQuickRouteToBuilding={async (bId) => {
           setSelectedBuildingId(bId);
-          computeRouteToBuilding(bId);
+          await handleStartNavigation(bId);
         }}
         onVoteAlert={voteOnAlert}
         onAdminToggleEdge={async (edgeId, currentlyBlocked) => {
@@ -336,6 +376,14 @@ export const App: React.FC = () => {
         }}
         onPickUserStartCoords={handleUserPickStartOnMap}
         onCancelMapMode={() => setAdminMapMode('none')}
+        onControlsReady={(actions) => setMapControls(actions)}
+        isLiveGpsActive={isLiveGpsActive}
+        onToggleLiveGps={() => {
+          if (!isLiveGpsActive) {
+            setIsSimulatingWalk(false);
+          }
+          toggleLiveGps();
+        }}
       />
 
       {/* Mobile Native Apple Maps Interactive Bottom Sheet (Peek / Medium / Large Detents) */}
@@ -351,7 +399,7 @@ export const App: React.FC = () => {
         roomsData={roomsData}
         isLoadingRooms={isLoadingRooms}
         onStartRoute={async (bId) => {
-          await computeRouteToBuilding(bId);
+          await handleStartNavigation(bId);
           setSelectedBuildingId(null);
         }}
         onCloseBuilding={() => setSelectedBuildingId(null)}
@@ -394,7 +442,7 @@ export const App: React.FC = () => {
           isAdmin={isAdmin}
           onClose={() => setSelectedBuildingId(null)}
           onStartRoute={async (bId) => {
-            await computeRouteToBuilding(bId);
+            await handleStartNavigation(bId);
             // On mobile, automatically collapse sheet so the student can walk and see map!
             if (window.innerWidth < 768) {
               setSelectedBuildingId(null);
@@ -464,10 +512,10 @@ export const App: React.FC = () => {
         userLat={userPos.snappedLat}
         userLon={userPos.snappedLon}
         onClose={() => setIsMarmarayOpen(false)}
-        onRouteToStation={() => {
+        onRouteToStation={async () => {
           const stationId = MARMARAY_SCHEDULE_CONFIG.stationBuildingId;
           setSelectedBuildingId(stationId);
-          computeRouteToBuilding(stationId);
+          await handleStartNavigation(stationId);
         }}
       />
 
