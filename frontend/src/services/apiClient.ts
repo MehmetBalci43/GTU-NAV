@@ -219,7 +219,8 @@ export const api = {
     entrance_lat?: number;
     entrance_lon?: number;
     entrance_name?: string;
-    polygon_coords?: number[][][];
+    polygon_coords?: any;
+    osm_way_ids?: number[];
     description?: string;
   }): Promise<Building> {
     return requestJson<Building>('/api/admin/buildings', {

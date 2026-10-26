@@ -121,7 +121,8 @@ export function useCampusData() {
       entrance_lat?: number;
       entrance_lon?: number;
       entrance_name?: string;
-      polygon_coords?: number[][][];
+      polygon_coords?: any;
+      osm_way_ids?: number[];
       description?: string;
     }) => {
       await api.createOrUpdateBuilding(payload);

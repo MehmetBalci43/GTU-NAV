@@ -8,6 +8,7 @@ import { MARMARAY_SCHEDULE_CONFIG } from './config/marmaraySchedule';
 import { CampusMap3D, AdminMapInteractionMode } from './components/map/CampusMap3D';
 import { TopNavigationBar, QuickCampusFilter } from './components/layout/TopNavigationBar';
 import { BuildingDetailSheet } from './components/sheets/BuildingDetailSheet';
+import { InteractiveBottomSheet } from './components/sheets/InteractiveBottomSheet';
 import { MarmaraySheet } from './components/sheets/MarmaraySheet';
 import { ReportAlertModal } from './components/tickets/ReportAlertModal';
 import { WrittenTicketModal } from './components/tickets/WrittenTicketModal';
@@ -83,7 +84,16 @@ export const App: React.FC = () => {
 
   const [isAdminDrawerOpen, setIsAdminDrawerOpen] = useState<boolean>(false);
   const [adminMapMode, setAdminMapMode] = useState<AdminMapInteractionMode>('none');
+  const [mobileSheetHeight, setMobileSheetHeight] = useState<number>(94);
+  const [isAnnouncementsModalOpen, setIsAnnouncementsModalOpen] = useState<boolean>(false);
   const [pickedBuildingCoords, setPickedBuildingCoords] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
+  const [selectedFootprints, setSelectedFootprints] = useState<
+    { osm_way_id: number; name: string; coords: number[][] }[]
+  >([]);
+  const [pickedEntranceCoords, setPickedEntranceCoords] = useState<{
     lat: number;
     lon: number;
   } | null>(null);
@@ -93,6 +103,24 @@ export const App: React.FC = () => {
   const showToast = (msg: string) => {
     setToastBanner(msg);
     setTimeout(() => setToastBanner(null), 4000);
+  };
+
+  const handleToggleFootprint = (osmWayId: number, name: string) => {
+    setSelectedFootprints((prev) => {
+      const exists = prev.some((fp) => fp.osm_way_id === osmWayId);
+      if (exists) {
+        showToast(`Ayak izi seçimi kaldırıldı (#${osmWayId})`);
+        return prev.filter((fp) => fp.osm_way_id !== osmWayId);
+      }
+      const rawFp = walkGraph?.extra_building_footprints?.find(
+        (f) => f.osm_way_id === osmWayId
+      );
+      if (rawFp) {
+        showToast(`Ayak izi seçildi: ${name || rawFp.name}`);
+        return [...prev, rawFp];
+      }
+      return prev;
+    });
   };
 
   // Finite State Machine (FSM) State Resolution
@@ -209,12 +237,6 @@ export const App: React.FC = () => {
         onSelectSearchResult={handleSelectSearchResult}
         announcements={announcements}
         isNavigating={currentState === 'NAVIGATING'}
-        isPickingUserStart={adminMapMode === 'pick_user_start'}
-        onTogglePickUserStart={() =>
-          setAdminMapMode((prev) =>
-            prev === 'pick_user_start' ? 'none' : 'pick_user_start'
-          )
-        }
         onOpenMarmaray={() => setIsMarmarayOpen(true)}
         onOpenAlertModal={() => {
           setAlertCoords({ lat: userPos.snappedLat, lon: userPos.snappedLon });
@@ -229,11 +251,13 @@ export const App: React.FC = () => {
           setIsAdminDrawerOpen((prev) => !prev);
         }}
         isAdminDrawerOpen={isAdminDrawerOpen}
+        isAnnouncementsModalOpen={isAnnouncementsModalOpen}
+        onSetAnnouncementsModalOpen={setIsAnnouncementsModalOpen}
       />
 
       {/* Tactile Toast / Reroute Notification Pill */}
       {(rerouteNotice || routeError || toastBanner) && adminMapMode === 'none' && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-950 text-zinc-950 dark:text-zinc-100 font-black text-xs shadow-hard-md pointer-events-none transition-all">
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 text-zinc-950 dark:text-zinc-100 font-black text-xs shadow-hard-md pointer-events-none transition-all">
           {rerouteNotice || routeError || toastBanner}
         </div>
       )}
@@ -247,6 +271,7 @@ export const App: React.FC = () => {
           onToggleSimulateWalk={() => setIsSimulatingWalk((prev) => !prev)}
           onClearRoute={() => {
             clearNavigation();
+            setSelectedBuildingId(null);
             showToast('Navigasyon sonlandırıldı');
           }}
         />
@@ -264,6 +289,20 @@ export const App: React.FC = () => {
         adminMapMode={adminMapMode}
         isLeftDrawerOpen={isLeftPanelVisible}
         isRightDrawerOpen={isRightPanelVisible}
+        bottomSheetHeight={mobileSheetHeight}
+        isPickingUserStart={adminMapMode === 'pick_user_start'}
+        onTogglePickUserStart={() =>
+          setAdminMapMode((prev) =>
+            prev === 'pick_user_start' ? 'none' : 'pick_user_start'
+          )
+        }
+        selectedFootprintIds={selectedFootprints.map((fp) => fp.osm_way_id)}
+        onAdminToggleFootprintSelection={handleToggleFootprint}
+        onAdminPickEntranceCoords={(lat, lon) => {
+          setPickedEntranceCoords({ lat, lon });
+          setAdminMapMode('none');
+          showToast(`Giriş kapısı seçildi: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+        }}
         onSelectBuilding={(bId) => {
           if (isAdminDrawerOpen) setIsAdminDrawerOpen(false);
           setSelectedBuildingId(bId);
@@ -299,6 +338,49 @@ export const App: React.FC = () => {
         onCancelMapMode={() => setAdminMapMode('none')}
       />
 
+      {/* Mobile Native Apple Maps Interactive Bottom Sheet (Peek / Medium / Large Detents) */}
+      <InteractiveBottomSheet
+        isNavigating={currentState === 'NAVIGATING'}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchResults={searchResults}
+        onSelectSearchResult={handleSelectSearchResult}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        selectedBuilding={selectedBuilding}
+        roomsData={roomsData}
+        isLoadingRooms={isLoadingRooms}
+        onStartRoute={async (bId) => {
+          await computeRouteToBuilding(bId);
+          setSelectedBuildingId(null);
+        }}
+        onCloseBuilding={() => setSelectedBuildingId(null)}
+        onReportRoomBusy={async (classroomId, reason) => {
+          await reportBusy(classroomId, reason);
+          showToast('Derslik öğrenci bildirimiyle geçici dolu olarak işaretlendi');
+        }}
+        onClearRoomBusy={async (classroomId) => {
+          await clearBusy(classroomId);
+          showToast('Derslik doluluk bildirimi sıfırlandı');
+        }}
+        onOpenWrittenTicketForBuilding={(bId, cId) => {
+          setTicketTarget({ buildingId: bId, classroomId: cId || null });
+          setIsWrittenTicketOpen(true);
+        }}
+        onOpenMarmaray={() => setIsMarmarayOpen(true)}
+        onOpenAlertModal={() => {
+          setAlertCoords({ lat: userPos.snappedLat, lon: userPos.snappedLon });
+          setIsAlertModalOpen(true);
+        }}
+        onOpenWrittenTicketModal={() => {
+          setTicketTarget({ buildingId: selectedBuildingId });
+          setIsWrittenTicketOpen(true);
+        }}
+        onOpenAnnouncements={() => setIsAnnouncementsModalOpen(true)}
+        announcements={announcements}
+        onHeightChange={setMobileSheetHeight}
+      />
+
       {/* Right Drawer: Building Detail Sheet (Single Stage, Never Collides!) */}
       {isRightPanelVisible && (
         <BuildingDetailSheet
@@ -320,7 +402,10 @@ export const App: React.FC = () => {
           }}
           onToggleSimulateWalk={() => setIsSimulatingWalk((prev) => !prev)}
           onToggleLiveGps={toggleLiveGps}
-          onClearRoute={clearNavigation}
+          onClearRoute={() => {
+            clearNavigation();
+            setSelectedBuildingId(null);
+          }}
           onReportRoomBusy={async (classroomId, reason) => {
             await reportBusy(classroomId, reason);
             showToast('Derslik öğrenci bildirimiyle geçici dolu olarak işaretlendi');
@@ -350,6 +435,10 @@ export const App: React.FC = () => {
         adminMapMode={adminMapMode}
         selectedBuildingId={selectedBuildingId}
         pickedCoords={pickedBuildingCoords}
+        pickedEntranceCoords={pickedEntranceCoords}
+        selectedFootprints={selectedFootprints}
+        onClearSelectedFootprints={() => setSelectedFootprints([])}
+        onClearPickedEntranceCoords={() => setPickedEntranceCoords(null)}
         drawnEdgePoints={drawnEdgePoints}
         onSetAdminMapMode={setAdminMapMode}
         onClearDrawnEdgePoints={() => setDrawnEdgePoints([])}

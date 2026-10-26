@@ -40,6 +40,10 @@ interface AdminCommandCenterProps {
   adminMapMode: AdminMapInteractionMode;
   selectedBuildingId: string | null;
   pickedCoords: { lat: number; lon: number } | null;
+  pickedEntranceCoords?: { lat: number; lon: number } | null;
+  selectedFootprints?: { osm_way_id: number; name: string; coords: number[][] }[];
+  onClearSelectedFootprints?: () => void;
+  onClearPickedEntranceCoords?: () => void;
   drawnEdgePoints: { lat: number; lon: number }[];
   onSetAdminMapMode: (mode: AdminMapInteractionMode) => void;
   onClearDrawnEdgePoints: () => void;
@@ -56,7 +60,8 @@ interface AdminCommandCenterProps {
     entrance_lat?: number;
     entrance_lon?: number;
     entrance_name?: string;
-    polygon_coords?: number[][][];
+    polygon_coords?: any;
+    osm_way_ids?: number[];
     description?: string;
   }) => Promise<void>;
   onDeleteBuilding: (buildingId: string) => Promise<void>;
@@ -85,6 +90,10 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
   adminMapMode,
   selectedBuildingId,
   pickedCoords,
+  pickedEntranceCoords = null,
+  selectedFootprints = [],
+  onClearSelectedFootprints,
+  onClearPickedEntranceCoords,
   drawnEdgePoints,
   onSetAdminMapMode,
   onClearDrawnEdgePoints,
@@ -103,12 +112,21 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
 
   const { tickets, refreshTickets, updateTicketStatus } = useTickets();
 
-  // New building form state
+  // New building form & wizard state
+  const [bldWizardStep, setBldWizardStep] = useState<1 | 2>(1);
   const [newBldCode, setNewBldCode] = useState<string>('');
   const [newBldName, setNewBldName] = useState<string>('');
   const [newBldCategory, setNewBldCategory] = useState<string>('academic');
   const [newBldFloors, setNewBldFloors] = useState<number>(3);
+  const [newEntranceName, setNewEntranceName] = useState<string>('Ana Giriş Kapısı');
   const [newEdgeName, setNewEdgeName] = useState<string>('Yeni Kampüs Yürüyüş Yolu');
+
+  // Auto-fill suggested name from selected footprint
+  useEffect(() => {
+    if (selectedFootprints.length > 0 && !newBldName) {
+      setNewBldName(selectedFootprints[0].name);
+    }
+  }, [selectedFootprints, newBldName]);
 
   // Selected building edit state
   const [editBldName, setEditBldName] = useState<string>('');
@@ -143,6 +161,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
   const isWaitingForMapClick =
     adminMapMode === 'move_entrance' ||
     adminMapMode === 'add_building' ||
+    adminMapMode === 'pick_building_entrance' ||
     adminMapMode === 'pick_alert_coords' ||
     (adminMapMode === 'draw_edge' && drawnEdgePoints.length < 2);
 
@@ -185,10 +204,30 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
 
   const handleCreateBuilding = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!pickedCoords) {
-      setStatusMessage('Lütfen önce haritadan yeni binanın konumuna tıklayın.');
+    if (!pickedCoords && selectedFootprints.length === 0) {
+      setStatusMessage('Lütfen önce haritadan en az bir bina ayak izi seçin veya araziye tıklayın.');
       return;
     }
+
+    let bLat = 0;
+    let bLon = 0;
+    let polyCoords: any = null;
+
+    if (selectedFootprints.length > 0) {
+      if (selectedFootprints.length === 1) {
+        polyCoords = [selectedFootprints[0].coords];
+      } else {
+        // Multi-part facility (multiple polygons)
+        polyCoords = selectedFootprints.map((fp) => [fp.coords]);
+      }
+      const allPoints = selectedFootprints.flatMap((fp) => fp.coords);
+      bLon = allPoints.reduce((acc, p) => acc + p[0], 0) / allPoints.length;
+      bLat = allPoints.reduce((acc, p) => acc + p[1], 0) / allPoints.length;
+    } else if (pickedCoords) {
+      bLat = pickedCoords.lat;
+      bLon = pickedCoords.lon;
+    }
+
     const cleanId = `b_${newBldCode.toLowerCase().replace(/[^a-z0-9]/g, '')}_${Date.now().toString().slice(-3)}`;
     await onAddOrUpdateBuilding({
       id: cleanId,
@@ -196,13 +235,22 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
       name: newBldName,
       category: newBldCategory,
       floors_count: newBldFloors,
-      lat: pickedCoords.lat,
-      lon: pickedCoords.lon,
+      lat: Number(bLat.toFixed(6)),
+      lon: Number(bLon.toFixed(6)),
+      entrance_lat: pickedEntranceCoords ? pickedEntranceCoords.lat : undefined,
+      entrance_lon: pickedEntranceCoords ? pickedEntranceCoords.lon : undefined,
+      entrance_name: newEntranceName || `${newBldCode.toUpperCase()} Ana Giriş Kapısı`,
+      polygon_coords: polyCoords,
+      osm_way_ids: selectedFootprints.length > 0 ? selectedFootprints.map((fp) => fp.osm_way_id) : undefined,
     });
+
     setNewBldCode('');
     setNewBldName('');
+    setBldWizardStep(1);
+    onClearSelectedFootprints?.();
+    onClearPickedEntranceCoords?.();
     onSetAdminMapMode('none');
-    setStatusMessage('Yeni bina haritaya ve veri tabanına eklendi.');
+    setStatusMessage(`Yeni kampüs binası (${newBldCode.toUpperCase()}) ayak iziyle başarıyla eklendi ve JSON'a senkronize edildi.`);
   };
 
   const handleSaveDrawnEdge = async () => {
@@ -550,75 +598,186 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                 )}
               </div>
 
-              {/* 3. Add Missing Building */}
-              <form
-                onSubmit={handleCreateBuilding}
-                className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2"
-              >
-                <div className="font-black text-sky-700 dark:text-sky-300 flex items-center gap-1.5">
-                  <Building2 className="w-4 h-4 text-sky-500" />
-                  <span>3. Haritaya Eksik Kampüs Binası Ekle</span>
+              {/* 3. Add Missing Building (2-Step Smart Footprint Snapping Wizard) */}
+              <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 shadow-hard-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-black text-sky-700 dark:text-sky-300 flex items-center gap-1.5">
+                    <Building2 className="w-4 h-4 text-sky-500" />
+                    <span>3. Akıllı Ayak İziyle Bina Ekle</span>
+                  </div>
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-300">
+                    Adım {bldWizardStep}/2
+                  </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    required
-                    value={newBldCode}
-                    onChange={(e) => setNewBldCode(e.target.value)}
-                    placeholder="Bina Kodu (Örn: LAB-2)"
-                    className="bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
-                  />
-                  <select
-                    value={newBldCategory}
-                    onChange={(e) => setNewBldCategory(e.target.value)}
-                    className="bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
-                  >
-                    <option value="academic">Akademik / Bölüm</option>
-                    <option value="dining">Sosyal / Yemekhane</option>
-                    <option value="admin">İdari Bina</option>
-                    <option value="library">Kütüphane / Merkez</option>
-                  </select>
-                </div>
-                <input
-                  type="text"
-                  required
-                  value={newBldName}
-                  onChange={(e) => setNewBldName(e.target.value)}
-                  placeholder="Bina Tam Adı (Örn: İleri Araştırma Lab)"
-                  className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
-                />
-                <div className="flex items-center gap-2">
-                  <TactileButton
-                    type="button"
-                    size="sm"
-                    variant={adminMapMode === 'add_building' ? 'accent' : 'secondary'}
-                    onClick={() =>
-                      onSetAdminMapMode(adminMapMode === 'add_building' ? 'none' : 'add_building')
-                    }
-                    className="flex-1"
-                  >
-                    {pickedCoords
-                      ? `${pickedCoords.lat.toFixed(5)}, ${pickedCoords.lon.toFixed(5)}`
-                      : 'Haritadan Konum Seç'}
-                  </TactileButton>
-                  <input
-                    type="number"
-                    min={1}
-                    max={12}
-                    value={newBldFloors}
-                    onChange={(e) => setNewBldFloors(Number(e.target.value))}
-                    className="w-16 bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2 py-1.5 font-bold"
-                    title="Kat Sayısı"
-                  />
-                  <TactileButton
-                    type="submit"
-                    size="sm"
-                    variant="primary"
-                  >
-                    Kaydet
-                  </TactileButton>
-                </div>
-              </form>
+
+                {bldWizardStep === 1 ? (
+                  /* STEP 1: FOOTPRINT & GEOMETRY SELECTION */
+                  <div className="space-y-2.5">
+                    <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-semibold leading-relaxed">
+                      Haritadaki koyu renkli OSM binalarına tıklayın. Yan yana birden fazla kutucuğa tıklayarak <strong>Çok Bloklu Tesis (Multi-part)</strong> seçebilirsiniz.
+                    </p>
+
+                    <div className="flex items-center gap-2">
+                      <TactileButton
+                        type="button"
+                        size="sm"
+                        variant={adminMapMode === 'add_building' ? 'accent' : 'secondary'}
+                        onClick={() =>
+                          onSetAdminMapMode(adminMapMode === 'add_building' ? 'none' : 'add_building')
+                        }
+                        className="flex-1"
+                      >
+                        {adminMapMode === 'add_building'
+                          ? 'Ayak İzi Seçim Modu Aktif (Kutulara Tıklayın)'
+                          : 'Haritada Ayak İzi Seç'}
+                      </TactileButton>
+
+                      {(selectedFootprints.length > 0 || pickedCoords) && (
+                        <TactileButton
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            onClearSelectedFootprints?.();
+                          }}
+                          className="text-xs text-rose-500"
+                        >
+                          Temizle
+                        </TactileButton>
+                      )}
+                    </div>
+
+                    {selectedFootprints.length > 0 ? (
+                      <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/50 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>{selectedFootprints.length} Blok Seçildi (Multi-Part)</span>
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-emerald-700 dark:text-emerald-400 truncate">
+                          {selectedFootprints.map((fp) => fp.name).join(' • ')}
+                        </div>
+                      </div>
+                    ) : pickedCoords ? (
+                      <div className="p-2 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-300 text-xs font-bold text-sky-800 dark:text-sky-300">
+                        📍 Özel Arazi Konumu: {pickedCoords.lat.toFixed(5)}, {pickedCoords.lon.toFixed(5)}
+                      </div>
+                    ) : null}
+
+                    <TactileButton
+                      type="button"
+                      size="sm"
+                      variant="primary"
+                      disabled={selectedFootprints.length === 0 && !pickedCoords}
+                      onClick={() => {
+                        setBldWizardStep(2);
+                        onSetAdminMapMode('pick_building_entrance');
+                      }}
+                      className="w-full mt-1"
+                    >
+                      İleri: Giriş Kapısını Belirle →
+                    </TactileButton>
+                  </div>
+                ) : (
+                  /* STEP 2: ENTRANCE PIN & BUILDING ATTRIBUTES */
+                  <form onSubmit={handleCreateBuilding} className="space-y-2.5">
+                    <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-semibold">
+                      Haritaya tıklayarak binanın ana giriş kapısını işaretleyin (en yakın yaya graf düğümüne mıknatıslanır).
+                    </p>
+
+                    <TactileButton
+                      type="button"
+                      size="sm"
+                      variant={adminMapMode === 'pick_building_entrance' ? 'accent' : 'secondary'}
+                      onClick={() =>
+                        onSetAdminMapMode(
+                          adminMapMode === 'pick_building_entrance' ? 'none' : 'pick_building_entrance'
+                        )
+                      }
+                      className="w-full"
+                    >
+                      {pickedEntranceCoords
+                        ? `✓ Kapı Seçildi: ${pickedEntranceCoords.lat.toFixed(5)}, ${pickedEntranceCoords.lon.toFixed(5)}`
+                        : adminMapMode === 'pick_building_entrance'
+                        ? 'Haritada Kapı Noktasına Tıklayın...'
+                        : 'Haritadan Kapı Konumu Seç'}
+                    </TactileButton>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        required
+                        value={newBldCode}
+                        onChange={(e) => setNewBldCode(e.target.value)}
+                        placeholder="Kod (Örn: SKS)"
+                        className="bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none"
+                      />
+                      <select
+                        value={newBldCategory}
+                        onChange={(e) => setNewBldCategory(e.target.value)}
+                        className="bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none"
+                      >
+                        <option value="academic">Akademik</option>
+                        <option value="dining">Sosyal / Yemek</option>
+                        <option value="admin">İdari</option>
+                        <option value="library">Kütüphane</option>
+                      </select>
+                    </div>
+
+                    <input
+                      type="text"
+                      required
+                      value={newBldName}
+                      onChange={(e) => setNewBldName(e.target.value)}
+                      placeholder="Bina Tam Adı"
+                      className="w-full bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none"
+                    />
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <input
+                        type="text"
+                        value={newEntranceName}
+                        onChange={(e) => setNewEntranceName(e.target.value)}
+                        placeholder="Kapı Adı"
+                        className="col-span-2 bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none"
+                      />
+                      <input
+                        type="number"
+                        min={1}
+                        max={15}
+                        value={newBldFloors}
+                        onChange={(e) => setNewBldFloors(Number(e.target.value))}
+                        title="Kat Sayısı"
+                        className="bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none text-center"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <TactileButton
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setBldWizardStep(1);
+                          onSetAdminMapMode('add_building');
+                        }}
+                      >
+                        ← Geri
+                      </TactileButton>
+
+                      <TactileButton
+                        type="submit"
+                        size="sm"
+                        variant="primary"
+                        className="flex-1"
+                      >
+                        Kaydet & Senkronize Et
+                      </TactileButton>
+                    </div>
+                  </form>
+                )}
+              </div>
 
               {/* 4. Draw New Walkway Path */}
               <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2">
