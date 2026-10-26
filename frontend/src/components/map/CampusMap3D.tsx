@@ -1213,20 +1213,11 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 
     if (map.getSource('active-route')) {
       (map.getSource('active-route') as maplibregl.GeoJSONSource).setData(routeGeoJSON);
-      if (activeRoute && map.getLayer('active-route-line')) {
-        // Flash amber A* algorithmic wave (Jury Wow Effect)
-        map.setPaintProperty('active-route-line', 'line-color', '#F59E0B');
-        if (map.getLayer('active-route-casing')) {
-          map.setPaintProperty('active-route-casing', 'line-color', '#D97706');
-        }
-        setTimeout(() => {
-          if (mapRef.current && mapRef.current.getLayer('active-route-line')) {
-            mapRef.current.setPaintProperty('active-route-line', 'line-color', '#38BDF8');
-            if (mapRef.current.getLayer('active-route-casing')) {
-              mapRef.current.setPaintProperty('active-route-casing', 'line-color', '#0369A1');
-            }
-          }
-        }, 450);
+      if (map.getLayer('active-route-line')) {
+        map.setPaintProperty('active-route-line', 'line-color', '#38BDF8');
+      }
+      if (map.getLayer('active-route-casing')) {
+        map.setPaintProperty('active-route-casing', 'line-color', '#0369A1');
       }
     } else {
       map.addSource('active-route', { type: 'geojson', data: routeGeoJSON });
