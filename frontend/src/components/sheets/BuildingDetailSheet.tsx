@@ -1,10 +1,35 @@
 import React, { useState } from 'react';
 import {
+  Navigation,
+  FileText,
+  DoorClosed,
+  CheckCircle2,
+  Calendar,
+  Play,
+  Pause,
+  Radio,
+  X,
+  Zap,
+  Users,
+  Wrench,
+  MapPin,
+  Clock,
+  BookOpen,
+  GraduationCap,
+  Sparkles,
+} from 'lucide-react';
+import {
   Building,
   BuildingRoomsResponse,
   RouteResponse,
 } from '../../types/campus';
-import { SurfaceCard, StatusBadge } from '../ui/Primitives';
+import {
+  TactileCard,
+  TactileButton,
+  TactileIconButton,
+  StatusBadge,
+  GrabberHandle,
+} from '../ui/Primitives';
 
 interface BuildingDetailSheetProps {
   building: Building | null;
@@ -79,239 +104,278 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
     .sort((a, b) => a.start_time.localeCompare(b.start_time));
 
   return (
-    <aside className="fixed inset-x-0 bottom-0 md:inset-x-auto md:top-24 md:right-3 md:bottom-4 w-full md:w-[390px] max-h-[68dvh] md:max-h-none z-20 pointer-events-auto flex flex-col px-2 pb-2 md:p-0">
-      <SurfaceCard className="flex-1 flex flex-col overflow-hidden">
+    <aside className="fixed inset-x-0 bottom-0 md:inset-x-auto md:top-20 md:right-4 md:bottom-4 w-full md:w-[410px] max-h-[82dvh] md:max-h-none z-30 pointer-events-auto flex flex-col p-2 md:p-0">
+      <TactileCard className="flex-1 flex flex-col overflow-hidden p-0 border-2 border-zinc-950 shadow-hard-lg dark:shadow-hard-night-lg">
+        {/* Mobile Drag Grabber */}
+        <div className="md:hidden">
+          <GrabberHandle />
+        </div>
+
         {/* Header */}
-        <div className="p-3.5 sm:p-4 border-b border-slate-800 flex items-start justify-between gap-3">
+        <div className="p-3.5 sm:p-4 border-b-2 border-zinc-950 flex items-start justify-between gap-3 bg-zinc-50 dark:bg-zinc-900/60">
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 font-black text-xs border border-sky-500/30">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="px-2 py-0.5 rounded-lg bg-sky-400 text-zinc-950 font-black text-xs border border-zinc-950 shadow-[1px_1px_0px_#18181B]">
                 {building.code}
               </span>
               {building.total_rooms_count > 0 && (
-                <StatusBadge variant={building.free_rooms_count > 0 ? 'emerald' : 'rose'}>
-                  {building.free_rooms_count}/{building.total_rooms_count} Boş Derslik/Amfi
+                <StatusBadge
+                  variant={building.free_rooms_count > 0 ? 'emerald' : 'rose'}
+                  icon={<CheckCircle2 className="w-3.5 h-3.5" />}
+                >
+                  {building.free_rooms_count}/{building.total_rooms_count} Boş Amfi
                 </StatusBadge>
               )}
-              <span className="text-[11px] text-slate-400">
+              <span className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400">
                 {building.floors_count} Katlı
               </span>
             </div>
-            <h2 className="text-sm sm:text-base font-extrabold text-white mt-1">
+
+            <h2 className="text-sm sm:text-base font-black text-zinc-900 dark:text-zinc-100 mt-1">
               {building.name}
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              🚪 Giriş Kapısı:{' '}
-              <span className="text-slate-200 font-semibold">{building.entrance_name}</span>
+
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5 flex items-center gap-1">
+              <DoorClosed className="w-3.5 h-3.5 text-zinc-500" />
+              <span>Giriş Kapısı:</span>
+              <strong className="text-zinc-900 dark:text-zinc-200">
+                {building.entrance_name}
+              </strong>
             </p>
           </div>
-          <button
-            type="button"
+
+          <TactileIconButton
+            size="sm"
+            variant="ghost"
+            label="Kapat"
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs"
           >
-            ✕
-          </button>
+            <X className="w-4 h-4" />
+          </TactileIconButton>
         </div>
 
-        {/* Navigation & Simulator Controls */}
-        <div className="p-3 bg-slate-950/70 border-b border-slate-800 space-y-2">
+        {/* Navigation & Route Actions */}
+        <div className="p-3 bg-white dark:bg-zinc-900 border-b-2 border-zinc-950 space-y-2">
           <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              disabled={isCalculatingRoute}
+            <TactileButton
+              variant="accent"
+              loading={isCalculatingRoute}
+              icon={<Navigation className="w-4 h-4" />}
               onClick={() => onStartRoute(building.id)}
-              className="flex-1 py-2 px-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs shadow-lg transition"
+              className="flex-1"
             >
-              {isCalculatingRoute ? 'Rota Hesaplanıyor...' : '🧭 Bina Girişine Yaya Rotası Çiz (A*)'}
-            </button>
+              Bina Girişine Yürü (A*)
+            </TactileButton>
 
-            <button
-              type="button"
+            <TactileButton
+              variant="secondary"
+              icon={<FileText className="w-4 h-4 text-sky-500" />}
               onClick={() => onOpenWrittenTicketForBuilding(building.id)}
-              className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition"
             >
-              📝 Arıza/Talep Yaz
-            </button>
+              Talep / Arıza Yaz
+            </TactileButton>
           </div>
 
           {isAdmin && (
-            <button
-              type="button"
+            <TactileButton
+              variant="warning"
+              size="sm"
+              icon={<MapPin className="w-3.5 h-3.5" />}
               onClick={() => onAdminStartMoveEntrance(building.id)}
-              className="w-full py-1.5 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/40 text-xs font-bold transition"
+              className="w-full"
             >
-              🚪 Admin: Bu Binanın Giriş Kapısını Haritada Taşı
-            </button>
+              Admin: Bina Giriş Kapısını Haritada Taşı
+            </TactileButton>
           )}
 
           {activeRoute && (
-            <div className="p-2.5 rounded-xl bg-sky-950/50 border border-sky-500/40 space-y-2 text-xs">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-sky-200">
-                  🎯 {activeRoute.target_entrance_name}
+            <div className="p-3 rounded-xl bg-sky-50 dark:bg-sky-950/60 border-2 border-zinc-950 shadow-hard-sm space-y-2 text-xs">
+              <div className="flex items-center justify-between font-extrabold text-sky-950 dark:text-sky-200">
+                <span className="flex items-center gap-1.5 truncate">
+                  <Navigation className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
+                  <span>{activeRoute.target_entrance_name}</span>
                 </span>
-                <span className="font-extrabold text-white">
+                <span className="font-black tabular-nums bg-sky-400 text-zinc-950 px-2 py-0.5 rounded-lg border border-zinc-950 shrink-0">
                   {activeRoute.distance_m} m • ~{activeRoute.duration_min} dk
                 </span>
               </div>
 
               {activeRoute.avoided_closures > 0 && (
-                <div className="text-[11px] text-amber-300 font-semibold">
-                  🛡️ {activeRoute.avoided_closures} kapalı yürüyüş yolundan kaçınılarak güvenli alternatif rota seçildi.
+                <div className="text-[11px] text-amber-800 dark:text-amber-300 font-bold">
+                  🛡️ {activeRoute.avoided_closures} kapalı yürüyüş yolundan kaçınılarak alternatif rota seçildi.
                 </div>
               )}
 
               <div className="flex flex-wrap gap-1.5 pt-1">
-                <button
-                  type="button"
+                <TactileButton
+                  size="sm"
+                  variant={isSimulatingWalk ? 'warning' : 'primary'}
+                  icon={
+                    isSimulatingWalk ? (
+                      <Pause className="w-3.5 h-3.5" />
+                    ) : (
+                      <Play className="w-3.5 h-3.5" />
+                    )
+                  }
                   onClick={onToggleSimulateWalk}
-                  className={`flex-1 py-1.5 px-2.5 rounded-lg font-bold transition ${
-                    isSimulatingWalk
-                      ? 'bg-amber-500 text-slate-950'
-                      : 'bg-emerald-500 text-slate-950 hover:bg-emerald-400'
-                  }`}
+                  className="flex-1"
                 >
-                  {isSimulatingWalk ? '⏸️ Yürüyüşü Duraklat' : '🚶 Yürüyüş Simülatörünü Başlat'}
-                </button>
+                  {isSimulatingWalk ? 'Duraklat' : 'Simülatörü Başlat'}
+                </TactileButton>
 
-                <button
-                  type="button"
+                <TactileButton
+                  size="sm"
+                  variant={isLiveGpsActive ? 'accent' : 'secondary'}
+                  icon={<Radio className="w-3.5 h-3.5" />}
                   onClick={onToggleLiveGps}
-                  className={`py-1.5 px-2.5 rounded-lg font-bold border transition ${
-                    isLiveGpsActive
-                      ? 'bg-sky-500 text-slate-950 border-sky-300'
-                      : 'bg-slate-900 text-slate-200 border-slate-700 hover:bg-slate-800'
-                  }`}
                 >
-                  {isLiveGpsActive ? '📡 Canlı GPS Açık' : '📍 Canlı GPS'}
-                </button>
+                  {isLiveGpsActive ? 'Canlı GPS Açık' : 'Canlı GPS'}
+                </TactileButton>
 
-                <button
-                  type="button"
+                <TactileButton
+                  size="sm"
+                  variant="ghost"
                   onClick={onClearRoute}
-                  className="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
                 >
-                  Temizle
-                </button>
+                  Rotayı Temizle
+                </TactileButton>
               </div>
             </div>
           )}
         </div>
 
-        {/* Spec 04 Bölüm 2.1: 2 Clean Tabs (1. Canlı Boş Amfi Radarı | 2. Haftalık Ders Programı) */}
-        <div className="grid grid-cols-2 gap-1 p-2 bg-slate-950 border-b border-slate-800 text-xs">
-          <button
-            type="button"
+        {/* 2 Clean Tabs (1. Canlı Boş Amfi Radarı | 2. Haftalık Ders Programı) */}
+        <div className="grid grid-cols-2 gap-1.5 p-2 bg-zinc-100 dark:bg-zinc-950 border-b-2 border-zinc-950 text-xs">
+          <TactileButton
+            size="sm"
+            variant={activeTab === 'radar' ? 'primary' : 'ghost'}
+            icon={<CheckCircle2 className="w-3.5 h-3.5" />}
             onClick={() => setActiveTab('radar')}
-            className={`py-1.5 px-2 rounded-lg font-bold transition ${
-              activeTab === 'radar'
-                ? 'bg-emerald-500 text-slate-950'
-                : 'text-slate-300 hover:bg-slate-900'
-            }`}
           >
-            🟢 Canlı Amfi Radarı ({rooms.length})
-          </button>
-          <button
-            type="button"
+            Amfi Radarı ({rooms.length})
+          </TactileButton>
+          <TactileButton
+            size="sm"
+            variant={activeTab === 'schedule' ? 'accent' : 'ghost'}
+            icon={<Calendar className="w-3.5 h-3.5" />}
             onClick={() => setActiveTab('schedule')}
-            className={`py-1.5 px-2 rounded-lg font-bold transition ${
-              activeTab === 'schedule'
-                ? 'bg-sky-500 text-slate-950'
-                : 'text-slate-300 hover:bg-slate-900'
-            }`}
           >
-            📅 Haftalık Ders Programı
-          </button>
+            Ders Programı
+          </TactileButton>
         </div>
 
+        {/* Tab 1: Live Amphitheater Radar */}
         {activeTab === 'radar' ? (
           <>
-            <div className="px-4 py-2 border-b border-slate-800 flex items-center justify-between text-xs bg-slate-900/50">
-              <span className="font-bold text-slate-300">
+            <div className="px-4 py-2 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-xs bg-zinc-50 dark:bg-zinc-900/50">
+              <span className="font-extrabold text-zinc-700 dark:text-zinc-300">
                 Anlık Durum ({roomsData?.query_time || 'TR Saati'})
               </span>
-              <label className="flex items-center gap-1.5 text-slate-300 cursor-pointer">
+              <label className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300 font-bold cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={filterOnlyFree}
                   onChange={(e) => setFilterOnlyFree(e.target.checked)}
-                  className="rounded border-slate-600"
+                  className="rounded border-zinc-400 accent-emerald-500"
                 />
                 <span>Sadece Boş Olanlar</span>
               </label>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5">
+            <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
               {isLoadingRooms ? (
-                <div className="text-xs text-slate-400 text-center py-8">
-                  Derslik ve amfi programı yükleniyor...
+                <div className="text-xs text-zinc-500 text-center py-8 font-bold">
+                  Derslik ve amfi doluluk verisi taranıyor...
                 </div>
               ) : displayedRooms.length === 0 ? (
-                <div className="text-xs text-slate-400 text-center py-8">
+                <div className="text-xs text-zinc-500 text-center py-8 font-bold">
                   Bu binada gösterilecek derslik kaydı bulunmuyor.
                 </div>
               ) : (
                 displayedRooms.map((room) => (
                   <div
                     key={room.id}
-                    className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2 text-xs"
+                    className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border-2 border-zinc-950 shadow-hard-sm space-y-2 text-xs"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <div className="font-bold text-white flex items-center gap-1.5">
+                        <div className="font-black text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
                           <span>{room.name}</span>
-                          <span className="text-[10px] text-slate-400 font-normal">
+                          <span className="text-[10px] text-zinc-500 font-normal">
                             (Kat {room.floor} • {room.capacity} Kişi)
                           </span>
                         </div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">
-                          {room.has_outlets ? '🔌 Priz Mevcut' : 'Priz Yok'} •{' '}
-                          {room.room_type === 'amphitheater'
-                            ? 'Amfi'
-                            : room.room_type === 'lab'
-                            ? 'Laboratuvar'
-                            : 'Derslik'}
+                        <div className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 flex items-center gap-1.5">
+                          {room.has_outlets ? (
+                            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
+                              <Zap className="w-3 h-3" /> Priz Var
+                            </span>
+                          ) : (
+                            <span className="text-zinc-400">Priz Yok</span>
+                          )}
+                          <span>•</span>
+                          <span>
+                            {room.room_type === 'amphitheater'
+                              ? 'Amfi'
+                              : room.room_type === 'lab'
+                              ? 'Laboratuvar'
+                              : 'Derslik'}
+                          </span>
                         </div>
                       </div>
 
                       {room.is_currently_free ? (
-                        <StatusBadge variant="emerald">
-                          🟢 Boş {room.free_until ? `(${room.free_until}'a kadar)` : ''}
+                        <StatusBadge
+                          variant="emerald"
+                          icon={<CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />}
+                        >
+                          Boş {room.free_until ? `(${room.free_until}'a kadar)` : ''}
                         </StatusBadge>
                       ) : room.is_crowd_busy ? (
-                        <StatusBadge variant="amber">🟠 Öğrenci Bildirimi: Dolu</StatusBadge>
+                        <StatusBadge
+                          variant="amber"
+                          icon={<Users className="w-3 h-3 text-amber-600 dark:text-amber-400" />}
+                        >
+                          Öğrenci Bildirimi: Dolu
+                        </StatusBadge>
                       ) : (
-                        <StatusBadge variant="rose">
-                          🔴 Ders Var ({room.current_course_code})
+                        <StatusBadge
+                          variant="rose"
+                          icon={<BookOpen className="w-3 h-3 text-rose-600 dark:text-rose-400" />}
+                        >
+                          Ders Var ({room.current_course_code})
                         </StatusBadge>
                       )}
                     </div>
 
                     {!room.is_currently_free && room.current_course_name && (
-                      <div className="text-[11px] text-rose-300 bg-rose-950/40 px-2.5 py-1.5 rounded-lg border border-rose-500/20">
-                        📚 Aktif Ders: <strong>{room.current_course_code}</strong> —{' '}
+                      <div className="text-[11px] text-rose-900 dark:text-rose-200 bg-rose-50 dark:bg-rose-950/60 p-2 rounded-lg border border-rose-300 dark:border-rose-800 font-medium">
+                        Aktif Ders: <strong>{room.current_course_code}</strong> —{' '}
                         {room.current_course_name} (Bitiş: {room.current_course_ends_at})
                       </div>
                     )}
 
                     {room.is_crowd_busy && (
-                      <div className="flex items-center justify-between gap-2 text-[11px] text-amber-200 bg-amber-950/40 px-2.5 py-1.5 rounded-lg border border-amber-500/30">
-                        <span>👥 {room.crowd_busy_reason}</span>
+                      <div className="flex items-center justify-between gap-2 text-[11px] text-amber-900 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/60 p-2 rounded-lg border border-amber-300 dark:border-amber-800">
+                        <span className="flex items-center gap-1.5 font-bold">
+                          <Users className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                          <span>{room.crowd_busy_reason}</span>
+                        </span>
                         {isAdmin && (
-                          <button
-                            type="button"
+                          <TactileButton
+                            size="sm"
+                            variant="secondary"
                             onClick={() => onClearRoomBusy(room.id)}
-                            className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold shrink-0"
+                            className="text-[10px] py-0.5 px-2 min-h-0"
                           >
                             Sıfırla
-                          </button>
+                          </TactileButton>
                         )}
                       </div>
                     )}
 
                     {/* Crowdsourced "İçerisi Dolu Bildir" Override */}
-                    <div className="flex items-center gap-1.5 pt-1">
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
                       {room.is_currently_free && (
                         <>
                           <input
@@ -323,11 +387,13 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                                 [room.id]: e.target.value,
                               }))
                             }
-                            placeholder="Örn: Kulüp toplantısı / telafi dersi var..."
-                            className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-slate-200 outline-none"
+                            placeholder="Örn: Kulüp toplantısı / etüt var..."
+                            className="flex-1 min-w-[130px] bg-white dark:bg-zinc-950 border border-zinc-950 rounded-lg px-2.5 py-1 text-[11px] text-zinc-900 dark:text-zinc-100 font-semibold outline-none"
                           />
-                          <button
-                            type="button"
+                          <TactileButton
+                            size="sm"
+                            variant="warning"
+                            icon={<Users className="w-3 h-3" />}
                             onClick={() =>
                               onReportRoomBusy(
                                 room.id,
@@ -335,19 +401,21 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                                   'Öğrenci bildirimi: İçeride kulüp etkinliği / yoğunluk var'
                               )
                             }
-                            className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 font-bold text-[11px] shrink-0"
+                            className="text-[11px] py-1 px-2.5 min-h-0"
                           >
-                            🙋 İçerisi Dolu Bildir
-                          </button>
+                            İçerisi Dolu Bildir
+                          </TactileButton>
                         </>
                       )}
-                      <button
-                        type="button"
+                      <TactileButton
+                        size="sm"
+                        variant="ghost"
+                        icon={<Wrench className="w-3 h-3 text-zinc-500" />}
                         onClick={() => onOpenWrittenTicketForBuilding(building.id, room.id)}
-                        className="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-[11px] shrink-0"
+                        className="text-[11px] py-1 px-2 min-h-0"
                       >
-                        🔧 Donanım Bildir
-                      </button>
+                        Arıza Bildir
+                      </TactileButton>
                     </div>
                   </div>
                 ))
@@ -357,16 +425,16 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
         ) : (
           /* Tab 2: Weekly Course Schedule (Pazartesi - Cuma) */
           <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="p-2.5 border-b border-slate-800 flex items-center gap-1.5 bg-slate-900/50">
+            <div className="p-2 border-b-2 border-zinc-950 flex items-center gap-1 bg-zinc-100 dark:bg-zinc-950">
               {WEEKDAYS.map((w) => (
                 <button
                   key={w.day}
                   type="button"
                   onClick={() => setSelectedDay(w.day)}
-                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition ${
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-black transition border-2 border-zinc-950 ${
                     selectedDay === w.day
-                      ? 'bg-sky-500 text-slate-950'
-                      : 'bg-slate-950 text-slate-300 hover:bg-slate-800 border border-slate-800'
+                      ? 'bg-sky-400 text-zinc-950 shadow-hard-sm'
+                      : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 shadow-none'
                   }`}
                 >
                   {w.label}
@@ -374,28 +442,37 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
               ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-3.5 space-y-2 text-xs">
+            <div className="flex-1 overflow-y-auto p-3 space-y-2 text-xs">
               {dayScheduleItems.length === 0 ? (
-                <div className="text-center py-8 text-slate-400">
+                <div className="text-center py-8 text-zinc-500 font-bold">
                   Bu binada seçilen gün için kayıtlı resmi ders bulunmuyor.
                 </div>
               ) : (
                 dayScheduleItems.map((item) => (
                   <div
                     key={`${item.id}-${item.roomId}`}
-                    className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-2"
+                    className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border-2 border-zinc-950 shadow-hard-sm flex items-center justify-between gap-2"
                   >
                     <div>
-                      <div className="font-bold text-white">
-                        <span className="text-sky-300">{item.course_code}</span> —{' '}
-                        {item.course_name}
+                      <div className="font-black text-zinc-900 dark:text-zinc-100">
+                        <span className="text-sky-600 dark:text-sky-300 font-black">
+                          {item.course_code}
+                        </span>{' '}
+                        — {item.course_name}
                       </div>
-                      <div className="text-[11px] text-slate-400 mt-0.5">
-                        🪑 {item.roomName} (Kat {item.floor})
-                        {item.instructor ? ` • 👨‍🏫 ${item.instructor}` : ''}
+                      <div className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 flex items-center gap-2">
+                        <span>
+                          {item.roomName} (Kat {item.floor})
+                        </span>
+                        {item.instructor ? (
+                          <span className="flex items-center gap-1 text-zinc-500">
+                            <GraduationCap className="w-3 h-3" />
+                            {item.instructor}
+                          </span>
+                        ) : null}
                       </div>
                     </div>
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 font-bold shrink-0 tabular-nums">
+                    <span className="px-2 py-1 rounded-lg bg-zinc-200 dark:bg-zinc-800 border border-zinc-950 text-zinc-900 dark:text-zinc-100 font-black shrink-0 tabular-nums">
                       {item.start_time} – {item.end_time}
                     </span>
                   </div>
@@ -404,7 +481,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
             </div>
           </div>
         )}
-      </SurfaceCard>
+      </TactileCard>
     </aside>
   );
 };

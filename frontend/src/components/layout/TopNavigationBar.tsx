@@ -1,10 +1,38 @@
 import React, { useState } from 'react';
 import {
+  Train,
+  AlertTriangle,
+  FileText,
+  Shield,
+  ShieldAlert,
+  Building2,
+  CheckCircle2,
+  UtensilsCrossed,
+  MapPin,
+  Megaphone,
+  X,
+  KeyRound,
+  LogOut,
+  BookOpen,
+  Armchair,
+  Layers,
+  ArrowRight,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
+import {
   CampusAnnouncement,
   SearchResultItem,
   UserSession,
 } from '../../types/campus';
 import { DEFAULT_DEMO_ADMIN_KEY } from '../../hooks/useAuth';
+import {
+  TactileCard,
+  TactileButton,
+  TactileIconButton,
+  StatusBadge,
+} from '../ui/Primitives';
 
 export type QuickCampusFilter =
   | 'all'
@@ -26,6 +54,7 @@ interface TopNavigationBarProps {
   searchResults: SearchResultItem[];
   onSelectSearchResult: (item: SearchResultItem) => void;
   announcements: CampusAnnouncement[];
+  isNavigating?: boolean;
   isPickingUserStart?: boolean;
   onTogglePickUserStart?: () => void;
   onOpenMarmaray: () => void;
@@ -48,6 +77,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
   searchResults,
   onSelectSearchResult,
   announcements,
+  isNavigating = false,
   isPickingUserStart = false,
   onTogglePickUserStart,
   onOpenMarmaray,
@@ -57,6 +87,10 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
   isAdminDrawerOpen,
 }) => {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
+  const [isAnnouncementsModalOpen, setIsAnnouncementsModalOpen] = useState<boolean>(false);
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState<boolean>(false);
+  const [isRightCollapsed, setIsRightCollapsed] = useState<boolean>(false);
+
   const [adminKeyInput, setAdminKeyInput] = useState<string>('');
   const [isVerifyingKey, setIsVerifyingKey] = useState<boolean>(false);
 
@@ -74,267 +108,561 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
     }
   };
 
+  const renderSearchResults = () => {
+    if (searchQuery.trim().length === 0) return null;
+    return (
+      <div className="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-zinc-900 border-2 border-zinc-950 rounded-xl shadow-hard-lg max-h-72 overflow-y-auto z-50 divide-y-2 divide-zinc-950/20">
+        {searchResults.length === 0 ? (
+          <div className="p-3 text-xs text-zinc-500 dark:text-zinc-400 text-center font-bold">
+            Sonuç bulunamadı ("CSE 101", "BMB", "Kütüphane" deneyin)
+          </div>
+        ) : (
+          searchResults.map((item, idx) => (
+            <button
+              key={`${item.building_id}-${item.title}-${idx}`}
+              type="button"
+              onClick={() => {
+                onSelectSearchResult(item);
+                // On small screens, keep it tidy
+                if (window.innerWidth < 768) {
+                  onSearchChange('');
+                }
+              }}
+              className="w-full text-left px-3.5 py-2.5 hover:bg-sky-50 dark:hover:bg-zinc-800 transition flex items-center justify-between gap-2"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-950 flex items-center justify-center shrink-0 text-zinc-700 dark:text-zinc-300">
+                  {item.result_type === 'course' && <BookOpen className="w-3.5 h-3.5" />}
+                  {item.result_type === 'building' && <Building2 className="w-3.5 h-3.5" />}
+                  {item.result_type === 'classroom' && <Armchair className="w-3.5 h-3.5" />}
+                </div>
+                <div>
+                  <div className="text-xs font-black text-zinc-950 dark:text-zinc-100">
+                    {item.title}
+                  </div>
+                  <div className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                    {item.subtitle}
+                  </div>
+                </div>
+              </div>
+              <span className="text-[11px] font-black text-sky-600 dark:text-sky-400 shrink-0 flex items-center gap-1">
+                <span>Rotayı Çiz</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </button>
+          ))
+        )}
+      </div>
+    );
+  };
+
+  const renderScopeBar = (isMobile: boolean = false) => {
+    return (
+      <div
+        className={`flex items-center gap-1.5 ${
+          isMobile ? 'overflow-x-auto no-scrollbar py-0.5' : 'flex-wrap'
+        }`}
+      >
+        <button
+          type="button"
+          onClick={() => onFilterChange('all')}
+          className={`px-2.5 py-1 rounded-lg text-[11px] font-black shadow-[1.5px_1.5px_0px_#18181B] border border-zinc-950 transition flex items-center gap-1 select-none ${
+            activeFilter === 'all'
+              ? 'bg-zinc-950 text-white dark:bg-white dark:text-zinc-950'
+              : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 hover:bg-zinc-200'
+          }`}
+        >
+          <Layers className="w-3 h-3" />
+          <span>Tümü</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            onFilterChange(activeFilter === 'academic' ? 'all' : 'academic')
+          }
+          className={`px-2.5 py-1 rounded-lg text-[11px] font-black shadow-[1.5px_1.5px_0px_#18181B] border border-zinc-950 transition flex items-center gap-1 select-none ${
+            activeFilter === 'academic'
+              ? 'bg-rose-400 text-zinc-950 ring-1 ring-rose-300'
+              : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 hover:bg-zinc-200'
+          }`}
+        >
+          <Building2 className="w-3 h-3 text-rose-500" />
+          <span>Akademik</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            onFilterChange(activeFilter === 'free_rooms' ? 'all' : 'free_rooms')
+          }
+          className={`px-2.5 py-1 rounded-lg text-[11px] font-black shadow-[1.5px_1.5px_0px_#18181B] border border-zinc-950 transition flex items-center gap-1 select-none ${
+            activeFilter === 'free_rooms'
+              ? 'bg-emerald-400 text-zinc-950 ring-1 ring-emerald-300'
+              : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 hover:bg-zinc-200'
+          }`}
+        >
+          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+          <span>Boş Amfi</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            onFilterChange(
+              activeFilter === 'dining_library' ? 'all' : 'dining_library'
+            )
+          }
+          className={`px-2.5 py-1 rounded-lg text-[11px] font-black shadow-[1.5px_1.5px_0px_#18181B] border border-zinc-950 transition flex items-center gap-1 select-none ${
+            activeFilter === 'dining_library'
+              ? 'bg-amber-400 text-zinc-950 ring-1 ring-amber-300'
+              : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 hover:bg-zinc-200'
+          }`}
+        >
+          <UtensilsCrossed className="w-3 h-3 text-amber-600" />
+          <span>Yemek/Küt.</span>
+        </button>
+
+        {onTogglePickUserStart && (
+          <button
+            type="button"
+            onClick={onTogglePickUserStart}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-black shadow-[1.5px_1.5px_0px_#18181B] border border-zinc-950 transition flex items-center gap-1 select-none ${
+              isPickingUserStart
+                ? 'bg-sky-400 text-zinc-950 ring-1 ring-sky-300'
+                : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 hover:bg-zinc-200'
+            }`}
+            title="Haritada başlangıç noktanızı değiştirmek için tıklayın"
+          >
+            <MapPin className="w-3 h-3 text-sky-500" />
+            <span>{isPickingUserStart ? 'Nokta Seç...' : 'Konum Seç'}</span>
+          </button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-30 pointer-events-none px-3 pt-2.5 space-y-1.5">
-        {/* Row 1: Compact Single-Line Top Bar */}
-        <div className="pointer-events-auto max-w-6xl mx-auto bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-2xl px-3 py-2 shadow-2xl flex flex-wrap items-center justify-between gap-2">
-          {/* Brand Logo */}
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center font-black text-white shadow text-xs">
+      {/* ==================================================================== */}
+      {/*                 DESKTOP APPLE MAPS DECOUPLED ISLANDS                 */}
+      {/* ==================================================================== */}
+      <div className="hidden md:block pointer-events-none">
+        {/* Top-Left Island: Unified Search & Scope Bar Hub */}
+        {!isLeftCollapsed ? (
+          <aside className="fixed top-4 left-4 z-30 pointer-events-auto w-[360px] lg:w-[380px] transition-all">
+            <TactileCard className="p-3.5 space-y-3 bg-white/95 dark:bg-[#1E222D]/95 border-2 border-zinc-950 shadow-hard-lg dark:shadow-hard-night-lg">
+              {/* Brand Header & Collapse Toggle */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 border-2 border-zinc-950 flex items-center justify-center font-black text-white shadow-hard-sm text-xs">
+                    GTÜ
+                  </div>
+                  <div className="flex items-center gap-1.5 leading-none">
+                    <span className="text-sm font-black text-zinc-950 dark:text-zinc-100 tracking-tight">
+                      GTÜ-NAV
+                    </span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-950 dark:bg-emerald-950/80 dark:text-emerald-300 border border-zinc-950 font-black">
+                      Kampüs Maketi
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsLeftCollapsed(true)}
+                  className="w-7 h-7 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-950 dark:hover:text-white border border-transparent hover:border-zinc-950/20 flex items-center justify-center transition"
+                  title="Arama panelini kenara topla"
+                  aria-label="Arama panelini kenara topla"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Omnibox Search Input */}
+              <div className="relative">
+                <div className="relative w-full">
+                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-zinc-500">
+                    <Search className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    placeholder="Ders kodu (CSE 101), amfi veya bina ara..."
+                    className="w-full h-9 pl-9 pr-8 bg-zinc-100 dark:bg-zinc-900 border-2 border-zinc-950 rounded-xl text-xs font-bold text-zinc-950 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none focus:ring-2 focus:ring-sky-400 shadow-[2px_2px_0px_#18181B] transition"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => onSearchChange('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition text-xs font-bold"
+                      aria-label="Aramayı Temizle"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Dropdown Results */}
+                {renderSearchResults()}
+              </div>
+
+              {/* Scope Bar (Directly below search, integrated in island) */}
+              <div className="pt-0.5 border-t border-zinc-950/10 dark:border-white/10">
+                {renderScopeBar(false)}
+              </div>
+            </TactileCard>
+          </aside>
+        ) : (
+          <aside className="fixed top-4 left-4 z-30 pointer-events-auto">
+            <button
+              type="button"
+              onClick={() => setIsLeftCollapsed(false)}
+              className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/95 dark:bg-[#1E222D]/95 border-2 border-zinc-950 shadow-hard-md hover:scale-105 active:scale-95 transition text-xs font-black text-zinc-900 dark:text-zinc-100"
+              title="Arama ve Filtreleri Aç"
+            >
+              <div className="w-5 h-5 rounded-md bg-gradient-to-br from-sky-400 to-indigo-600 border border-zinc-950 flex items-center justify-center font-black text-[9px] text-white">
+                GTÜ
+              </div>
+              <Search className="w-3.5 h-3.5 text-sky-500" />
+              <span>Arama</span>
+              <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
+            </button>
+          </aside>
+        )}
+
+        {/* Top-Right Island: Compact Services Toolbar */}
+        {!isRightCollapsed ? (
+          <nav className="fixed top-4 right-4 z-30 pointer-events-auto transition-all">
+            <TactileCard className="p-1.5 flex items-center gap-1.5 bg-white/95 dark:bg-[#1E222D]/95 border-2 border-zinc-950 shadow-hard-md dark:shadow-hard-night-md">
+              {announcements.length > 0 && (
+                <TactileButton
+                  size="sm"
+                  variant="secondary"
+                  icon={<Megaphone className="w-3.5 h-3.5 text-amber-500" />}
+                  onClick={() => setIsAnnouncementsModalOpen(true)}
+                  title="Kampüs Duyuruları"
+                >
+                  Duyurular
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full bg-amber-400 text-zinc-950 text-[10px] font-black">
+                    {announcements.length}
+                  </span>
+                </TactileButton>
+              )}
+
+              <TactileButton
+                size="sm"
+                variant="secondary"
+                icon={<Train className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                onClick={onOpenMarmaray}
+                title="GTÜ - Fatih Marmaray İstasyonu Tren Saatleri ve Yürüyüş Hesabı"
+              >
+                Marmaray
+              </TactileButton>
+
+              <TactileButton
+                size="sm"
+                variant="secondary"
+                icon={<AlertTriangle className="w-3.5 h-3.5 text-amber-500" />}
+                onClick={onOpenAlertModal}
+                title="Haritaya Anlık Saha Uyarısı Bırak"
+              >
+                Saha Uyarısı
+              </TactileButton>
+
+              <TactileButton
+                size="sm"
+                variant="secondary"
+                icon={<FileText className="w-3.5 h-3.5 text-sky-500" />}
+                onClick={onOpenWrittenTicketModal}
+                title="Yerel Türkçe NLP Yapay Zekâ Destekli Yazılı Arıza Bildirimi"
+              >
+                AI Bildirim
+              </TactileButton>
+
+              {isAdmin ? (
+                <div className="flex items-center gap-1 pl-1 border-l-2 border-zinc-950/20 dark:border-white/20">
+                  <TactileButton
+                    size="sm"
+                    variant={isAdminDrawerOpen ? 'primary' : 'warning'}
+                    icon={<ShieldAlert className="w-3.5 h-3.5" />}
+                    onClick={onToggleAdminDrawer}
+                  >
+                    LiveOps
+                  </TactileButton>
+                  <TactileIconButton
+                    size="sm"
+                    variant="ghost"
+                    label="Yönetici Oturumunu Kapat"
+                    onClick={() => onSwitchRole('student')}
+                  >
+                    <LogOut className="w-3.5 h-3.5 text-zinc-500" />
+                  </TactileIconButton>
+                </div>
+              ) : (
+                <TactileButton
+                  size="sm"
+                  variant="neutral"
+                  icon={<Shield className="w-3.5 h-3.5 text-zinc-400" />}
+                  onClick={() => {
+                    onClearAuthError();
+                    setIsAdminModalOpen(true);
+                  }}
+                  title={`${user.email} • Yönetici Girişi`}
+                >
+                  Yönetici
+                </TactileButton>
+              )}
+
+              {/* Collapse Button for Right Toolbar */}
+              <button
+                type="button"
+                onClick={() => setIsRightCollapsed(true)}
+                className="w-7 h-7 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-950 dark:hover:text-white border border-transparent hover:border-zinc-950/20 flex items-center justify-center transition ml-0.5"
+                title="Hızlı menüyü kenara topla"
+                aria-label="Hızlı menüyü kenara topla"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </TactileCard>
+          </nav>
+        ) : (
+          <nav className="fixed top-4 right-4 z-30 pointer-events-auto">
+            <button
+              type="button"
+              onClick={() => setIsRightCollapsed(false)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white/95 dark:bg-[#1E222D]/95 border-2 border-zinc-950 shadow-hard-md hover:scale-105 active:scale-95 transition text-xs font-black text-zinc-900 dark:text-zinc-100"
+              title="Hızlı Menüyü Aç"
+            >
+              <ChevronLeft className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Menü</span>
+              {announcements.length > 0 && (
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+              )}
+            </button>
+          </nav>
+        )}
+      </div>
+
+      {/* ==================================================================== */}
+      {/*                     MOBILE COMPACT FLOATING BAR                      */}
+      {/* ==================================================================== */}
+      <div
+        className={`block md:hidden fixed top-2 inset-x-2 z-30 pointer-events-auto ${
+          isNavigating ? 'hidden' : ''
+        }`}
+      >
+        <TactileCard className="p-2 space-y-2 bg-white/95 dark:bg-[#1E222D]/95 border-2 border-zinc-950 shadow-hard-md dark:shadow-hard-night-md">
+          {/* Top Row: Brand + Search + Action Icons */}
+          <div className="flex items-center gap-1.5">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-600 border border-zinc-950 flex items-center justify-center font-black text-white text-xs shrink-0 shadow-sm">
               GTÜ
             </div>
-            <div className="leading-tight">
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm font-extrabold text-white tracking-tight">
-                  GTÜ-NAV
-                </span>
-                <span className="hidden lg:inline-block text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">
-                  3B Kampüs
-                </span>
-              </div>
-            </div>
-          </div>
 
-          {/* Center Omnibox Search */}
-          <div className="relative flex-1 min-w-[200px] max-w-md">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="🔍 Ders kodu (CSE 101, MATH 101), amfi veya bina ara..."
-              className="w-full bg-slate-950/90 border border-slate-700 focus:border-sky-400 rounded-xl px-3 py-1.5 text-xs text-slate-100 placeholder-slate-400 outline-none transition"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => onSearchChange('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs"
-              >
-                ✕
-              </button>
-            )}
-
-            {/* Dropdown Search Results */}
-            {searchQuery.trim().length > 0 && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl max-h-72 overflow-y-auto z-50 divide-y divide-slate-800">
-                {searchResults.length === 0 ? (
-                  <div className="p-3 text-xs text-slate-400 text-center">
-                    Sonuç bulunamadı ("CSE 101", "BMB", "Kütüphane" deneyin)
-                  </div>
-                ) : (
-                  searchResults.map((item, idx) => (
-                    <button
-                      key={`${item.building_id}-${item.title}-${idx}`}
-                      type="button"
-                      onClick={() => onSelectSearchResult(item)}
-                      className="w-full text-left px-3.5 py-2 hover:bg-slate-800/90 transition flex items-center justify-between gap-2"
-                    >
-                      <div>
-                        <div className="text-xs font-bold text-slate-100">
-                          {item.result_type === 'course' && '📚 '}
-                          {item.result_type === 'building' && '🏛️ '}
-                          {item.result_type === 'classroom' && '🪑 '}
-                          {item.title}
-                        </div>
-                        <div className="text-[11px] text-slate-400">{item.subtitle}</div>
-                      </div>
-                      <span className="text-[11px] font-bold text-sky-400 shrink-0">
-                        Rotayı Çiz →
-                      </span>
-                    </button>
-                  ))
+            {/* Omnibox Search Field */}
+            <div className="relative flex-1 min-w-0">
+              <div className="relative w-full">
+                <div className="absolute inset-y-0 left-2.5 flex items-center pointer-events-none text-zinc-500">
+                  <Search className="w-3.5 h-3.5" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  placeholder="Ders, amfi veya bina..."
+                  className="w-full h-8 pl-8 pr-6 bg-zinc-100 dark:bg-zinc-900 border border-zinc-950 rounded-lg text-xs font-bold text-zinc-950 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none focus:ring-2 focus:ring-sky-400 shadow-sm"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => onSearchChange('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full flex items-center justify-center text-zinc-400 text-xs font-bold"
+                  >
+                    ✕
+                  </button>
                 )}
               </div>
-            )}
-          </div>
-
-          {/* Right Quick Actions */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={onOpenMarmaray}
-              className="px-2.5 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition"
-              title="GTÜ - Fatih Marmaray İstasyonu Tren Saatleri ve Yürüyüş Hesabı"
-            >
-              🚆 Marmaray
-            </button>
-
-            <button
-              type="button"
-              onClick={onOpenAlertModal}
-              className="px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-bold transition"
-              title="Haritaya Anlık Saha Uyarısı Bırak"
-            >
-              ⚠️ Saha Uyarısı
-            </button>
-
-            <button
-              type="button"
-              onClick={onOpenWrittenTicketModal}
-              className="px-2.5 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 text-xs font-bold transition"
-              title="Yerel Türkçe NLP Yapay Zekâ Destekli Yazılı Arıza Bildirimi"
-            >
-              📝 AI Bildirim
-            </button>
-
-            {isAdmin ? (
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={onToggleAdminDrawer}
-                  className={`px-2.5 py-1.5 rounded-xl text-xs font-extrabold border transition ${
-                    isAdminDrawerOpen
-                      ? 'bg-purple-500 text-slate-950 border-purple-300'
-                      : 'bg-purple-500/20 text-purple-200 border-purple-400/50 hover:bg-purple-500/30'
-                  }`}
-                >
-                  🛠️ LiveOps
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onSwitchRole('student')}
-                  className="px-2 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold border border-slate-700 transition"
-                  title="Yönetici oturumunu kapat"
-                >
-                  Çıkış
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  onClearAuthError();
-                  setIsAdminModalOpen(true);
-                }}
-                className="px-2.5 py-1.5 rounded-xl bg-slate-950 hover:bg-purple-950/70 text-slate-200 hover:text-purple-200 border border-slate-700 text-xs font-bold transition"
-                title={`${user.email} • Yönetici Girişi`}
-              >
-                🛡️ Yönetici
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Row 2: Lightweight Floating Filter Chips (Does NOT block map background) */}
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-1.5 px-1">
-          <div className="pointer-events-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-            <button
-              type="button"
-              onClick={() => onFilterChange('all')}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-bold shadow-md border transition ${
-                activeFilter === 'all'
-                  ? 'bg-white text-slate-950 border-white'
-                  : 'bg-slate-900/90 text-slate-200 border-slate-700 hover:bg-slate-800'
-              }`}
-            >
-              🗺️ Tüm Binalar
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                onFilterChange(activeFilter === 'academic' ? 'all' : 'academic')
-              }
-              className={`px-2.5 py-1 rounded-full text-[11px] font-bold shadow-md border transition ${
-                activeFilter === 'academic'
-                  ? 'bg-sky-400 text-slate-950 border-sky-300'
-                  : 'bg-slate-900/90 text-sky-300 border-slate-700 hover:bg-slate-800'
-              }`}
-            >
-              🏛️ Akademik
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                onFilterChange(activeFilter === 'free_rooms' ? 'all' : 'free_rooms')
-              }
-              className={`px-2.5 py-1 rounded-full text-[11px] font-bold shadow-md border transition ${
-                activeFilter === 'free_rooms'
-                  ? 'bg-emerald-400 text-slate-950 border-emerald-300'
-                  : 'bg-slate-900/90 text-emerald-300 border-slate-700 hover:bg-slate-800'
-              }`}
-            >
-              🟢 Boş Amfiler
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                onFilterChange(activeFilter === 'dining_library' ? 'all' : 'dining_library')
-              }
-              className={`px-2.5 py-1 rounded-full text-[11px] font-bold shadow-md border transition ${
-                activeFilter === 'dining_library'
-                  ? 'bg-amber-400 text-slate-950 border-amber-300'
-                  : 'bg-slate-900/90 text-amber-300 border-slate-700 hover:bg-slate-800'
-              }`}
-            >
-              🍽️ Yemek & Kütüphane
-            </button>
-
-            {onTogglePickUserStart && (
-              <button
-                type="button"
-                onClick={onTogglePickUserStart}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-bold shadow-md border transition ${
-                  isPickingUserStart
-                    ? 'bg-sky-500 text-slate-950 border-white ring-2 ring-sky-300'
-                    : 'bg-slate-900/90 text-cyan-300 border-cyan-500/40 hover:bg-slate-800'
-                }`}
-                title="Haritada herhangi bir noktaya tıklayarak başlangıç konumunuzu taşıyın ve Snap-to-Path mıknatıslanmasını test edin"
-              >
-                {isPickingUserStart ? '🎯 Haritada Nokta Seçiliyor...' : '📍 Konumumu Haritadan Seç'}
-              </button>
-            )}
-          </div>
-
-          {/* Compact Announcement Pill if active */}
-          {announcements.length > 0 && (
-            <div className="pointer-events-auto">
-              {announcements.slice(0, 1).map((ann) => (
-                <div
-                  key={ann.id}
-                  className="px-3 py-1 rounded-full bg-amber-950/95 border border-amber-500/50 text-amber-200 text-[11px] font-semibold shadow-lg flex items-center gap-1.5 max-w-md truncate"
-                >
-                  <span className="font-extrabold text-amber-400">📢 Duyuru:</span>
-                  <span className="font-bold">{ann.title}</span>
-                  <span className="text-amber-200/80 truncate">— {ann.message}</span>
-                </div>
-              ))}
             </div>
-          )}
-        </div>
-      </header>
 
-      {/* Encrypted Admin Login Modal (X-Admin-Key) */}
+            {/* Quick Action Icons */}
+            <div className="flex items-center gap-1 shrink-0">
+              {announcements.length > 0 && (
+                <TactileIconButton
+                  size="sm"
+                  variant="secondary"
+                  label="Duyurular"
+                  onClick={() => setIsAnnouncementsModalOpen(true)}
+                >
+                  <Megaphone className="w-3.5 h-3.5 text-amber-500" />
+                </TactileIconButton>
+              )}
+
+              <TactileIconButton
+                size="sm"
+                variant="secondary"
+                label="Marmaray"
+                onClick={onOpenMarmaray}
+              >
+                <Train className="w-3.5 h-3.5 text-emerald-600" />
+              </TactileIconButton>
+
+              <TactileIconButton
+                size="sm"
+                variant="secondary"
+                label="Saha Uyarısı"
+                onClick={onOpenAlertModal}
+              >
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+              </TactileIconButton>
+
+              <TactileIconButton
+                size="sm"
+                variant="secondary"
+                label="AI Bildirim"
+                onClick={onOpenWrittenTicketModal}
+              >
+                <FileText className="w-3.5 h-3.5 text-sky-500" />
+              </TactileIconButton>
+
+              {isAdmin ? (
+                <TactileIconButton
+                  size="sm"
+                  variant={isAdminDrawerOpen ? 'primary' : 'warning'}
+                  label="LiveOps Yönetici"
+                  onClick={onToggleAdminDrawer}
+                >
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                </TactileIconButton>
+              ) : (
+                <TactileIconButton
+                  size="sm"
+                  variant="neutral"
+                  label="Yönetici Girişi"
+                  onClick={() => {
+                    onClearAuthError();
+                    setIsAdminModalOpen(true);
+                  }}
+                >
+                  <Shield className="w-3.5 h-3.5 text-zinc-400" />
+                </TactileIconButton>
+              )}
+            </div>
+          </div>
+
+          {/* Search Dropdown on Mobile */}
+          {renderSearchResults()}
+
+          {/* Bottom Row: Scope Bar */}
+          <div className="pt-1 border-t border-zinc-950/10 dark:border-white/10">
+            {renderScopeBar(true)}
+          </div>
+        </TactileCard>
+      </div>
+
+      {/* Duyurular Modal (On-Demand Only, Never stuck on screen) */}
+      {isAnnouncementsModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <TactileCard className="w-full max-w-lg p-5 space-y-4 max-h-[85dvh] flex flex-col">
+            <div className="flex items-start justify-between border-b-2 border-zinc-950 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-amber-400 border-2 border-zinc-950 flex items-center justify-center shadow-hard-sm">
+                  <Megaphone className="w-5 h-5 text-zinc-950" />
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-zinc-900 dark:text-zinc-100">
+                    GTÜ Kampüs Duyuruları
+                  </h2>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-bold">
+                    Rektörlük ve Fakülte Güncel Bildirimleri
+                  </p>
+                </div>
+              </div>
+              <TactileIconButton
+                size="sm"
+                variant="ghost"
+                label="Kapat"
+                onClick={() => setIsAnnouncementsModalOpen(false)}
+              >
+                <X className="w-4 h-4" />
+              </TactileIconButton>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+              {announcements.length === 0 ? (
+                <div className="text-center py-8 text-xs font-bold text-zinc-500">
+                  Şu an aktif bir kampüs duyurusu bulunmamaktadır.
+                </div>
+              ) : (
+                announcements.map((ann) => (
+                  <div
+                    key={ann.id}
+                    className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border-2 border-zinc-950 shadow-hard-sm space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-black text-xs text-amber-950 dark:text-amber-200">
+                        {ann.title}
+                      </span>
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-200 uppercase">
+                        {ann.severity || 'Duyuru'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold leading-relaxed">
+                      {ann.message}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="flex justify-end pt-3 border-t-2 border-zinc-950">
+              <TactileButton
+                variant="neutral"
+                size="sm"
+                onClick={() => setIsAnnouncementsModalOpen(false)}
+              >
+                Kapat
+              </TactileButton>
+            </div>
+          </TactileCard>
+        </div>
+      )}
+
+      {/* Admin Login Modal (X-Admin-Key) */}
       {isAdminModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-slate-900 border border-purple-500/40 rounded-2xl p-5 shadow-2xl space-y-4 text-xs">
-            <div className="flex items-start justify-between border-b border-slate-800 pb-3">
+          <TactileCard className="w-full max-w-md p-5 space-y-4 text-xs">
+            <div className="flex items-start justify-between border-b-2 border-zinc-950 pb-3">
               <div>
-                <span className="text-[11px] font-bold text-purple-300 uppercase tracking-wider">
-                  🔒 X-Admin-Key Yetki Doğrulaması
-                </span>
-                <h2 className="text-base font-extrabold text-white mt-0.5">
-                  🛡️ GTÜ LiveOps Komuta Merkezi Girişi
+                <StatusBadge
+                  variant="purple"
+                  icon={<KeyRound className="w-3.5 h-3.5" />}
+                >
+                  X-Admin-Key Yetki Doğrulaması
+                </StatusBadge>
+                <h2 className="text-base font-black text-zinc-900 dark:text-zinc-100 mt-1">
+                  GTÜ LiveOps Komuta Merkezi Girişi
                 </h2>
               </div>
-              <button
-                type="button"
+              <TactileIconButton
+                size="sm"
+                variant="ghost"
+                label="Kapat"
                 onClick={() => setIsAdminModalOpen(false)}
-                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
               >
-                ✕
-              </button>
+                <X className="w-4 h-4" />
+              </TactileIconButton>
             </div>
 
             {authError && (
-              <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-500/40 text-rose-200 font-semibold">
+              <div className="p-3 rounded-xl bg-rose-100 dark:bg-rose-950/80 border-2 border-rose-900 text-rose-900 dark:text-rose-200 font-bold">
                 {authError}
               </div>
             )}
 
             <form onSubmit={handleAdminLoginSubmit} className="space-y-3">
               <div>
-                <label className="block font-bold text-slate-300 mb-1">
+                <label className="block font-black text-zinc-800 dark:text-zinc-200 mb-1">
                   Yönetici Gizli Anahtarı (`ADMIN_SECRET_KEY`)
                 </label>
                 <input
@@ -343,41 +671,45 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
                   value={adminKeyInput}
                   onChange={(e) => setAdminKeyInput(e.target.value)}
                   placeholder="Yönetici anahtarını giriniz..."
-                  className="w-full bg-slate-950 border border-slate-700 focus:border-purple-400 rounded-xl px-3.5 py-2 text-slate-100 outline-none"
+                  className="w-full bg-zinc-100 dark:bg-zinc-900 border-2 border-zinc-950 rounded-xl px-3.5 py-2 text-zinc-900 dark:text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-purple-400"
                 />
               </div>
 
-              <div className="p-3 rounded-xl bg-purple-950/30 border border-purple-500/30 flex items-center justify-between gap-2">
-                <div className="text-[11px] text-purple-200">
-                  🏆 <strong>Jüri / Demo Değerlendirme Kolaylığı:</strong> Varsayılan yönetici anahtarını tek tıkla doldurabilirsiniz.
+              <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 border-2 border-zinc-950 shadow-hard-sm flex items-center justify-between gap-2">
+                <div className="text-[11px] text-purple-900 dark:text-purple-200 font-semibold">
+                  <strong>Jüri / Demo Kolaylığı:</strong> Varsayılan anahtarı tek tıkla doldurabilirsiniz.
                 </div>
-                <button
+                <TactileButton
                   type="button"
+                  size="sm"
+                  variant="secondary"
+                  icon={<KeyRound className="w-3.5 h-3.5 text-purple-600" />}
                   onClick={() => setAdminKeyInput(DEFAULT_DEMO_ADMIN_KEY)}
-                  className="px-2.5 py-1.5 rounded-lg bg-purple-500/25 hover:bg-purple-500/40 text-purple-200 border border-purple-400/40 font-bold shrink-0"
+                  className="shrink-0"
                 >
-                  🔑 Demo Anahtarı Doldur
-                </button>
+                  Doldur
+                </TactileButton>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
-                <button
+              <div className="flex justify-end gap-2 pt-2 border-t-2 border-zinc-950">
+                <TactileButton
                   type="button"
+                  variant="ghost"
                   onClick={() => setIsAdminModalOpen(false)}
-                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold"
                 >
                   İptal
-                </button>
-                <button
+                </TactileButton>
+                <TactileButton
                   type="submit"
-                  disabled={isVerifyingKey}
-                  className="px-4 py-2 rounded-xl bg-purple-500 hover:bg-purple-400 text-slate-950 font-extrabold transition"
+                  variant="primary"
+                  loading={isVerifyingKey}
+                  icon={<ShieldAlert className="w-4 h-4" />}
                 >
-                  {isVerifyingKey ? 'Doğrulanıyor...' : '🔓 LiveOps Merkezini Aç'}
-                </button>
+                  LiveOps Merkezini Aç
+                </TactileButton>
               </div>
             </form>
-          </div>
+          </TactileCard>
         </div>
       )}
     </>

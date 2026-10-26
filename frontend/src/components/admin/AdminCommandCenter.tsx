@@ -1,12 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import {
+  ShieldAlert,
+  Sparkles,
+  Map,
+  Megaphone,
+  X,
+  CheckCircle2,
+  Trash2,
+  Building2,
+  DoorClosed,
+  Plus,
+  Wrench,
+  AlertTriangle,
+  RotateCcw,
+  Sliders,
+  Send,
+  Info,
+} from 'lucide-react';
+import {
   Building,
   CampusAnnouncement,
   MapAlert,
 } from '../../types/campus';
 import { useTickets } from '../../hooks/useTickets';
 import { AdminMapInteractionMode } from '../map/CampusMap3D';
-import { SurfaceCard, StatusBadge } from '../ui/Primitives';
+import {
+  TactileCard,
+  TactileButton,
+  TactileIconButton,
+  StatusBadge,
+} from '../ui/Primitives';
 
 interface AdminCommandCenterProps {
   isOpen: boolean;
@@ -116,7 +139,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
 
   if (!isOpen) return null;
 
-  // Auto-hide drawer (while keeping form state mounted!) when user needs unobstructed map access to click a point
+  // Auto-hide drawer when user needs unobstructed map access
   const isWaitingForMapClick =
     adminMapMode === 'move_entrance' ||
     adminMapMode === 'add_building' ||
@@ -131,7 +154,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
   ) => {
     const note = adminNotes[ticketId];
     await updateTicketStatus(ticketId, status, note);
-    setStatusMessage(`✅ Ticket #${ticketId} durumu (${status}) ve yanıt notu güncellendi.`);
+    setStatusMessage(`Ticket #${ticketId} durumu (${status}) güncellendi.`);
   };
 
   const handleUpdateSelectedBuilding = async (e: React.FormEvent) => {
@@ -151,19 +174,19 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
       polygon_coords: selectedBuilding.polygon_coords,
       description: selectedBuilding.description || undefined,
     });
-    setStatusMessage(`💾 ${selectedBuilding.code} bina ve kapı bilgisi SQLite + gtu_buildings.json dosyasına kalıcı kaydedildi!`);
+    setStatusMessage(`${selectedBuilding.code} bina bilgisi kalıcı kaydedildi.`);
   };
 
   const handleDeleteSelectedBuilding = async () => {
     if (!selectedBuilding) return;
     await onDeleteBuilding(selectedBuilding.id);
-    setStatusMessage(`🗑️ ${selectedBuilding.code} binası haritadan ve gtu_buildings.json veri setinden silindi.`);
+    setStatusMessage(`${selectedBuilding.code} binası haritadan kaldırıldı.`);
   };
 
   const handleCreateBuilding = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pickedCoords) {
-      setStatusMessage('Lütfen önce haritadan/uydudan yeni binanın konumuna tıklayın.');
+      setStatusMessage('Lütfen önce haritadan yeni binanın konumuna tıklayın.');
       return;
     }
     const cleanId = `b_${newBldCode.toLowerCase().replace(/[^a-z0-9]/g, '')}_${Date.now().toString().slice(-3)}`;
@@ -179,7 +202,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
     setNewBldCode('');
     setNewBldName('');
     onSetAdminMapMode('none');
-    setStatusMessage('✅ Yeni bina haritaya ve gtu_buildings.json dosyasına kalıcı olarak eklendi!');
+    setStatusMessage('Yeni bina haritaya ve veri tabanına eklendi.');
   };
 
   const handleSaveDrawnEdge = async () => {
@@ -195,7 +218,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
     });
     onClearDrawnEdgePoints();
     onSetAdminMapMode('none');
-    setStatusMessage('✅ Yeni yürüyüş yolu gtu_walk_graph.json dosyasına eklendi ve A* rotalamaya dahil edildi!');
+    setStatusMessage('Yeni yürüyüş yolu graf ve A* rotalamaya eklendi.');
   };
 
   const handleCreateAnnouncement = async (e: React.FormEvent) => {
@@ -207,82 +230,85 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
     });
     setAnnTitle('');
     setAnnMessage('');
-    setStatusMessage('📢 Canlı kampüs duyurusu üst barda yayınlandı!');
+    setStatusMessage('Canlı duyuru yayınlandı.');
   };
 
   return (
     <aside
-      className={`fixed inset-x-0 bottom-0 md:inset-x-auto md:top-24 md:left-3 md:bottom-16 w-full md:w-[410px] max-h-[72dvh] md:max-h-none z-20 pointer-events-auto flex-col px-2 pb-2 md:p-0 ${
+      className={`fixed inset-x-0 bottom-0 md:inset-x-auto md:top-20 md:left-4 md:bottom-4 w-full md:w-[420px] max-h-[82dvh] md:max-h-none z-30 pointer-events-auto flex-col p-2 md:p-0 ${
         isWaitingForMapClick ? 'hidden' : 'flex'
       }`}
     >
-      <SurfaceCard className="flex-1 flex flex-col overflow-hidden border-purple-500/40">
+      <TactileCard className="flex-1 flex flex-col overflow-hidden p-0 border-2 border-zinc-950 shadow-hard-lg dark:shadow-hard-night-lg">
         {/* Header */}
-        <div className="p-3.5 border-b border-slate-800 flex items-center justify-between bg-purple-950/30">
+        <div className="p-3.5 sm:p-4 border-b-2 border-zinc-950 flex items-start justify-between gap-3 bg-purple-50 dark:bg-purple-950/40">
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <StatusBadge variant="purple">🛡️ GTÜ LiveOps Komuta Merkezi</StatusBadge>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-semibold">
-                💾 Kalıcı JSON Senkronizasyonu Aktif
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <StatusBadge
+                variant="purple"
+                icon={<ShieldAlert className="w-3.5 h-3.5" />}
+              >
+                GTÜ LiveOps Komuta Merkezi
+              </StatusBadge>
+              <span className="text-[10px] px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-950 dark:bg-emerald-950/80 dark:text-emerald-300 border border-zinc-950 font-black">
+                Kalıcı JSON Senkronize
               </span>
             </div>
-            <h2 className="text-sm font-extrabold text-white mt-1">
-              Canlı Harita Müdahale & AI Ticket Triyaj Paneli
+            <h2 className="text-sm sm:text-base font-black text-zinc-900 dark:text-zinc-100 mt-1">
+              Canlı Harita Müdahale & AI Triyaj
             </h2>
           </div>
-          <button
-            type="button"
+          <TactileIconButton
+            size="sm"
+            variant="ghost"
+            label="Kapat"
             onClick={() => {
               onSetAdminMapMode('none');
               onClose();
             }}
-            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs"
           >
-            ✕
-          </button>
+            <X className="w-4 h-4" />
+          </TactileIconButton>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="grid grid-cols-3 gap-1 p-2 bg-slate-950 border-b border-slate-800 text-xs">
-          <button
-            type="button"
+        <div className="grid grid-cols-3 gap-1 p-2 bg-zinc-100 dark:bg-zinc-950 border-b-2 border-zinc-950 text-xs">
+          <TactileButton
+            size="sm"
+            variant={activeTab === 'tickets' ? 'primary' : 'ghost'}
+            icon={<Sparkles className="w-3.5 h-3.5" />}
             onClick={() => setActiveTab('tickets')}
-            className={`py-1.5 px-2 rounded-lg font-bold transition ${
-              activeTab === 'tickets'
-                ? 'bg-purple-500 text-slate-950'
-                : 'text-slate-300 hover:bg-slate-900'
-            }`}
           >
-            🤖 AI Ticket ({visibleTickets.length})
-          </button>
-          <button
-            type="button"
+            Talepler ({visibleTickets.length})
+          </TactileButton>
+
+          <TactileButton
+            size="sm"
+            variant={activeTab === 'map_ops' ? 'accent' : 'ghost'}
+            icon={<Map className="w-3.5 h-3.5" />}
             onClick={() => setActiveTab('map_ops')}
-            className={`py-1.5 px-2 rounded-lg font-bold transition ${
-              activeTab === 'map_ops'
-                ? 'bg-purple-500 text-slate-950'
-                : 'text-slate-300 hover:bg-slate-900'
-            }`}
           >
-            🗺️ Harita / Bina / Kapı
-          </button>
-          <button
-            type="button"
+            Harita/Bina
+          </TactileButton>
+
+          <TactileButton
+            size="sm"
+            variant={activeTab === 'announcements' ? 'warning' : 'ghost'}
+            icon={<Megaphone className="w-3.5 h-3.5" />}
             onClick={() => setActiveTab('announcements')}
-            className={`py-1.5 px-2 rounded-lg font-bold transition ${
-              activeTab === 'announcements'
-                ? 'bg-purple-500 text-slate-950'
-                : 'text-slate-300 hover:bg-slate-900'
-            }`}
           >
-            📢 Canlı Duyuru
-          </button>
+            Duyuru
+          </TactileButton>
         </div>
 
         {statusMessage && (
-          <div className="mx-3 mt-2 px-3 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs flex items-center justify-between">
+          <div className="mx-3 mt-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 border-2 border-zinc-950 text-emerald-900 dark:text-emerald-200 text-xs font-black shadow-hard-sm flex items-center justify-between">
             <span>{statusMessage}</span>
-            <button type="button" onClick={() => setStatusMessage(null)} className="text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setStatusMessage(null)}
+              className="text-xs font-black px-1"
+            >
               ✕
             </button>
           </div>
@@ -293,33 +319,38 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
           {activeTab === 'tickets' && (
             <>
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-300">
-                  AI Aciliyet Skoruna Göre Sıralı Talepler
+                <span className="font-black text-zinc-700 dark:text-zinc-300">
+                  AI Aciliyet Skoruna Göre Sıralı
                 </span>
-                <label className="flex items-center gap-1.5 text-slate-400 cursor-pointer">
+                <label className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 font-bold cursor-pointer">
                   <input
                     type="checkbox"
                     checked={hideSpam}
                     onChange={(e) => setHideSpam(e.target.checked)}
+                    className="rounded border-zinc-400 accent-purple-600"
                   />
                   <span>Spamları Gizle</span>
                 </label>
               </div>
 
               {visibleTickets.length === 0 ? (
-                <div className="text-center py-8 text-slate-400">
-                  Henüz yazılı bildirim bulunmuyor.
+                <div className="text-center py-8 text-zinc-500 font-bold">
+                  Henüz yazılı bildirim kaydı bulunmuyor.
                 </div>
               ) : (
                 visibleTickets.map((t) => (
                   <div
                     key={t.id}
-                    className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2"
+                    className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <div className="font-bold text-white">{t.title}</div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">{t.description}</div>
+                        <div className="font-black text-zinc-900 dark:text-zinc-100">
+                          {t.title}
+                        </div>
+                        <div className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">
+                          {t.description}
+                        </div>
                       </div>
                       <StatusBadge
                         variant={
@@ -345,23 +376,23 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                             [t.id]: e.target.value,
                           }))
                         }
-                        placeholder="Öğrenciye geri dönüş notu yazın (Örn: Teknik ekip yönlendirildi)..."
-                        className="w-full bg-slate-900 border border-slate-800 focus:border-purple-400 rounded-lg px-2.5 py-1.5 text-[11px] text-slate-200 outline-none"
+                        placeholder="Öğrenciye yanıt notu yazın (Örn: Teknik ekip yönlendirildi)..."
+                        className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 text-[11px] text-zinc-900 dark:text-zinc-100 font-semibold outline-none"
                       />
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-900">
-                      <span className="text-[11px] font-semibold text-purple-300">
-                        🏢 {t.ai_department}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-zinc-200 dark:border-zinc-800">
+                      <span className="text-[11px] font-black text-purple-700 dark:text-purple-300">
+                        {t.ai_department}
                       </span>
                       <div className="flex gap-1">
                         <button
                           type="button"
                           onClick={() => handleTicketStatus(t.id, 'in_progress')}
-                          className={`px-2 py-0.5 rounded font-bold text-[11px] ${
+                          className={`px-2 py-0.5 rounded-lg border border-zinc-950 font-black text-[11px] ${
                             t.status === 'in_progress'
-                              ? 'bg-amber-500 text-slate-950'
-                              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                              ? 'bg-amber-400 text-zinc-950'
+                              : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300'
                           }`}
                         >
                           İnceleniyor
@@ -369,10 +400,10 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                         <button
                           type="button"
                           onClick={() => handleTicketStatus(t.id, 'resolved')}
-                          className={`px-2 py-0.5 rounded font-bold text-[11px] ${
+                          className={`px-2 py-0.5 rounded-lg border border-zinc-950 font-black text-[11px] ${
                             t.status === 'resolved'
-                              ? 'bg-emerald-500 text-slate-950'
-                              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                              ? 'bg-emerald-400 text-zinc-950'
+                              : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300'
                           }`}
                         >
                           Çözüldü
@@ -380,10 +411,10 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                         <button
                           type="button"
                           onClick={() => handleTicketStatus(t.id, 'rejected')}
-                          className={`px-2 py-0.5 rounded font-bold text-[11px] ${
+                          className={`px-2 py-0.5 rounded-lg border border-zinc-950 font-black text-[11px] ${
                             t.status === 'rejected'
                               ? 'bg-rose-500 text-white'
-                              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                              : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300'
                           }`}
                         >
                           Reddet
@@ -399,33 +430,32 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
           {activeTab === 'map_ops' && (
             <div className="space-y-3.5">
               {/* 1. Walkway Closure Toggle */}
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-                <div className="font-bold text-amber-300">
-                  🚧 1. Yürüyüş Yolu Kapat / Aç (A* Otomatik Yeniden Rotalama)
+              <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2">
+                <div className="font-black text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                  <AlertTriangle className="w-4 h-4 text-amber-500" />
+                  <span>1. Yürüyüş Yolu Kapat / Aç (Dinamik A*)</span>
                 </div>
-                <p className="text-[11px] text-slate-400">
-                  Modu aktif edip haritadaki herhangi bir turuncu yürüyüş yoluna tıklayarak yolu kapatabilir veya açabilirsiniz.
+                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-semibold">
+                  Modu aktif edip haritadaki herhangi bir yürüyüş yoluna tıklayarak yolu kapatabilir veya açabilirsiniz.
                 </p>
-                <button
-                  type="button"
+
+                <TactileButton
+                  variant={adminMapMode === 'toggle_edge' ? 'warning' : 'secondary'}
+                  size="sm"
                   onClick={() =>
                     onSetAdminMapMode(adminMapMode === 'toggle_edge' ? 'none' : 'toggle_edge')
                   }
-                  className={`w-full py-2 px-3 rounded-xl font-bold transition ${
-                    adminMapMode === 'toggle_edge'
-                      ? 'bg-amber-500 text-slate-950'
-                      : 'bg-slate-800 hover:bg-slate-700 text-white'
-                  }`}
+                  className="w-full"
                 >
                   {adminMapMode === 'toggle_edge'
-                    ? '🟢 Yol Seçim Modu Aktif (Kapatmak İçin Tıklayın)'
-                    : '🚧 Haritada Yürüyüş Yolu Kapatma Modunu Aç'}
-                </button>
+                    ? 'Yol Seçim Modu Aktif (Kapatmak İçin Yola Tıklayın)'
+                    : 'Haritada Yol Kapatma / Açma Modu'}
+                </TactileButton>
 
                 {blockedEdgeIds.length > 0 && (
                   <div className="pt-1 space-y-1">
-                    <div className="text-[11px] font-semibold text-rose-300">
-                      Şu An Kapalı Yürüyüş Yolları ({blockedEdgeIds.length}):
+                    <div className="text-[11px] font-black text-rose-600 dark:text-rose-400">
+                      Kapalı Yollar ({blockedEdgeIds.length}):
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {blockedEdgeIds.map((eid) => (
@@ -433,7 +463,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                           key={eid}
                           type="button"
                           onClick={() => onToggleEdgeBlocked(eid, false)}
-                          className="px-2 py-0.5 rounded bg-rose-950 border border-rose-500/40 text-rose-200 text-[11px] hover:bg-rose-900"
+                          className="px-2 py-0.5 rounded-lg bg-rose-100 text-rose-950 border border-zinc-950 font-black text-[11px] hover:bg-rose-200"
                         >
                           ⛔ {eid} (Aç ✕)
                         </button>
@@ -443,46 +473,44 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                 )}
               </div>
 
-              {/* 2. Building Entrance Relocation & Metadata Editor */}
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
-                <div className="font-bold text-emerald-300">
-                  🚪 2. Seçili Binayı & Giriş Kapısını Düzenle (`gtu_buildings.json`)
+              {/* 2. Building Entrance Relocation */}
+              <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2.5">
+                <div className="font-black text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                  <DoorClosed className="w-4 h-4 text-emerald-500" />
+                  <span>2. Seçili Binayı & Giriş Kapısını Düzenle</span>
                 </div>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
                   Seçili Bina:{' '}
-                  <strong className="text-white">
+                  <strong className="text-zinc-900 dark:text-zinc-100">
                     {selectedBuilding
                       ? `${selectedBuilding.code} — ${selectedBuilding.name}`
-                      : 'Lütfen haritadan bir binaya tıklayın'}
+                      : 'Haritadan bir binaya tıklayın'}
                   </strong>
                 </p>
 
-                <button
-                  type="button"
+                <TactileButton
+                  variant={adminMapMode === 'move_entrance' ? 'primary' : 'secondary'}
+                  size="sm"
                   disabled={!selectedBuilding}
                   onClick={() =>
                     onSetAdminMapMode(adminMapMode === 'move_entrance' ? 'none' : 'move_entrance')
                   }
-                  className={`w-full py-2 px-3 rounded-xl font-bold transition ${
-                    adminMapMode === 'move_entrance'
-                      ? 'bg-emerald-500 text-slate-950'
-                      : 'bg-slate-800 hover:bg-slate-700 text-white disabled:opacity-40'
-                  }`}
+                  className="w-full"
                 >
                   {adminMapMode === 'move_entrance'
-                    ? '🟢 Haritada Yeni Giriş Noktasına Tıklayın...'
-                    : '🚪 Seçili Binanın Giriş Kapısını Haritada Taşı'}
-                </button>
+                    ? 'Haritada Yeni Giriş Noktasına Tıklayın...'
+                    : 'Giriş Kapısını Haritada Taşı'}
+                </TactileButton>
 
                 {selectedBuilding && (
-                  <form onSubmit={handleUpdateSelectedBuilding} className="space-y-2 pt-2 border-t border-slate-800">
+                  <form onSubmit={handleUpdateSelectedBuilding} className="space-y-2 pt-2 border-t-2 border-zinc-950/20">
                     <div className="grid grid-cols-3 gap-2">
                       <input
                         type="text"
                         value={editBldName}
                         onChange={(e) => setEditBldName(e.target.value)}
                         placeholder="Bina Adı"
-                        className="col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                        className="col-span-2 bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
                       />
                       <input
                         type="number"
@@ -490,7 +518,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                         max={15}
                         value={editBldFloors}
                         onChange={(e) => setEditBldFloors(Number(e.target.value))}
-                        className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                        className="bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
                         title="Kat Sayısı"
                       />
                     </div>
@@ -500,34 +528,36 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                         value={editEntranceName}
                         onChange={(e) => setEditEntranceName(e.target.value)}
                         placeholder="Giriş Kapısı Adı"
-                        className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                        className="flex-1 bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
                       />
-                      <button
+                      <TactileButton
                         type="submit"
-                        className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold shrink-0"
+                        size="sm"
+                        variant="primary"
                       >
                         Güncelle
-                      </button>
-                      <button
+                      </TactileButton>
+                      <TactileButton
                         type="button"
+                        size="sm"
+                        variant="danger"
                         onClick={handleDeleteSelectedBuilding}
-                        className="px-2.5 py-1.5 rounded-lg bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-500/30 font-bold shrink-0"
-                        title="Binayı haritadan ve JSON veri setinden sil"
                       >
-                        🗑️ Sil
-                      </button>
+                        Sil
+                      </TactileButton>
                     </div>
                   </form>
                 )}
               </div>
 
-              {/* 3. Add Missing Building on Satellite / Map */}
+              {/* 3. Add Missing Building */}
               <form
                 onSubmit={handleCreateBuilding}
-                className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2"
+                className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2"
               >
-                <div className="font-bold text-sky-300">
-                  🏛️ 3. Haritaya / Uyduya Eksik Kampüs Binası Ekle
+                <div className="font-black text-sky-700 dark:text-sky-300 flex items-center gap-1.5">
+                  <Building2 className="w-4 h-4 text-sky-500" />
+                  <span>3. Haritaya Eksik Kampüs Binası Ekle</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <input
@@ -536,12 +566,12 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                     value={newBldCode}
                     onChange={(e) => setNewBldCode(e.target.value)}
                     placeholder="Bina Kodu (Örn: LAB-2)"
-                    className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                    className="bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
                   />
                   <select
                     value={newBldCategory}
                     onChange={(e) => setNewBldCategory(e.target.value)}
-                    className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                    className="bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
                   >
                     <option value="academic">Akademik / Bölüm</option>
                     <option value="dining">Sosyal / Yemekhane</option>
@@ -554,110 +584,113 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                   required
                   value={newBldName}
                   onChange={(e) => setNewBldName(e.target.value)}
-                  placeholder="Bina Tam Adı (Örn: İleri Araştırma Laboratuvarı)"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                  placeholder="Bina Tam Adı (Örn: İleri Araştırma Lab)"
+                  className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
                 />
                 <div className="flex items-center gap-2">
-                  <button
+                  <TactileButton
                     type="button"
+                    size="sm"
+                    variant={adminMapMode === 'add_building' ? 'accent' : 'secondary'}
                     onClick={() =>
                       onSetAdminMapMode(adminMapMode === 'add_building' ? 'none' : 'add_building')
                     }
-                    className={`flex-1 py-1.5 px-2.5 rounded-lg font-bold border ${
-                      adminMapMode === 'add_building'
-                        ? 'bg-sky-500 text-slate-950 border-sky-300'
-                        : 'bg-slate-900 text-sky-300 border-slate-700'
-                    }`}
+                    className="flex-1"
                   >
                     {pickedCoords
-                      ? `📍 ${pickedCoords.lat.toFixed(5)}, ${pickedCoords.lon.toFixed(5)}`
-                      : '🗺️ Haritadan Konum Seç'}
-                  </button>
+                      ? `${pickedCoords.lat.toFixed(5)}, ${pickedCoords.lon.toFixed(5)}`
+                      : 'Haritadan Konum Seç'}
+                  </TactileButton>
                   <input
                     type="number"
                     min={1}
                     max={12}
                     value={newBldFloors}
                     onChange={(e) => setNewBldFloors(Number(e.target.value))}
-                    className="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-white"
+                    className="w-16 bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2 py-1.5 font-bold"
                     title="Kat Sayısı"
                   />
-                  <button
+                  <TactileButton
                     type="submit"
-                    className="px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-extrabold"
+                    size="sm"
+                    variant="primary"
                   >
                     Kaydet
-                  </button>
+                  </TactileButton>
                 </div>
               </form>
 
               {/* 4. Draw New Walkway Path */}
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-                <div className="font-bold text-indigo-300">
-                  📏 4. Yeni Yürüyüş Patikası / Kaldırım Çiz (`gtu_walk_graph.json`)
+              <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2">
+                <div className="font-black text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
+                  <Wrench className="w-4 h-4 text-indigo-500" />
+                  <span>4. Yeni Yürüyüş Patikası Çiz</span>
                 </div>
                 <input
                   type="text"
                   value={newEdgeName}
                   onChange={(e) => setNewEdgeName(e.target.value)}
                   placeholder="Yol Adı"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                  className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
                 />
                 <div className="flex items-center gap-2">
-                  <button
+                  <TactileButton
                     type="button"
+                    size="sm"
+                    variant={adminMapMode === 'draw_edge' ? 'accent' : 'secondary'}
                     onClick={() => {
                       onClearDrawnEdgePoints();
                       onSetAdminMapMode(adminMapMode === 'draw_edge' ? 'none' : 'draw_edge');
                     }}
-                    className={`flex-1 py-1.5 px-2.5 rounded-lg font-bold ${
-                      adminMapMode === 'draw_edge'
-                        ? 'bg-indigo-500 text-white'
-                        : 'bg-slate-800 text-slate-200'
-                    }`}
+                    className="flex-1"
                   >
                     {adminMapMode === 'draw_edge'
                       ? `Haritada 2 Noktaya Tıklayın (${drawnEdgePoints.length}/2)`
-                      : '✏️ Patika Çizim Modunu Başlat'}
-                  </button>
+                      : 'Patika Çizim Modu'}
+                  </TactileButton>
                   {drawnEdgePoints.length >= 2 && (
-                    <button
+                    <TactileButton
                       type="button"
+                      size="sm"
+                      variant="primary"
                       onClick={handleSaveDrawnEdge}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-extrabold"
                     >
                       Yolu Ekle
-                    </button>
+                    </TactileButton>
                   )}
                 </div>
               </div>
 
               {/* 5. Manage Active Map Alerts */}
               {activeAlerts.length > 0 && (
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-                  <div className="font-bold text-rose-300">
-                    ⚠️ 5. Aktif Saha Uyarılarını Yönet ({activeAlerts.length})
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2">
+                  <div className="font-black text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
+                    <AlertTriangle className="w-4 h-4 text-rose-500" />
+                    <span>5. Aktif Saha Uyarıları ({activeAlerts.length})</span>
                   </div>
                   <div className="space-y-1.5 max-h-40 overflow-y-auto">
                     {activeAlerts.map((al) => (
                       <div
                         key={al.id}
-                        className="flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800"
+                        className="flex items-center justify-between gap-2 p-2 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-950"
                       >
                         <div>
-                          <div className="font-bold text-slate-100">{al.title}</div>
-                          <div className="text-[10px] text-slate-400">
+                          <div className="font-black text-zinc-900 dark:text-zinc-100">
+                            {al.title}
+                          </div>
+                          <div className="text-[10px] text-zinc-500 font-bold">
                             👍 {al.upvotes} • 👎 {al.downvotes}
                             {al.edge_id ? ` • Kenar: ${al.edge_id}` : ''}
                           </div>
                         </div>
-                        <button
-                          type="button"
+                        <TactileButton
+                          size="sm"
+                          variant="danger"
                           onClick={() => onDeleteAlert(al.id)}
-                          className="px-2 py-1 rounded bg-rose-950 hover:bg-rose-900 text-rose-200 text-[11px] font-bold shrink-0"
+                          className="text-[10px] py-0.5 px-2 min-h-0"
                         >
-                          Kaldır ✕
-                        </button>
+                          Kaldır
+                        </TactileButton>
                       </div>
                     ))}
                   </div>
@@ -670,16 +703,18 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
             <div className="space-y-3">
               <form
                 onSubmit={handleCreateAnnouncement}
-                className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5"
+                className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2.5"
               >
-                <div className="font-bold text-white">📢 Yeni Kampüs Geneli Canlı Duyuru</div>
+                <div className="font-black text-zinc-900 dark:text-zinc-100">
+                  Yeni Kampüs Geneli Canlı Duyuru
+                </div>
                 <input
                   type="text"
                   required
                   value={annTitle}
                   onChange={(e) => setAnnTitle(e.target.value)}
                   placeholder="Başlık (Örn: Ring Seferi / Kütüphane 24 Saat Açık)"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white"
+                  className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-3 py-1.5 font-bold"
                 />
                 <textarea
                   required
@@ -687,7 +722,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                   value={annMessage}
                   onChange={(e) => setAnnMessage(e.target.value)}
                   placeholder="Duyuru metni..."
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white"
+                  className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-3 py-1.5 font-semibold"
                 />
                 <div className="flex items-center justify-between gap-2">
                   <select
@@ -695,18 +730,20 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                     onChange={(e) =>
                       setAnnSeverity(e.target.value as 'info' | 'warning' | 'urgent')
                     }
-                    className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                    className="bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
                   >
                     <option value="info">Bilgi (Mavi)</option>
                     <option value="warning">Uyarı (Kehribar)</option>
                     <option value="urgent">Acil (Kırmızı)</option>
                   </select>
-                  <button
+                  <TactileButton
                     type="submit"
-                    className="px-4 py-1.5 rounded-lg bg-purple-500 hover:bg-purple-400 text-slate-950 font-extrabold"
+                    variant="primary"
+                    size="sm"
+                    icon={<Send className="w-3.5 h-3.5" />}
                   >
                     Yayınla
-                  </button>
+                  </TactileButton>
                 </div>
               </form>
 
@@ -714,26 +751,31 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                 {announcements.map((a) => (
                   <div
                     key={a.id}
-                    className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-2"
+                    className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm flex items-center justify-between gap-2"
                   >
                     <div>
-                      <div className="font-bold text-white">{a.title}</div>
-                      <div className="text-[11px] text-slate-400">{a.message}</div>
+                      <div className="font-black text-zinc-900 dark:text-zinc-100">
+                        {a.title}
+                      </div>
+                      <div className="text-[11px] text-zinc-600 dark:text-zinc-400">
+                        {a.message}
+                      </div>
                     </div>
-                    <button
-                      type="button"
+                    <TactileButton
+                      size="sm"
+                      variant="danger"
                       onClick={() => onRemoveAnnouncement(a.id)}
-                      className="px-2 py-1 rounded bg-rose-950 text-rose-300 text-[11px] font-bold"
+                      className="text-[10px] py-0.5 px-2 min-h-0"
                     >
                       Kaldır
-                    </button>
+                    </TactileButton>
                   </div>
                 ))}
               </div>
             </div>
           )}
         </div>
-      </SurfaceCard>
+      </TactileCard>
     </aside>
   );
 };

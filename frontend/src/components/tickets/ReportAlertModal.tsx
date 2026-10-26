@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { AlertTriangle, MapPin, Map, X, Check } from 'lucide-react';
 import { ALERT_TYPES } from '../../config/alertTypes';
-import { SurfaceCard } from '../ui/Primitives';
+import {
+  TactileCard,
+  TactileButton,
+  TactileIconButton,
+  StatusBadge,
+} from '../ui/Primitives';
 
 interface ReportAlertModalProps {
   isOpen: boolean;
@@ -67,27 +73,33 @@ export const ReportAlertModal: React.FC<ReportAlertModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-40 bg-black/65 backdrop-blur-sm flex items-center justify-center p-4">
-      <SurfaceCard className="w-full max-w-lg p-5 space-y-4">
-        <div className="flex items-start justify-between border-b border-slate-800 pb-3">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+      <TactileCard className="w-full max-w-lg p-4 sm:p-5 space-y-4">
+        {/* Header */}
+        <div className="flex items-start justify-between border-b-2 border-zinc-950 pb-3">
           <div>
-            <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider">
-              Katman 1 • Harita Saha Uyarısı
-            </span>
-            <h2 className="text-base font-extrabold text-white mt-0.5">
-              ⚠️ Kampüs Haritasına Anlık Uyarı Bırak
+            <StatusBadge
+              variant="amber"
+              icon={<AlertTriangle className="w-3.5 h-3.5" />}
+            >
+              Anlık Saha Uyarısı
+            </StatusBadge>
+            <h2 className="text-base sm:text-lg font-black text-zinc-900 dark:text-zinc-100 mt-1">
+              Kampüs Haritasına Uyarı Bırak
             </h2>
           </div>
-          <button
-            type="button"
+          <TactileIconButton
+            size="sm"
+            variant="ghost"
+            label="Kapat"
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs"
           >
-            ✕
-          </button>
+            <X className="w-4 h-4" />
+          </TactileIconButton>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+          {/* Type selector */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {ALERT_TYPES.map((t) => {
               const active = t.id === selectedTypeId;
@@ -96,21 +108,26 @@ export const ReportAlertModal: React.FC<ReportAlertModalProps> = ({
                   key={t.id}
                   type="button"
                   onClick={() => setSelectedTypeId(t.id)}
-                  className={`text-left p-3 rounded-xl border transition ${
+                  className={`text-left p-3 rounded-xl border-2 border-zinc-950 transition ${
                     active
-                      ? 'bg-amber-500/15 border-amber-400 text-white'
-                      : 'bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700'
+                      ? 'bg-amber-100 dark:bg-amber-950/80 text-zinc-950 dark:text-zinc-100 shadow-hard-sm ring-2 ring-amber-400'
+                      : 'bg-zinc-50 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 shadow-none'
                   }`}
                 >
-                  <div className="font-bold">{t.title}</div>
-                  <div className="text-[11px] text-slate-400 mt-1">{t.subtitle}</div>
+                  <div className="font-black flex items-center justify-between">
+                    <span>{t.title}</span>
+                    {active && <Check className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
+                  </div>
+                  <div className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-1">
+                    {t.subtitle}
+                  </div>
                 </button>
               );
             })}
           </div>
 
           <div>
-            <label className="block font-bold text-slate-300 mb-1">
+            <label className="block font-black text-zinc-800 dark:text-zinc-200 mb-1">
               Kısa Açıklama (Opsiyonel)
             </label>
             <input
@@ -119,48 +136,56 @@ export const ReportAlertModal: React.FC<ReportAlertModalProps> = ({
               onChange={(e) => setCustomTitle(e.target.value)}
               placeholder={selectedConfig.title}
               maxLength={120}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 outline-none focus:border-amber-400"
+              className="w-full bg-zinc-100 dark:bg-zinc-900 border-2 border-zinc-950 rounded-xl px-3 py-2 text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-amber-400 font-semibold"
             />
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
+          {/* Location picker */}
+          <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 flex flex-wrap items-center justify-between gap-2 shadow-hard-sm">
             <div>
-              <div className="font-semibold text-slate-200">
-                📍 Konum: {lat.toFixed(5)}, {lon.toFixed(5)}
+              <div className="font-extrabold text-zinc-900 dark:text-zinc-200 flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-amber-500 shrink-0" />
+                <span className="tabular-nums">
+                  Konum: {lat.toFixed(5)}, {lon.toFixed(5)}
+                </span>
               </div>
               {pickedEdgeId && (
-                <div className="text-[11px] text-amber-300">
-                  Seçili Yürüyüş Yolu Kenarı: <strong>{pickedEdgeId}</strong>
+                <div className="text-[11px] text-amber-600 dark:text-amber-400 font-bold mt-0.5">
+                  Seçili Yol Kenarı: {pickedEdgeId}
                 </div>
               )}
             </div>
-            <button
+            <TactileButton
               type="button"
+              variant="secondary"
+              size="sm"
+              icon={<Map className="w-3.5 h-3.5 text-sky-500" />}
               onClick={onStartPickOnMap}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold border border-slate-700"
             >
-              🗺️ Haritadan Nokta Seç
-            </button>
+              Haritada İşaretle
+            </TactileButton>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
-            <button
+          {/* Actions */}
+          <div className="flex justify-end gap-2 pt-2 border-t-2 border-zinc-950">
+            <TactileButton
               type="button"
+              variant="ghost"
               onClick={onClose}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold"
             >
               İptal
-            </button>
-            <button
+            </TactileButton>
+            <TactileButton
               type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold transition"
+              variant="warning"
+              loading={isSubmitting}
+              icon={<AlertTriangle className="w-4 h-4" />}
             >
-              {isSubmitting ? 'Kaydediliyor...' : 'Haritaya Uyarı Ekle'}
-            </button>
+              Haritaya Uyarı Ekle
+            </TactileButton>
           </div>
         </form>
-      </SurfaceCard>
+      </TactileCard>
     </div>
   );
 };
