@@ -1746,8 +1746,84 @@
         ]
       ]
     ],
+    "entrance_node_id": "osm_9933047066",
     "entrance_lat": 40.806441,
-    "entrance_lon": 29.364693,
-    "entrance_node_id": "osm_9933047066"
+    "entrance_lon": 29.364693
+  },
+  {
+    "id": "b_igzide_237",
+    "code": "İÇ GÜZIDE",
+    "name": "İç Güzide Kafe",
+    "category": "dining",
+    "floors_count": 1,
+    "entrance_name": "İÇ GÜZIDE Ana Giriş Kapısı",
+    "description": "İç Güzide Kafe kampüs binası.",
+    "lat": 40.806295,
+    "lon": 29.359721,
+    "polygon_coords": [
+      [
+        [
+          29.359481,
+          40.806055
+        ],
+        [
+          29.359961000000002,
+          40.806055
+        ],
+        [
+          29.359961000000002,
+          40.806535
+        ],
+        [
+          29.359481,
+          40.806535
+        ],
+        [
+          29.359481,
+          40.806055
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_14312064441",
+    "entrance_lat": 40.80634,
+    "entrance_lon": 29.359613
+  },
+  {
+    "id": "b_mta_351",
+    "code": "MTA",
+    "name": "Milli Teknoloji Atölyesi",
+    "category": "academic",
+    "floors_count": 3,
+    "entrance_name": "MTA Ana Giriş Kapısı",
+    "description": "Milli Teknoloji Atölyesi kampüs binası.",
+    "lat": 40.805588,
+    "lon": 29.358151,
+    "polygon_coords": [
+      [
+        [
+          29.357910999999998,
+          40.805348
+        ],
+        [
+          29.358391,
+          40.805348
+        ],
+        [
+          29.358391,
+          40.805828
+        ],
+        [
+          29.357910999999998,
+          40.805828
+        ],
+        [
+          29.357910999999998,
+          40.805348
+        ]
+      ]
+    ],
+    "entrance_node_id": "e_1567568082_1_m1",
+    "entrance_lat": 40.806085,
+    "entrance_lon": 29.358278
   }
 ]
