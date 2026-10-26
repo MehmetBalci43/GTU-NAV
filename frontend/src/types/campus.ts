@@ -10,6 +10,10 @@ export interface Building {
   entrance_name: string;
   entrance_lat: number;
   entrance_lon: number;
+  secondary_entrance_node_id?: string | null;
+  secondary_entrance_name?: string | null;
+  secondary_entrance_lat?: number | null;
+  secondary_entrance_lon?: number | null;
   polygon_coords: number[][][];
   description?: string | null;
   free_rooms_count: number;

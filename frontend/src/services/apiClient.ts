@@ -196,7 +196,9 @@ export const api = {
     buildingId: string,
     entranceLat: number,
     entranceLon: number,
-    entranceName?: string
+    entranceName?: string,
+    entranceSlot: 1 | 2 = 1,
+    clearSecondary: boolean = false
   ): Promise<Building> {
     return requestJson<Building>(`/api/admin/buildings/${buildingId}/entrance`, {
       method: 'PUT',
@@ -204,6 +206,8 @@ export const api = {
         entrance_lat: entranceLat,
         entrance_lon: entranceLon,
         entrance_name: entranceName,
+        entrance_slot: entranceSlot,
+        clear_secondary: clearSecondary,
       }),
     });
   },

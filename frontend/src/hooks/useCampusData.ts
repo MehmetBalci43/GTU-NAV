@@ -102,8 +102,22 @@ export function useCampusData() {
   );
 
   const updateBuildingEntrance = useCallback(
-    async (buildingId: string, entranceLat: number, entranceLon: number, entranceName?: string) => {
-      await api.updateBuildingEntrance(buildingId, entranceLat, entranceLon, entranceName);
+    async (
+      buildingId: string,
+      entranceLat: number,
+      entranceLon: number,
+      entranceName?: string,
+      entranceSlot: 1 | 2 = 1,
+      clearSecondary: boolean = false
+    ) => {
+      await api.updateBuildingEntrance(
+        buildingId,
+        entranceLat,
+        entranceLon,
+        entranceName,
+        entranceSlot,
+        clearSecondary
+      );
       await refreshBootstrap();
     },
     [refreshBootstrap]

@@ -103,6 +103,7 @@ export const App: React.FC = () => {
 
   const [isAdminDrawerOpen, setIsAdminDrawerOpen] = useState<boolean>(false);
   const [adminMapMode, setAdminMapMode] = useState<AdminMapInteractionMode>('none');
+  const [adminEntranceSlot, setAdminEntranceSlot] = useState<1 | 2>(1);
   const [mobileSheetHeight, setMobileSheetHeight] = useState<number>(94);
   const [isAnnouncementsModalOpen, setIsAnnouncementsModalOpen] = useState<boolean>(false);
   const [pickedBuildingCoords, setPickedBuildingCoords] = useState<{
@@ -193,9 +194,20 @@ export const App: React.FC = () => {
 
   const handleAdminMoveEntranceOnMap = async (lat: number, lon: number) => {
     if (!selectedBuildingId) return;
-    await updateBuildingEntrance(selectedBuildingId, lat, lon);
+    await updateBuildingEntrance(
+      selectedBuildingId,
+      lat,
+      lon,
+      undefined,
+      adminEntranceSlot,
+      false
+    );
     setAdminMapMode('none');
-    showToast('Bina giriş kapısı taşındı ve kaydedildi');
+    showToast(
+      adminEntranceSlot === 2
+        ? 'Binanın 2. giriş kapısı kaydedildi'
+        : 'Binanın 1. giriş kapısı taşındı ve kaydedildi'
+    );
   };
 
   const handleUserPickStartOnMap = async (lat: number, lon: number) => {
@@ -474,9 +486,14 @@ export const App: React.FC = () => {
             setTicketTarget({ buildingId: bId, classroomId: cId || null });
             setIsWrittenTicketOpen(true);
           }}
-          onAdminStartMoveEntrance={(bId) => {
+          onAdminStartMoveEntrance={(bId, slot = 1) => {
             setSelectedBuildingId(bId);
+            setAdminEntranceSlot(slot);
             setAdminMapMode('move_entrance');
+          }}
+          onAdminClearSecondaryEntrance={async (bId) => {
+            await updateBuildingEntrance(bId, 0, 0, undefined, 2, true);
+            showToast('Binanın 2. giriş kapısı kaldırıldı');
           }}
         />
       )}

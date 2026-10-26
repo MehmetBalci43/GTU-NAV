@@ -1,17 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ArrowUp,
   CornerUpRight,
   CornerUpLeft,
   CheckCircle2,
-  Navigation,
   Play,
   Pause,
-  X,
+  ChevronUp,
+  ChevronDown,
   Compass,
   Magnet,
   Radio,
-  LocateFixed,
 } from 'lucide-react';
 import { RouteResponse } from '../../types/campus';
 import { UserPositionState } from '../../hooks/useNavigation';
@@ -108,6 +107,8 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
   onToggleLiveGps,
   onClearRoute,
 }) => {
+  const [isManeuverBannerCollapsed, setIsManeuverBannerCollapsed] = useState<boolean>(false);
+
   const maneuver = useMemo(() => {
     return computeNextManeuver(
       activeRoute.coordinates,
@@ -124,92 +125,114 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
 
   return (
     <>
-      {/* 1. TOP MANEUVER BANNER (Visible on both Mobile & Desktop) */}
-      <div className="fixed top-3 sm:top-4 inset-x-3 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-40 sm:w-[460px] pointer-events-auto">
-        <div className="bg-emerald-400 dark:bg-emerald-500 text-zinc-950 border-2 border-zinc-950 shadow-hard-lg rounded-2xl p-3 flex items-center gap-3">
-          {/* Turn Icon Box */}
-          <div className="w-11 h-11 rounded-xl bg-zinc-950 text-emerald-400 border border-zinc-950 flex items-center justify-center shrink-0 shadow-sm">
-            {maneuver.type === 'arrive' && <CheckCircle2 className="w-6 h-6" />}
-            {maneuver.type === 'right' && <CornerUpRight className="w-6 h-6" />}
-            {maneuver.type === 'left' && <CornerUpLeft className="w-6 h-6" />}
-            {maneuver.type === 'straight' && <ArrowUp className="w-6 h-6" />}
-          </div>
-
-          {/* Maneuver Text */}
-          <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-black uppercase tracking-wider text-emerald-950 flex items-center gap-1.5">
-              {maneuver.type === 'arrive' ? (
-                <span>Hedefe Ulaşıldı</span>
-              ) : (
-                <span className="tabular-nums">
-                  {maneuver.distanceToTurnM} metre sonra
-                </span>
-              )}
-            </div>
-            <div className="text-sm sm:text-base font-black truncate leading-tight mt-0.5">
-              {maneuver.type === 'arrive'
-                ? activeRoute.target_entrance_name
-                : maneuver.instruction}
-            </div>
-          </div>
-
-          {/* Quick Exit Navigation */}
+      {/* 1. TOP MANEUVER BANNER (Compact & Non-Destructive Collapse, Never Overlaps Top Bars) */}
+      <div className="fixed top-3 md:top-4 inset-x-3 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 z-30 flex justify-center pointer-events-none">
+        {isManeuverBannerCollapsed ? (
           <button
             type="button"
-            onClick={onClearRoute}
-            className="w-8 h-8 rounded-xl bg-zinc-950/20 hover:bg-zinc-950/30 text-zinc-950 font-black flex items-center justify-center transition shrink-0"
-            title="Navigasyonu Bitir"
-            aria-label="Navigasyonu Bitir"
+            onClick={() => setIsManeuverBannerCollapsed(false)}
+            className="pointer-events-auto px-3.5 py-2 rounded-full bg-emerald-400 dark:bg-emerald-500 text-zinc-950 border-2 border-zinc-950 shadow-hard-sm hover:brightness-95 active:scale-95 transition flex items-center gap-2 text-xs font-black"
+            title="Adım Adım Dönüş Talimatını Göster"
           >
-            <X className="w-4 h-4" />
+            {maneuver.type === 'arrive' && <CheckCircle2 className="w-4 h-4 shrink-0" />}
+            {maneuver.type === 'right' && <CornerUpRight className="w-4 h-4 shrink-0" />}
+            {maneuver.type === 'left' && <CornerUpLeft className="w-4 h-4 shrink-0" />}
+            {maneuver.type === 'straight' && <ArrowUp className="w-4 h-4 shrink-0" />}
+            <span className="truncate max-w-[200px]">
+              {maneuver.type === 'arrive'
+                ? 'Hedefe Ulaşıldı'
+                : `${maneuver.distanceToTurnM}m • ${maneuver.instruction}`}
+            </span>
+            <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-80" />
           </button>
-        </div>
+        ) : (
+          <div className="pointer-events-auto w-full max-w-[360px] bg-emerald-400 dark:bg-emerald-500 text-zinc-950 border-2 border-zinc-950 shadow-hard-md rounded-2xl px-3 py-2 flex items-center gap-2.5 animate-in fade-in slide-in-from-top-2 duration-150">
+            {/* Turn Icon Box */}
+            <div className="w-9 h-9 rounded-xl bg-zinc-950 text-emerald-400 border border-zinc-950 flex items-center justify-center shrink-0 shadow-sm">
+              {maneuver.type === 'arrive' && <CheckCircle2 className="w-5 h-5" />}
+              {maneuver.type === 'right' && <CornerUpRight className="w-5 h-5" />}
+              {maneuver.type === 'left' && <CornerUpLeft className="w-5 h-5" />}
+              {maneuver.type === 'straight' && <ArrowUp className="w-5 h-5" />}
+            </div>
+
+            {/* Maneuver Text */}
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-black uppercase tracking-wider text-emerald-950/80 flex items-center gap-1">
+                {maneuver.type === 'arrive' ? (
+                  <span>Hedefe Ulaşıldı</span>
+                ) : (
+                  <span className="tabular-nums">
+                    {maneuver.distanceToTurnM} metre sonra
+                  </span>
+                )}
+              </div>
+              <div className="text-xs sm:text-sm font-black truncate leading-tight">
+                {maneuver.type === 'arrive'
+                  ? activeRoute.target_entrance_name
+                  : maneuver.instruction}
+              </div>
+            </div>
+
+            {/* Collapse Maneuver Banner (Does NOT cancel the route!) */}
+            <button
+              type="button"
+              onClick={() => setIsManeuverBannerCollapsed(true)}
+              className="w-7 h-7 rounded-lg bg-zinc-950/15 hover:bg-zinc-950/25 text-zinc-950 font-black flex items-center justify-center transition shrink-0"
+              title="Dönüş bildirimini küçült (Rotayı kapatmaz)"
+              aria-label="Dönüş bildirimini küçült"
+            >
+              <ChevronUp className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* 2. BOTTOM ACTIVE NAVIGATION & SENSOR ISLAND */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 pointer-events-auto w-[92vw] sm:w-auto max-w-xl">
-        <TactileCard className="p-3 sm:px-4 sm:py-2.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 bg-white dark:bg-[#1E222D]">
+      {/* 2. BOTTOM ACTIVE NAVIGATION & SENSOR ISLAND (Bottom-Left on Desktop so it never overlaps Bottom-Right Map Dock) */}
+      <div className="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 md:left-4 md:translate-x-0 z-30 pointer-events-auto w-[92vw] sm:w-auto max-w-md">
+        <TactileCard className="p-3 sm:px-3.5 sm:py-2.5 flex flex-col gap-2.5 bg-white dark:bg-[#1E222D]">
           {/* Destination & Remaining Summary */}
-          <div className="flex-1 min-w-[200px]">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-black text-xs sm:text-sm text-zinc-950 dark:text-zinc-100 truncate">
-                {activeRoute.target_entrance_name}
-              </span>
-              <span className="px-2 py-0.5 rounded-lg bg-sky-400 text-zinc-950 font-black text-xs tabular-nums border border-zinc-950 shrink-0">
-                {userPos.remainingMeters} m (~{userPos.remainingMinutes} dk)
-              </span>
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="font-black text-xs sm:text-sm text-zinc-950 dark:text-zinc-100 truncate">
+                  {activeRoute.target_entrance_name}
+                </span>
+                <span className="px-2 py-0.5 rounded-lg bg-sky-400 text-zinc-950 font-black text-[11px] tabular-nums border border-zinc-950 shrink-0">
+                  {userPos.remainingMeters} m (~{userPos.remainingMinutes} dk)
+                </span>
+              </div>
 
-              {/* Real-time GPS vs Simulator Status Badge */}
-              {isLiveGpsActive ? (
-                <span className="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-300 font-black text-[10px] border border-emerald-500/40 flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                  <span>Canlı GPS Devrede</span>
-                </span>
-              ) : isSimulatingWalk ? (
-                <span className="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-950/80 dark:text-amber-300 font-black text-[10px] border border-amber-500/40 flex items-center gap-1">
-                  <Play className="w-2.5 h-2.5 fill-current" />
-                  <span>Simülatör Yürüyor</span>
-                </span>
-              ) : null}
+              <div className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 mt-1 flex items-center gap-1.5 flex-wrap">
+                {userPos.isSnapped ? (
+                  <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <Magnet className="w-3.5 h-3.5 shrink-0" />
+                    <span>Snap-to-Path Yola Kilitli ({userPos.offRouteDistanceMeters}m sapma düzeltildi)</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1">
+                    <Compass className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+                    <span>{isLiveGpsActive ? 'Canlı GPS sinyali alınıyor...' : 'Serbest Konum • Simülatörle test edin'}</span>
+                  </span>
+                )}
+              </div>
             </div>
 
-              <div className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
-              {userPos.isSnapped ? (
-                <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                  <Magnet className="w-3.5 h-3.5 shrink-0" />
-                  <span>Snap-to-Path Yola Kilitli ({userPos.offRouteDistanceMeters}m sapma düzeltildi)</span>
-                </span>
-              ) : (
-                <span className="flex items-center gap-1">
-                  <Compass className="w-3.5 h-3.5 text-sky-500 shrink-0" />
-                  <span>{isLiveGpsActive ? 'Canlı GPS sinyali alınıyor...' : 'Serbest Konum • Simülatörle test edin'}</span>
-                </span>
-              )}
-            </div>
+            {/* Real-time GPS vs Simulator Status Badge */}
+            {isLiveGpsActive ? (
+              <span className="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-300 font-black text-[10px] border border-emerald-500/40 flex items-center gap-1 shrink-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                <span>Canlı GPS</span>
+              </span>
+            ) : isSimulatingWalk ? (
+              <span className="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-950/80 dark:text-amber-300 font-black text-[10px] border border-amber-500/40 flex items-center gap-1 shrink-0">
+                <Play className="w-2.5 h-2.5 fill-current" />
+                <span>Yürüyor</span>
+              </span>
+            ) : null}
           </div>
 
           {/* Action Controls: Simulator, End Route (Live GPS only shown if already activated from menu) */}
-          <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
+          <div className="flex items-center justify-end gap-2 pt-1.5 border-t border-zinc-200/80 dark:border-white/10">
             {isLiveGpsActive && onToggleLiveGps && (
               <TactileButton
                 size="sm"

@@ -1188,20 +1188,40 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       });
     }
 
-    // 4. Building Entrances (LOD Anti-Noise: only visible when building is selected or Z >= 16.5)
+    // 4. Building Entrances (Supports both 1st Primary & 2nd Secondary Entrance Doors)
     const entrancesGeoJSON: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
-      features: buildings.map((b) => ({
-        type: 'Feature',
-        properties: {
-          id: b.id,
-          entrance_name: b.entrance_name,
-        },
-        geometry: {
-          type: 'Point',
-          coordinates: [b.entrance_lon, b.entrance_lat],
-        },
-      })),
+      features: buildings.flatMap((b) => {
+        const list: GeoJSON.Feature[] = [
+          {
+            type: 'Feature',
+            properties: {
+              id: b.id,
+              entrance_name: b.entrance_name,
+              slot: 1,
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: [b.entrance_lon, b.entrance_lat],
+            },
+          },
+        ];
+        if (b.secondary_entrance_lat != null && b.secondary_entrance_lon != null) {
+          list.push({
+            type: 'Feature',
+            properties: {
+              id: b.id,
+              entrance_name: b.secondary_entrance_name || `${b.code} 2. Giriş Kapısı`,
+              slot: 2,
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: [b.secondary_entrance_lon, b.secondary_entrance_lat],
+            },
+          });
+        }
+        return list;
+      }),
     };
 
     if (map.getSource('building-entrances')) {
@@ -1484,7 +1504,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     if (validSnapped) {
       if (!userMarkerRef.current) {
         const root = document.createElement('div');
-        root.style.zIndex = '40';
+        root.style.zIndex = '15';
         const dot = document.createElement('div');
         dot.className =
           'w-6 h-6 rounded-full bg-sky-500 border-[3px] border-zinc-950 shadow-[0_0_12px_rgba(14,165,233,0.9)] flex items-center justify-center';
@@ -1503,7 +1523,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     if (validRaw && userPos.source === 'gps') {
       if (!rawGpsMarkerRef.current) {
         const rawRoot = document.createElement('div');
-        rawRoot.style.zIndex = '35';
+        rawRoot.style.zIndex = '14';
         const rawDot = document.createElement('div');
         rawDot.className =
           'w-3.5 h-3.5 rounded-full bg-amber-400/70 border border-zinc-950 pointer-events-none';
@@ -1559,46 +1579,52 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         adminMapMode !== 'none' ? 'cursor-crosshair' : ''
       }`}
     >
-      <div ref={mapContainerRef} className="w-full h-full" />
+      <div ref={mapContainerRef} className="w-full h-full isolate" />
 
-      {/* Interactive Map Picking Banner */}
+      {/* Interactive Map Picking Banner (Strictly centered, no bounce transform collision) */}
       {adminMapMode !== 'none' && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-amber-400 text-zinc-950 font-black text-xs shadow-hard-md border-2 border-zinc-950 flex items-center gap-3 animate-bounce">
-          <span>
-            {adminMapMode === 'pick_user_start' &&
-              '📍 Haritada yürüyüşe başlamak istediğiniz noktaya tıklayın'}
-            {adminMapMode === 'toggle_edge' &&
-              '🚧 Kapatmak veya açmak istediğiniz yürüyüş yoluna tıklayın'}
-            {adminMapMode === 'move_entrance' &&
-              '🚪 Seçili binanın yeni giriş kapısı noktasına haritada tıklayın'}
-            {adminMapMode === 'add_building' &&
-              (selectedFootprintIds.length > 0
-                ? `🏛️ ${selectedFootprintIds.length} blok ayak izi seçildi. Yeni blok ekleyebilir veya giriş kapısına geçebilirsiniz.`
-                : '🏛️ Haritada altın parlayan bina kutucuğuna tıklayın (Birden fazla blok seçebilirsiniz)')}
-            {adminMapMode === 'pick_building_entrance' &&
-              '🚪 Binanın ana giriş kapısının olduğu noktaya haritada tıklayın (Snap-to-Node)'}
-            {adminMapMode === 'draw_edge' &&
-              '📏 Yeni yürüyüş patikası için başlangıç ve bitiş noktalarına tıklayın'}
-            {adminMapMode === 'pick_alert_coords' &&
-              '⚠️ Uyarı bırakmak istediğiniz noktaya tıklayın'}
-          </span>
-          {onCancelMapMode && (
-            <TactileButton
-              size="sm"
-              variant="neutral"
-              onClick={onCancelMapMode}
-              className="py-0.5 px-2 text-[10px] min-h-0"
-            >
-              İptal ✕
-            </TactileButton>
-          )}
+        <div className="fixed top-20 inset-x-0 z-50 flex justify-center pointer-events-none px-4">
+          <div className="pointer-events-auto px-4 py-2 rounded-2xl bg-amber-400 text-zinc-950 font-black text-xs shadow-hard-md border-2 border-zinc-950 flex items-center gap-3 animate-in fade-in zoom-in-95 duration-150">
+            <span>
+              {adminMapMode === 'pick_user_start' &&
+                '📍 Haritada yürüyüşe başlamak istediğiniz noktaya tıklayın'}
+              {adminMapMode === 'toggle_edge' &&
+                '🚧 Kapatmak veya açmak istediğiniz yürüyüş yoluna tıklayın'}
+              {adminMapMode === 'move_entrance' &&
+                '🚪 Seçili binanın giriş kapısı noktasına haritada tıklayın'}
+              {adminMapMode === 'add_building' &&
+                (selectedFootprintIds.length > 0
+                  ? `🏛️ ${selectedFootprintIds.length} blok ayak izi seçildi. Yeni blok ekleyebilir veya giriş kapısına geçebilirsiniz.`
+                  : '🏛️ Haritada altın parlayan bina kutucuğuna tıklayın (Birden fazla blok seçebilirsiniz)')}
+              {adminMapMode === 'pick_building_entrance' &&
+                '🚪 Binanın ana giriş kapısının olduğu noktaya haritada tıklayın (Snap-to-Node)'}
+              {adminMapMode === 'draw_edge' &&
+                '📏 Yeni yürüyüş patikası için başlangıç ve bitiş noktalarına tıklayın'}
+              {adminMapMode === 'pick_alert_coords' &&
+                '⚠️ Uyarı bırakmak istediğiniz noktaya tıklayın'}
+            </span>
+            {onCancelMapMode && (
+              <TactileButton
+                size="sm"
+                variant="neutral"
+                onClick={onCancelMapMode}
+                className="py-0.5 px-2 text-[10px] min-h-0"
+              >
+                İptal ✕
+              </TactileButton>
+            )}
+          </div>
         </div>
       )}
 
       {/* ==================================================================== */}
       {/*              DESKTOP BOTTOM-RIGHT MAP COMMAND DOCK                   */}
       {/* ==================================================================== */}
-      <div className="hidden md:flex fixed bottom-6 right-6 z-20 items-center gap-1.5 p-1.5 rounded-2xl bg-white/95 dark:bg-[#1E222D]/95 border border-zinc-300 dark:border-white/10 shadow-hard-md dark:shadow-hard-night-md backdrop-blur-md">
+      <div
+        className={`hidden md:flex fixed bottom-6 z-20 items-center gap-1.5 p-1.5 rounded-2xl bg-white/95 dark:bg-[#1E222D]/95 border border-zinc-300 dark:border-white/10 shadow-hard-md dark:shadow-hard-night-md backdrop-blur-md transition-all duration-300 ease-out ${
+          isRightDrawerOpen ? 'right-[436px]' : 'right-6'
+        }`}
+      >
         {onTogglePickUserStart && (
           <TactileButton
             size="sm"
