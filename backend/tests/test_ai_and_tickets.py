@@ -8,6 +8,7 @@ from app.main import (
     init_db,
     list_written_tickets,
     login_user,
+    preview_analyze_ticket,
     update_written_ticket_status,
     verify_admin_key,
     vote_map_alert,
@@ -16,6 +17,7 @@ from app.schemas import (
     AuthLoginRequest,
     MapAlertCreate,
     MapAlertVoteRequest,
+    TicketAnalyzeRequest,
     WrittenTicketCreate,
     WrittenTicketUpdate,
 )
@@ -61,6 +63,54 @@ def test_written_ticket_xss_sanitization_and_spam_detection() -> None:
         assert "<b>" not in res.description
         assert res.ai_is_spam is True
         assert res.ai_urgency_score <= 15
+
+        # Check content moderation filter (e.g. gambling/spam words)
+        troll_res = create_written_ticket(
+            WrittenTicketCreate(
+                reporter_email="test@gtu.edu.tr",
+                category="technical",
+                title="canli kumar ve bahis",
+                description="burada kumar oynamak istiyoruz link",
+            ),
+            db=db,
+        )
+        assert troll_res.ai_is_spam is True
+        assert troll_res.ai_department == "Spam / Geçersiz"
+        assert troll_res.ai_urgency_score <= 10
+    finally:
+        db.close()
+
+
+def test_preview_analyze_ticket_and_mismatch() -> None:
+    # User selected 'technical' (Bilgi İşlem), but text is clearly about water pipe bursting (Yapı İşleri)
+    preview = preview_analyze_ticket(
+        TicketAnalyzeRequest(
+            title="Tuvalette su borusu patladı",
+            description="Yerleri su bastı, elektrik panosuna akıyor acil tesisatçı",
+            category="technical",
+        )
+    )
+    assert preview.ai_department == "Yapı İşleri ve Teknik Daire"
+    assert preview.user_department == "Bilgi İşlem Dairesi"
+    assert preview.is_mismatch is True
+    assert preview.suggested_category == "infrastructure"
+    assert preview.ai_urgency_score >= 80
+
+    init_db()
+    db = SessionLocal()
+    try:
+        # If user overrides and confirms their own department:
+        overridden = create_written_ticket(
+            WrittenTicketCreate(
+                reporter_email="test@gtu.edu.tr",
+                category="technical",
+                title="Tuvalette su borusu patladı",
+                description="Yerleri su bastı, elektrik panosuna akıyor acil tesisatçı",
+                confirmed_department="Bilgi İşlem Dairesi",
+            ),
+            db=db,
+        )
+        assert overridden.ai_department == "Bilgi İşlem Dairesi"
     finally:
         db.close()
 

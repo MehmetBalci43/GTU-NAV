@@ -161,6 +161,28 @@ class MapAlertSchema(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class TicketAnalyzeRequest(BaseModel):
+    title: str = Field(..., max_length=120)
+    description: str = Field(..., max_length=1500)
+    category: str = Field(default="infrastructure", max_length=40)
+
+    @field_validator("title", "description", "category")
+    @classmethod
+    def sanitize_analyze_fields(cls, v: str) -> str:
+        return strip_html_tags(v)
+
+
+class TicketAnalyzeResponse(BaseModel):
+    ai_department: str
+    ai_urgency_score: int
+    ai_priority_label: str
+    ai_is_spam: bool
+    confidence: float
+    suggested_category: str
+    user_department: str
+    is_mismatch: bool
+
+
 class WrittenTicketCreate(BaseModel):
     reporter_email: str = Field(default="ogrenci@gtu.edu.tr", max_length=120)
     building_id: Optional[str] = None
@@ -170,6 +192,7 @@ class WrittenTicketCreate(BaseModel):
     description: str = Field(..., min_length=5, max_length=1500)
     lat: Optional[float] = None
     lon: Optional[float] = None
+    confirmed_department: Optional[str] = None
 
     @field_validator("title", "description", "reporter_email")
     @classmethod

@@ -33,6 +33,8 @@ from app.schemas import (
     RouteResponse,
     SearchResponse,
     SearchResultItem,
+    TicketAnalyzeRequest,
+    TicketAnalyzeResponse,
     WrittenTicketCreate,
     WrittenTicketSchema,
     WrittenTicketUpdate,
@@ -407,6 +409,16 @@ def delete_map_alert(
     return {"id": alert_id, "status": "resolved"}
 
 
+@app.post("/api/tickets/analyze", response_model=TicketAnalyzeResponse)
+def preview_analyze_ticket(req: TicketAnalyzeRequest) -> TicketAnalyzeResponse:
+    res = analyze_written_ticket(
+        title=req.title,
+        description=req.description,
+        category=req.category,
+    )
+    return TicketAnalyzeResponse(**res)
+
+
 @app.post("/api/tickets", response_model=WrittenTicketSchema)
 def create_written_ticket(req: WrittenTicketCreate, db: Session = Depends(get_db)) -> WrittenTicketSchema:
     init_db()
@@ -415,6 +427,10 @@ def create_written_ticket(req: WrittenTicketCreate, db: Session = Depends(get_db
         description=req.description,
         category=req.category,
     )
+
+    assigned_department = ai_res["ai_department"]
+    if req.confirmed_department and not ai_res["ai_is_spam"]:
+        assigned_department = req.confirmed_department
 
     lat = req.lat
     lon = req.lon
@@ -433,7 +449,7 @@ def create_written_ticket(req: WrittenTicketCreate, db: Session = Depends(get_db
         description=req.description,
         lat=lat,
         lon=lon,
-        ai_department=ai_res["ai_department"],
+        ai_department=assigned_department,
         ai_urgency_score=ai_res["ai_urgency_score"],
         ai_priority_label=ai_res["ai_priority_label"],
         ai_is_spam=ai_res["ai_is_spam"],
@@ -673,6 +689,32 @@ def delete_building(
     b = db.query(Building).filter(Building.id == building_id).first()
     if not b:
         raise HTTPException(status_code=404, detail="Bina bulunamadı.")
+
+    # Restore building polygon blocks back to extra_building_footprints so they remain selectable on map
+    try:
+        poly = b.polygon_coords
+        if not building_id.startswith("test_") and poly and isinstance(poly, list) and len(poly) > 0:
+            graph = load_walk_graph()
+            extra_fps = graph.get("extra_building_footprints", [])
+            is_multi = isinstance(poly[0][0][0], list)
+            rings = [p[0] for p in poly if p and len(p) > 0] if is_multi else [poly[0]]
+            base_way_id = int(datetime.now(timezone.utc).timestamp() * 100) % 900000000 + 100000000
+            for idx, ring in enumerate(rings):
+                if isinstance(ring, list) and len(ring) >= 3:
+                    avg_lon = round(sum(pt[0] for pt in ring) / len(ring), 6)
+                    avg_lat = round(sum(pt[1] for pt in ring) / len(ring), 6)
+                    extra_fps.append({
+                        "osm_way_id": base_way_id + idx,
+                        "name": b.name or "Kampüs Ek Bina / Laboratuvar",
+                        "coords": ring,
+                        "lat": avg_lat,
+                        "lon": avg_lon,
+                    })
+            graph["extra_building_footprints"] = extra_fps
+            save_walk_graph(graph)
+    except Exception:
+        pass
+
     db.delete(b)
     db.commit()
     sync_buildings_to_json(db)

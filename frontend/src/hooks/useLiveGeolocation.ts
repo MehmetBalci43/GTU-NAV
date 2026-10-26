@@ -77,56 +77,69 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
     setGpsStatus('searching');
     onNoticeRef.current?.('📡 Canlı GPS konumu kontrol ediliyor...');
 
-    const id = navigator.geolocation.watchPosition(
-      (pos) => {
-        const { latitude, longitude, accuracy } = pos.coords;
+    const startWatch = (highAccuracy: boolean) => {
+      const id = navigator.geolocation.watchPosition(
+        (pos) => {
+          const { latitude, longitude, accuracy } = pos.coords;
 
-        // Strict boundary check: If user is at home / outside GTÜ campus, stop immediately and show error dialog!
-        if (!isWithinCampusBounds(latitude, longitude)) {
+          // Strict boundary check: If user is at home / outside GTÜ campus, stop immediately and show error dialog!
+          if (!isWithinCampusBounds(latitude, longitude)) {
+            if (watchIdRef.current !== null && 'geolocation' in navigator) {
+              navigator.geolocation.clearWatch(watchIdRef.current);
+              watchIdRef.current = null;
+            }
+            setIsLiveGpsActive(false);
+            setGpsStatus('out_of_campus');
+            setGpsAccuracyMeters(null);
+            setGpsErrorModal({
+              title: 'Kampüs Sınırları Dışındasınız',
+              message:
+                'Mevcut konumunuz GTÜ Çayırova Yerleşkesi sınırları dışında algılandı. Canlı GPS takibi yalnızca kampüs içerisindeyken açılabilir. Kampüs dışındayken harita üzerinden rota çizebilir ve yürüyüş simülatörünü kullanabilirsiniz.',
+            });
+            return;
+          }
+
+          // Verified inside GTÜ campus! Now activate Live GPS mode
+          setIsLiveGpsActive(true);
+          setGpsStatus('active');
+          setGpsAccuracyMeters(accuracy || 5);
+          onPositionUpdateRef.current?.(latitude, longitude, accuracy || 4.0);
+        },
+        (err) => {
+          console.warn('Live GPS watchPosition warning:', err.message);
           if (watchIdRef.current !== null && 'geolocation' in navigator) {
             navigator.geolocation.clearWatch(watchIdRef.current);
             watchIdRef.current = null;
           }
+
+          // If high-accuracy GPS timed out indoors, automatically fall back to network/fused location
+          if (highAccuracy && err.code === 3) {
+            startWatch(false);
+            return;
+          }
+
+          setGpsStatus('permission_denied');
           setIsLiveGpsActive(false);
-          setGpsStatus('out_of_campus');
           setGpsAccuracyMeters(null);
           setGpsErrorModal({
-            title: 'Kampüs Sınırları Dışındasınız',
+            title: 'Canlı GPS Konumu Alınamadı',
             message:
-              'Mevcut konumunuz GTÜ Çayırova Yerleşkesi sınırları dışında algılandı. Canlı GPS takibi yalnızca kampüs içerisindeyken açılabilir. Kampüs dışındayken harita üzerinden rota çizebilir ve yürüyüş simülatörünü kullanabilirsiniz.',
+              err.code === 1
+                ? 'Tarayıcı konum izni reddedildi. Lütfen telefonunuzda tarayıcı konum iznini açın (ngrok HTTPS bağlantısı kullandığınızdan emin olun).'
+                : 'Cihazınızdan GPS sinyali alınamadı. Lütfen konum servislerinizin açık olduğundan emin olun.',
           });
-          return;
+        },
+        {
+          enableHighAccuracy: highAccuracy,
+          maximumAge: 3000,
+          timeout: highAccuracy ? 10000 : 15000,
         }
+      );
 
-        // Verified inside GTÜ campus! Now activate Live GPS mode
-        setIsLiveGpsActive(true);
-        setGpsStatus('active');
-        setGpsAccuracyMeters(accuracy || 5);
-        onPositionUpdateRef.current?.(latitude, longitude, accuracy || 4.0);
-      },
-      (err) => {
-        console.warn('Live GPS watchPosition warning:', err.message);
-        if (watchIdRef.current !== null && 'geolocation' in navigator) {
-          navigator.geolocation.clearWatch(watchIdRef.current);
-          watchIdRef.current = null;
-        }
-        setGpsStatus('permission_denied');
-        setIsLiveGpsActive(false);
-        setGpsAccuracyMeters(null);
-        setGpsErrorModal({
-          title: 'Canlı GPS Konumu Alınamadı',
-          message:
-            'Cihazınızın konum izni kapalı veya GPS sinyali alınamadı. Lütfen tarayıcı konum iznini kontrol edin.',
-        });
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 2500,
-        timeout: 10000,
-      }
-    );
+      watchIdRef.current = id;
+    };
 
-    watchIdRef.current = id;
+    startWatch(true);
   }, []);
 
   const toggleLiveGps = useCallback(() => {

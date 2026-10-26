@@ -123,6 +123,15 @@ export function useCampusData() {
     [refreshBootstrap]
   );
 
+  const previewBuildingLocally = useCallback(
+    (buildingId: string, patch: Partial<Building>) => {
+      setBuildings((prev) =>
+        prev.map((b) => (b.id === buildingId ? { ...b, ...patch } : b))
+      );
+    },
+    []
+  );
+
   const addOrUpdateCampusBuilding = useCallback(
     async (payload: {
       id: string;
@@ -203,6 +212,7 @@ export function useCampusData() {
     deleteAlert,
     toggleEdgeBlocked,
     updateBuildingEntrance,
+    previewBuildingLocally,
     addOrUpdateCampusBuilding,
     removeCampusBuilding,
     addWalkwayEdge,

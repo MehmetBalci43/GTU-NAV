@@ -1,3 +1,4 @@
+import base64
 import re
 from pathlib import Path
 from typing import Any
@@ -21,12 +22,29 @@ SPAM_PATTERNS = [
     r"(.)\1{4,}",  # 5+ repeated identical characters like "aaaaaa"
 ]
 
-CATEGORY_DEFAULT_DEPT = {
+# Kurumsal İçerik Denetimi & Moderasyon Filtresi (Content Moderation Blocklist)
+# Kaynak kod temizliği ve etik standartlar gereği filtrelenen terimler maskelenmiştir.
+_MODERATION_PAYLOAD = (
+    "cG9ybm8scG9ybix4eHgsc2VrcyxzZXgsZXJvdGlrLGt1bWFyLGJhaGlzLGJldCxhbWssYXEsc2lrLHNpa2V5aW0sb8OnLHBpw6cseWFycmFrLHlhcmFrLG9yb3NwdSxnb3QsZ8O2dCx0YcWfYWssdHJvbGwsa8O8ZsO8cg=="
+)
+INAPPROPRIATE_WORDS: set[str] = set(
+    base64.b64decode(_MODERATION_PAYLOAD).decode("utf-8").split(",")
+)
+
+CATEGORY_DEFAULT_DEPT: dict[str, str] = {
     "technical": "Bilgi İşlem Dairesi",
     "infrastructure": "Yapı İşleri ve Teknik Daire",
     "cleaning": "İdari ve Mali İşler (Temizlik)",
     "security": "Koruma ve Güvenlik Şube Müdürlüğü",
     "suggestion": "Öğrenci İşleri ve Kampüs Yaşam",
+}
+
+DEPT_TO_CATEGORY: dict[str, str] = {
+    "Bilgi İşlem Dairesi": "technical",
+    "Yapı İşleri ve Teknik Daire": "infrastructure",
+    "İdari ve Mali İşler (Temizlik)": "cleaning",
+    "Koruma ve Güvenlik Şube Müdürlüğü": "security",
+    "Öğrenci İşleri ve Kampüs Yaşam": "suggestion",
 }
 
 
@@ -59,6 +77,10 @@ def is_text_spam(combined_lower: str) -> bool:
         return True
     if any(k in combined_lower for k in ("asdfgh", "qwerty", "deneme deneme", "test 123")):
         return True
+    if any(bad in words for bad in INAPPROPRIATE_WORDS):
+        return True
+    if any(bad in combined_lower for bad in INAPPROPRIATE_WORDS):
+        return True
     return False
 
 
@@ -66,12 +88,18 @@ def analyze_written_ticket(title: str, description: str, category: str = "techni
     bundle = get_or_load_model()
     combined = f"{title} {description}".strip().lower()
 
+    user_dept = CATEGORY_DEFAULT_DEPT.get(category, "")
+
     if is_text_spam(combined):
         return {
             "ai_department": "Spam / Geçersiz",
             "ai_urgency_score": 5,
             "ai_priority_label": "low",
             "ai_is_spam": True,
+            "confidence": 0.0,
+            "suggested_category": "suggestion",
+            "user_department": user_dept or "Bilinmeyen",
+            "is_mismatch": False,
         }
 
     dept_pipe = bundle["dept_pipeline"]
@@ -84,12 +112,16 @@ def analyze_written_ticket(title: str, description: str, category: str = "techni
     if pred_dept == "Spam / Geçersiz":
         return {
             "ai_department": "Spam / Geçersiz",
-            "ai_urgency_score": 8,
+            "ai_urgency_score": 5,
             "ai_priority_label": "low",
             "ai_is_spam": True,
+            "confidence": 0.0,
+            "suggested_category": "suggestion",
+            "user_department": user_dept or "Bilinmeyen",
+            "is_mismatch": False,
         }
 
-    # If model confidence is modest, blend with category hint
+    # If model confidence is very low, blend with category hint
     if max_prob < 0.38 and category in CATEGORY_DEFAULT_DEPT:
         pred_dept = CATEGORY_DEFAULT_DEPT[category]
 
@@ -112,9 +144,16 @@ def analyze_written_ticket(title: str, description: str, category: str = "techni
     else:
         priority = "low"
 
+    suggested_cat = DEPT_TO_CATEGORY.get(pred_dept, category)
+    is_mismatch = bool(user_dept and pred_dept != user_dept and pred_dept != "Spam / Geçersiz")
+
     return {
         "ai_department": pred_dept,
         "ai_urgency_score": final_score,
         "ai_priority_label": priority,
         "ai_is_spam": False,
+        "confidence": round(max_prob, 3),
+        "suggested_category": suggested_cat,
+        "user_department": user_dept,
+        "is_mismatch": is_mismatch,
     }

@@ -17,12 +17,22 @@ import {
   BookOpen,
   GraduationCap,
   Sparkles,
+  Trash2,
+  RotateCcw,
+  RotateCw,
+  ZoomIn,
+  ZoomOut,
+  Move,
 } from 'lucide-react';
 import {
   Building,
   BuildingRoomsResponse,
   RouteResponse,
 } from '../../types/campus';
+import {
+  createDefaultBuildingRing,
+  transformBuildingPolygon,
+} from '../../utils/polygonTransform';
 import {
   TactileCard,
   TactileButton,
@@ -50,6 +60,9 @@ interface BuildingDetailSheetProps {
   onOpenWrittenTicketForBuilding: (buildingId: string, classroomId?: string) => void;
   onAdminStartMoveEntrance: (buildingId: string, slot: 1 | 2) => void;
   onAdminClearSecondaryEntrance?: (buildingId: string) => void;
+  onAdminPreviewBuilding?: (buildingId: string, patch: Partial<Building>) => void;
+  onAdminSaveBuilding?: (building: Building) => Promise<void>;
+  onAdminDeleteBuilding?: (buildingId: string) => Promise<void>;
 }
 
 const WEEKDAYS = [
@@ -79,14 +92,42 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
   onOpenWrittenTicketForBuilding,
   onAdminStartMoveEntrance,
   onAdminClearSecondaryEntrance,
+  onAdminPreviewBuilding,
+  onAdminSaveBuilding,
+  onAdminDeleteBuilding,
 }) => {
   const [activeTab, setActiveTab] = useState<'radar' | 'schedule'>('radar');
   const [selectedDay, setSelectedDay] = useState<number>(1);
   const [busyReasonInput, setBusyReasonInput] = useState<Record<string, string>>({});
   const [filterOnlyFree, setFilterOnlyFree] = useState<boolean>(false);
   const [isAdminEntranceMenuOpen, setIsAdminEntranceMenuOpen] = useState<boolean>(false);
+  const [isAdminGeometryOpen, setIsAdminGeometryOpen] = useState<boolean>(false);
+  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [isSavingGeometry, setIsSavingGeometry] = useState<boolean>(false);
 
   if (!building) return null;
+
+  const applyGeometryTransform = (opts: {
+    scaleX?: number;
+    scaleY?: number;
+    rotateDeg?: number;
+    dLon?: number;
+    dLat?: number;
+  }) => {
+    const res = transformBuildingPolygon(building.polygon_coords, opts);
+    onAdminPreviewBuilding?.(building.id, {
+      polygon_coords: res.polygon_coords,
+      lat: res.lat,
+      lon: res.lon,
+    });
+  };
+
+  const resetToCleanRectangle = () => {
+    const rectRing = createDefaultBuildingRing(building.lon, building.lat, 38, 24);
+    onAdminPreviewBuilding?.(building.id, {
+      polygon_coords: [rectRing],
+    });
+  };
 
   const rooms = roomsData?.rooms || [];
   const displayedRooms = filterOnlyFree
@@ -161,73 +202,90 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
 
           <div className="flex items-center gap-1 shrink-0">
             {isAdmin && (
-              <div className="relative">
+              <>
                 <TactileIconButton
                   size="sm"
-                  variant={isAdminEntranceMenuOpen ? 'warning' : 'ghost'}
-                  label="Giriş Kapısı Ayarları (Admin)"
-                  onClick={() => setIsAdminEntranceMenuOpen((prev) => !prev)}
+                  variant={isAdminGeometryOpen ? 'accent' : 'ghost'}
+                  label="Binayı Boyutlandır / Düzenle / Sil (Admin)"
+                  onClick={() => {
+                    setIsAdminEntranceMenuOpen(false);
+                    setIsAdminGeometryOpen((prev) => !prev);
+                  }}
                 >
-                  <MapPin className="w-4 h-4 text-amber-500" />
+                  <Wrench className="w-4 h-4 text-sky-500" />
                 </TactileIconButton>
 
-                {isAdminEntranceMenuOpen && (
-                  <div className="absolute right-0 top-full mt-1.5 w-60 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-lg z-50 p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-100">
-                    <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                      Bina Giriş Kapıları (Admin)
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsAdminEntranceMenuOpen(false);
-                        onAdminStartMoveEntrance(building.id, 1);
-                      }}
-                      className="w-full text-left p-2 rounded-xl hover:bg-amber-50 dark:hover:bg-amber-950/40 text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2 transition"
-                    >
-                      <span className="w-5 h-5 rounded-md bg-emerald-400 text-zinc-950 font-black text-[11px] flex items-center justify-center border border-zinc-950 shrink-0">
-                        1
-                      </span>
-                      <div>
-                        <div className="font-black text-xs">1. Kapıyı Haritada Seç</div>
-                        <div className="text-[10px] text-zinc-500">Ana giriş kapısını taşı</div>
-                      </div>
-                    </button>
+                <div className="relative">
+                  <TactileIconButton
+                    size="sm"
+                    variant={isAdminEntranceMenuOpen ? 'warning' : 'ghost'}
+                    label="Giriş Kapısı Ayarları (Admin)"
+                    onClick={() => {
+                      setIsAdminGeometryOpen(false);
+                      setIsAdminEntranceMenuOpen((prev) => !prev);
+                    }}
+                  >
+                    <MapPin className="w-4 h-4 text-amber-500" />
+                  </TactileIconButton>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsAdminEntranceMenuOpen(false);
-                        onAdminStartMoveEntrance(building.id, 2);
-                      }}
-                      className="w-full text-left p-2 rounded-xl hover:bg-sky-50 dark:hover:bg-sky-950/40 text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2 transition"
-                    >
-                      <span className="w-5 h-5 rounded-md bg-sky-400 text-zinc-950 font-black text-[11px] flex items-center justify-center border border-zinc-950 shrink-0">
-                        2
-                      </span>
-                      <div>
-                        <div className="font-black text-xs">
-                          {hasSecondaryEntrance ? '2. Kapıyı Haritada Güncelle' : '2. Kapı (Ek Giriş) Ekle'}
-                        </div>
-                        <div className="text-[10px] text-zinc-500">İkinci giriş kapısı tanımla</div>
+                  {isAdminEntranceMenuOpen && (
+                    <div className="absolute right-0 top-full mt-1.5 w-60 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-lg z-50 p-1.5 space-y-1">
+                      <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                        Bina Giriş Kapıları (Admin)
                       </div>
-                    </button>
-
-                    {hasSecondaryEntrance && onAdminClearSecondaryEntrance && (
                       <button
                         type="button"
                         onClick={() => {
                           setIsAdminEntranceMenuOpen(false);
-                          onAdminClearSecondaryEntrance(building.id);
+                          onAdminStartMoveEntrance(building.id, 1);
                         }}
-                        className="w-full text-left p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2 transition"
+                        className="w-full text-left p-2 rounded-xl hover:bg-amber-50 dark:hover:bg-amber-950/40 text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2 transition"
                       >
-                        <X className="w-4 h-4 shrink-0" />
-                        <span>2. Giriş Kapısını Kaldır</span>
+                        <span className="w-5 h-5 rounded-md bg-emerald-400 text-zinc-950 font-black text-[11px] flex items-center justify-center border border-zinc-950 shrink-0">
+                          1
+                        </span>
+                        <div>
+                          <div className="font-black text-xs">1. Kapıyı Haritada Seç</div>
+                          <div className="text-[10px] text-zinc-500">Ana giriş kapısını taşı</div>
+                        </div>
                       </button>
-                    )}
-                  </div>
-                )}
-              </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsAdminEntranceMenuOpen(false);
+                          onAdminStartMoveEntrance(building.id, 2);
+                        }}
+                        className="w-full text-left p-2 rounded-xl hover:bg-sky-50 dark:hover:bg-sky-950/40 text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2 transition"
+                      >
+                        <span className="w-5 h-5 rounded-md bg-sky-400 text-zinc-950 font-black text-[11px] flex items-center justify-center border border-zinc-950 shrink-0">
+                          2
+                        </span>
+                        <div>
+                          <div className="font-black text-xs">
+                            {hasSecondaryEntrance ? '2. Kapıyı Haritada Güncelle' : '2. Kapı (Ek Giriş) Ekle'}
+                          </div>
+                          <div className="text-[10px] text-zinc-500">İkinci giriş kapısı tanımla</div>
+                        </div>
+                      </button>
+
+                      {hasSecondaryEntrance && onAdminClearSecondaryEntrance && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsAdminEntranceMenuOpen(false);
+                            onAdminClearSecondaryEntrance(building.id);
+                          }}
+                          className="w-full text-left p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2 transition"
+                        >
+                          <X className="w-4 h-4 shrink-0" />
+                          <span>2. Giriş Kapısını Kaldır</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </>
             )}
 
             <TactileIconButton
@@ -240,6 +298,249 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
             </TactileIconButton>
           </div>
         </div>
+
+        {/* Admin Live Building Geometry, Resize, Align & Delete Studio */}
+        {isAdmin && isAdminGeometryOpen && (
+          <div className="p-3.5 bg-sky-50/80 dark:bg-zinc-950 border-b-2 border-zinc-950 space-y-3 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="font-black text-sky-900 dark:text-sky-300 flex items-center gap-1.5">
+                <Wrench className="w-3.5 h-3.5 text-sky-500" />
+                <span>Bina Boyut, Hizalama & Düzenleme</span>
+              </span>
+              <button
+                type="button"
+                onClick={resetToCleanRectangle}
+                className="text-[10px] font-black px-2 py-0.5 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-white/10 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100"
+                title="Bina şeklini düzgün dikdörtgene çevir"
+              >
+                Dikdörtgen Yap
+              </button>
+            </div>
+
+            {/* 1. Scale & Aspect Ratio Controls */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 space-y-1.5">
+                <div className="text-[10px] font-black text-zinc-500 uppercase">Genel Boyut</div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ scaleX: 0.9, scaleY: 0.9 })}
+                    className="py-1.5 px-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 dark:hover:bg-sky-950 font-black text-xs flex items-center justify-center gap-1 border border-zinc-300 dark:border-white/10 active:scale-95 transition"
+                  >
+                    <ZoomOut className="w-3.5 h-3.5" />
+                    <span>Küçült</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ scaleX: 1.1, scaleY: 1.1 })}
+                    className="py-1.5 px-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 dark:hover:bg-sky-950 font-black text-xs flex items-center justify-center gap-1 border border-zinc-300 dark:border-white/10 active:scale-95 transition"
+                  >
+                    <ZoomIn className="w-3.5 h-3.5" />
+                    <span>Büyüt</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 space-y-1.5">
+                <div className="text-[10px] font-black text-zinc-500 uppercase">En / Boy Oranı</div>
+                <div className="grid grid-cols-4 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ scaleX: 0.9, scaleY: 1 })}
+                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 font-black text-[11px] border border-zinc-300 dark:border-white/10"
+                    title="Enini Daralt"
+                  >
+                    En-
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ scaleX: 1.1, scaleY: 1 })}
+                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 font-black text-[11px] border border-zinc-300 dark:border-white/10"
+                    title="Enini Genişlet"
+                  >
+                    En+
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ scaleX: 1, scaleY: 0.9 })}
+                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 font-black text-[11px] border border-zinc-300 dark:border-white/10"
+                    title="Boyunu Kısalt"
+                  >
+                    Boy-
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ scaleX: 1, scaleY: 1.1 })}
+                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 font-black text-[11px] border border-zinc-300 dark:border-white/10"
+                    title="Boyunu Uzat"
+                  >
+                    Boy+
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Rotation & Position Nudge Controls */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 space-y-1.5">
+                <div className="text-[10px] font-black text-zinc-500 uppercase">Döndür (Açı)</div>
+                <div className="grid grid-cols-4 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ rotateDeg: -15 })}
+                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-100 font-black text-[11px] border border-zinc-300 dark:border-white/10"
+                  >
+                    -15°
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ rotateDeg: -3 })}
+                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-100 font-black text-[11px] border border-zinc-300 dark:border-white/10 flex items-center justify-center"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ rotateDeg: 3 })}
+                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-100 font-black text-[11px] border border-zinc-300 dark:border-white/10 flex items-center justify-center"
+                  >
+                    <RotateCw className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ rotateDeg: 15 })}
+                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-100 font-black text-[11px] border border-zinc-300 dark:border-white/10"
+                  >
+                    +15°
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 space-y-1.5">
+                <div className="text-[10px] font-black text-zinc-500 uppercase flex items-center gap-1">
+                  <Move className="w-3 h-3" />
+                  <span>Konum Kaydır</span>
+                </div>
+                <div className="grid grid-cols-4 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ dLon: -0.00003 })}
+                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-100 font-black text-xs border border-zinc-300 dark:border-white/10"
+                    title="Batıya Kaydır"
+                  >
+                    ←
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ dLat: 0.000025 })}
+                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-100 font-black text-xs border border-zinc-300 dark:border-white/10"
+                    title="Kuzeye Kaydır"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ dLat: -0.000025 })}
+                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-100 font-black text-xs border border-zinc-300 dark:border-white/10"
+                    title="Güneye Kaydır"
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyGeometryTransform({ dLon: 0.00003 })}
+                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-100 font-black text-xs border border-zinc-300 dark:border-white/10"
+                    title="Doğuya Kaydır"
+                  >
+                    →
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Building Name, Code & Floors Quick Edit */}
+            <div className="grid grid-cols-4 gap-1.5">
+              <input
+                type="text"
+                value={building.code}
+                onChange={(e) =>
+                  onAdminPreviewBuilding?.(building.id, { code: e.target.value.toUpperCase() })
+                }
+                placeholder="Kod"
+                className="bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 rounded-xl px-2 py-1.5 font-black text-xs outline-none"
+                title="Bina Kodu"
+              />
+              <input
+                type="text"
+                value={building.name}
+                onChange={(e) =>
+                  onAdminPreviewBuilding?.(building.id, { name: e.target.value })
+                }
+                placeholder="Bina Adı"
+                className="col-span-2 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 rounded-xl px-2.5 py-1.5 font-bold text-xs outline-none"
+                title="Bina Tam Adı"
+              />
+              <input
+                type="number"
+                min={1}
+                max={15}
+                value={building.floors_count}
+                onChange={(e) =>
+                  onAdminPreviewBuilding?.(building.id, { floors_count: Number(e.target.value) || 1 })
+                }
+                className="bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 rounded-xl px-2 py-1.5 font-black text-xs text-center outline-none"
+                title="Kat Sayısı"
+              />
+            </div>
+
+            {/* 4. Save Changes & Delete Building Actions */}
+            <div className="flex items-center gap-2 pt-1">
+              <TactileButton
+                size="sm"
+                variant="primary"
+                loading={isSavingGeometry}
+                onClick={async () => {
+                  if (!onAdminSaveBuilding) return;
+                  setIsSavingGeometry(true);
+                  try {
+                    await onAdminSaveBuilding(building);
+                    setIsAdminGeometryOpen(false);
+                  } finally {
+                    setIsSavingGeometry(false);
+                  }
+                }}
+                className="flex-1 justify-center"
+              >
+                Değişiklikleri Kaydet
+              </TactileButton>
+
+              {onAdminDeleteBuilding && (
+                confirmDelete ? (
+                  <TactileButton
+                    size="sm"
+                    variant="danger"
+                    icon={<Trash2 className="w-3.5 h-3.5" />}
+                    onClick={async () => {
+                      await onAdminDeleteBuilding(building.id);
+                    }}
+                  >
+                    Silmeyi Onayla!
+                  </TactileButton>
+                ) : (
+                  <TactileButton
+                    size="sm"
+                    variant="danger"
+                    icon={<Trash2 className="w-3.5 h-3.5" />}
+                    onClick={() => setConfirmDelete(true)}
+                    title="Binayı Haritadan Sil"
+                  >
+                    Sil
+                  </TactileButton>
+                )
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Navigation & Route Actions (Symmetrical 2-Column Grid) */}
         <div className="p-3 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-white/10 space-y-2.5">

@@ -61,6 +61,7 @@ interface CampusMap3DProps {
   isPickingUserStart?: boolean;
   onTogglePickUserStart?: () => void;
   selectedFootprintIds?: number[];
+  selectedFootprints?: { osm_way_id: number; name: string; coords: number[][] }[];
   onAdminToggleFootprintSelection?: (osmWayId: number, name: string) => void;
   onAdminPickEntranceCoords?: (lat: number, lon: number) => void;
   onSelectBuilding: (buildingId: string) => void;
@@ -290,24 +291,46 @@ function createUnifiedMapStyle(): maplibregl.StyleSpecification {
 }
 
 function getBuildingCentroid(b: Building): [number, number] {
-  const ring = b.polygon_coords?.[0];
-  if (!ring || ring.length < 3) {
+  const poly = b.polygon_coords as any;
+  if (!poly || !Array.isArray(poly) || poly.length === 0) {
     return [b.lon, b.lat];
   }
-  const count =
-    ring.length > 3 &&
-    ring[0][0] === ring[ring.length - 1][0] &&
-    ring[0][1] === ring[ring.length - 1][1]
-      ? ring.length - 1
-      : ring.length;
+
+  const isMulti = Array.isArray(poly[0]?.[0]?.[0]);
+  const rings: number[][][] = isMulti
+    ? poly.map((p: any) => p?.[0]).filter((r: any) => Array.isArray(r) && r.length >= 3)
+    : Array.isArray(poly[0]) && poly[0].length >= 3
+    ? [poly[0]]
+    : [];
+
+  if (rings.length === 0) {
+    return [b.lon, b.lat];
+  }
 
   let sumLon = 0;
   let sumLat = 0;
-  for (let i = 0; i < count; i++) {
-    sumLon += ring[i][0];
-    sumLat += ring[i][1];
+  let totalPts = 0;
+
+  for (const ring of rings) {
+    const count =
+      ring.length > 3 &&
+      ring[0][0] === ring[ring.length - 1][0] &&
+      ring[0][1] === ring[ring.length - 1][1]
+        ? ring.length - 1
+        : ring.length;
+    for (let i = 0; i < count; i++) {
+      if (typeof ring[i]?.[0] === 'number' && typeof ring[i]?.[1] === 'number') {
+        sumLon += ring[i][0];
+        sumLat += ring[i][1];
+        totalPts++;
+      }
+    }
   }
-  return [sumLon / count, sumLat / count];
+
+  if (totalPts === 0) {
+    return [b.lon, b.lat];
+  }
+  return [sumLon / totalPts, sumLat / totalPts];
 }
 
 function getInnerBadgeClassName(isSelected: boolean): string {
@@ -337,6 +360,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
   isPickingUserStart = false,
   onTogglePickUserStart,
   selectedFootprintIds = [],
+  selectedFootprints = [],
   onAdminToggleFootprintSelection,
   onAdminPickEntranceCoords,
   onSelectBuilding,
@@ -963,25 +987,45 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       });
     }
 
-    // 2. Extra OSM Footprints (Subtle background parcels)
+    // 2. Extra OSM Footprints & Custom Selected Building Blocks
+    const selectedMap = new Map(selectedFootprints.map((fp) => [fp.osm_way_id, fp]));
+    const baseFootprints = walkGraph?.extra_building_footprints || [];
+    const customOnlyFootprints = selectedFootprints.filter((fp) => fp.osm_way_id < 0);
+
     const extraFootprintsGeoJSON: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
-      features: (walkGraph?.extra_building_footprints || []).map((fp) => {
-        const isSel = selectedFootprintIds.includes(fp.osm_way_id);
-        return {
-          type: 'Feature',
+      features: [
+        ...baseFootprints.map((fp) => {
+          const override = selectedMap.get(fp.osm_way_id);
+          const isSel = Boolean(override) || selectedFootprintIds.includes(fp.osm_way_id);
+          return {
+            type: 'Feature' as const,
+            properties: {
+              osm_way_id: fp.osm_way_id,
+              name: override?.name || fp.name,
+              is_selected: isSel,
+              is_interactive: adminMapMode === 'add_building' || isAdmin,
+            },
+            geometry: {
+              type: 'Polygon' as const,
+              coordinates: [override ? override.coords : fp.coords],
+            },
+          };
+        }),
+        ...customOnlyFootprints.map((fp) => ({
+          type: 'Feature' as const,
           properties: {
             osm_way_id: fp.osm_way_id,
             name: fp.name,
-            is_selected: isSel,
-            is_interactive: adminMapMode === 'add_building',
+            is_selected: true,
+            is_interactive: true,
           },
           geometry: {
-            type: 'Polygon',
+            type: 'Polygon' as const,
             coordinates: [fp.coords],
           },
-        };
-      }),
+        })),
+      ],
     };
 
     if (map.getSource('extra-footprints')) {
@@ -1082,6 +1126,8 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           CAMPUS_CONFIG.buildingCategoryColors[b.category] ||
           '#38BDF8';
 
+        const isMultiPolygon = Array.isArray((b.polygon_coords as any)?.[0]?.[0]?.[0]);
+
         return {
           type: 'Feature',
           properties: {
@@ -1092,8 +1138,8 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             color: isSelected ? '#38BDF8' : baseColor,
           },
           geometry: {
-            type: 'Polygon',
-            coordinates: b.polygon_coords,
+            type: isMultiPolygon ? 'MultiPolygon' : 'Polygon',
+            coordinates: b.polygon_coords as any,
           },
         };
       }),
@@ -1367,7 +1413,9 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     themeMode,
     is3DPitch,
     selectedFootprintIds,
+    selectedFootprints,
     adminMapMode,
+    isAdmin,
   ]);
 
   // Synchronize Building Badges & Zoom-Based LOD Visibility
@@ -1515,12 +1563,23 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
   }, [activeAlerts, onVoteAlert]);
 
   // Snapped Location Dot & Raw GPS Ghost Dot
+  const prevUserSourceRef = useRef<string>(userPos.source);
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
     const validSnapped = isWithinCampusBounds(userPos.snappedLat, userPos.snappedLon);
     const validRaw = isWithinCampusBounds(userPos.rawLat, userPos.rawLon);
+
+    // Smoothly center camera when Live GPS locks onto the user's real campus position for the first time
+    if (prevUserSourceRef.current !== 'gps' && userPos.source === 'gps' && validSnapped) {
+      map.easeTo({
+        center: [userPos.snappedLon, userPos.snappedLat],
+        zoom: Math.max(map.getZoom(), 16.4),
+        duration: 750,
+      });
+    }
+    prevUserSourceRef.current = userPos.source;
 
     if (validSnapped) {
       if (!userMarkerRef.current) {

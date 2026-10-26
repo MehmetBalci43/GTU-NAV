@@ -15,6 +15,10 @@ import { ReportAlertModal } from './components/tickets/ReportAlertModal';
 import { WrittenTicketModal } from './components/tickets/WrittenTicketModal';
 import { AdminCommandCenter } from './components/admin/AdminCommandCenter';
 import { NavigationManeuverHUD } from './components/layout/NavigationManeuverHUD';
+import {
+  createDefaultBuildingRing,
+  transformBuildingPolygon,
+} from './utils/polygonTransform';
 
 export type AppState =
   | 'IDLE'
@@ -41,6 +45,7 @@ export const App: React.FC = () => {
     deleteAlert,
     toggleEdgeBlocked,
     updateBuildingEntrance,
+    previewBuildingLocally,
     addOrUpdateCampusBuilding,
     removeCampusBuilding,
     addWalkwayEdge,
@@ -369,6 +374,7 @@ export const App: React.FC = () => {
           )
         }
         selectedFootprintIds={selectedFootprints.map((fp) => fp.osm_way_id)}
+        selectedFootprints={selectedFootprints}
         onAdminToggleFootprintSelection={handleToggleFootprint}
         onAdminPickEntranceCoords={(lat, lon) => {
           if (activeEntrancePickerSlot === 2) {
@@ -399,9 +405,19 @@ export const App: React.FC = () => {
         }}
         onAdminMoveEntrance={handleAdminMoveEntranceOnMap}
         onAdminPickBuildingCoords={(lat, lon) => {
+          const customRing = createDefaultBuildingRing(lon, lat, 36, 22);
+          const customWayId = -Math.floor(Date.now() % 100000000);
+          setSelectedFootprints((prev) => [
+            ...prev,
+            {
+              osm_way_id: customWayId,
+              name: 'Özel Yeni Bina Bloğu',
+              coords: customRing,
+            },
+          ]);
           setPickedBuildingCoords({ lat, lon });
-          setAdminMapMode('none');
-          showToast(`Yeni bina konumu seçildi: ${lat}, ${lon}`);
+          setIsAdminDrawerOpen(true);
+          showToast('Yeni bina kutusu haritaya yerleştirildi. Sol panelden boyutunu ve açısını ayarlayabilirsiniz.');
         }}
         onAdminDrawWalkwayPoint={(lat, lon) => {
           setDrawnEdgePoints((prev) => [...prev.slice(-1), { lat, lon }]);
@@ -512,6 +528,32 @@ export const App: React.FC = () => {
             await updateBuildingEntrance(bId, 0, 0, undefined, 2, true);
             showToast('Binanın 2. giriş kapısı kaldırıldı');
           }}
+          onAdminPreviewBuilding={previewBuildingLocally}
+          onAdminSaveBuilding={async (b) => {
+            await addOrUpdateCampusBuilding({
+              id: b.id,
+              code: b.code,
+              name: b.name,
+              category: b.category,
+              floors_count: b.floors_count,
+              lat: b.lat,
+              lon: b.lon,
+              entrance_lat: b.entrance_lat,
+              entrance_lon: b.entrance_lon,
+              entrance_name: b.entrance_name,
+              secondary_entrance_lat: b.secondary_entrance_lat ?? undefined,
+              secondary_entrance_lon: b.secondary_entrance_lon ?? undefined,
+              secondary_entrance_name: b.secondary_entrance_name ?? undefined,
+              polygon_coords: b.polygon_coords,
+              description: b.description ?? undefined,
+            });
+            showToast(`${b.code} bina boyutu ve bilgileri kalıcı kaydedildi`);
+          }}
+          onAdminDeleteBuilding={async (bId) => {
+            await removeCampusBuilding(bId);
+            setSelectedBuildingId(null);
+            showToast('Bina haritadan silindi');
+          }}
         />
       )}
 
@@ -530,6 +572,17 @@ export const App: React.FC = () => {
         activeEntrancePickerSlot={activeEntrancePickerSlot}
         onSetActiveEntrancePickerSlot={setActiveEntrancePickerSlot}
         selectedFootprints={selectedFootprints}
+        onTransformSelectedFootprints={(opts) => {
+          setSelectedFootprints((prev) => {
+            if (prev.length === 0) return prev;
+            const multiPoly = prev.map((fp) => [fp.coords]);
+            const transformed = transformBuildingPolygon(multiPoly, opts);
+            return prev.map((fp, idx) => ({
+              ...fp,
+              coords: transformed.polygon_coords[idx]?.[0] || fp.coords,
+            }));
+          });
+        }}
         onClearSelectedFootprints={() => {
           setSelectedFootprints([]);
           setPickedBuildingCoords(null);

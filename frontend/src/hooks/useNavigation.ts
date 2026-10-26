@@ -206,8 +206,11 @@ export function useNavigation(blockedEdgeIds: string[]) {
           source,
         });
 
-        // 3 consecutive strikes off-route trigger A* recalculation from current position
-        if (snap.isOffRoute && snap.distanceToRouteM < 250) {
+        // If GPS was just activated while a route from another origin was active, reroute immediately on first fix
+        const isFirstGpsLock = userPos.source !== 'gps' && source === 'gps' && snap.distanceToRouteM > 18;
+
+        // 3 consecutive strikes off-route (or immediate first GPS lock) trigger A* recalculation from current position
+        if (snap.isOffRoute) {
           offRouteStrikeCountRef.current += 1;
         } else {
           offRouteStrikeCountRef.current = 0;
@@ -215,9 +218,9 @@ export function useNavigation(blockedEdgeIds: string[]) {
 
         const now = Date.now();
         if (
-          offRouteStrikeCountRef.current >= 3 &&
+          (isFirstGpsLock || offRouteStrikeCountRef.current >= 3) &&
           targetBuildingId &&
-          now - lastRerouteTimeRef.current > 5000
+          now - lastRerouteTimeRef.current > (isFirstGpsLock ? 1000 : 5000)
         ) {
           offRouteStrikeCountRef.current = 0;
           lastRerouteTimeRef.current = now;
@@ -225,7 +228,9 @@ export function useNavigation(blockedEdgeIds: string[]) {
             targetBuildingId,
             rawLat,
             rawLon,
-            '🔄 Rotadan sapma algılandı. Yeni konumunuza göre A* rotası güncellendi.'
+            isFirstGpsLock
+              ? '📡 Canlı GPS konumunuza göre rota yeniden hesaplandı.'
+              : '🔄 Rotadan sapma algılandı. Yeni konumunuza göre A* rotası güncellendi.'
           );
         }
       } else {
@@ -242,7 +247,7 @@ export function useNavigation(blockedEdgeIds: string[]) {
         });
       }
     },
-    [activeRoute, targetBuildingId, computeRouteToBuilding]
+    [activeRoute, targetBuildingId, userPos.source, computeRouteToBuilding]
   );
 
   // Desktop Walking Simulator loop (moves student along active route smoothly)

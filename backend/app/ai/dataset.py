@@ -52,4 +52,6 @@ TRAINING_SAMPLES: list[tuple[str, str, int]] = [
     ("test test 123 deneme mesajı", "Spam / Geçersiz", 5),
     ("ahahahahahaha sjsjsjsj lol", "Spam / Geçersiz", 5),
     ("boş bildirim öylesine yazdım selam", "Spam / Geçersiz", 5),
+    ("reklam bahis kumar link paylasimi", "Spam / Geçersiz", 5),
+    ("troll bildirim alakasiz mesaj hakaret", "Spam / Geçersiz", 5),
 ]

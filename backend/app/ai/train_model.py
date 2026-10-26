@@ -164,7 +164,7 @@ class TrainedTfidfUrgencyRegressor:
                 self.token_weights_[t] for t in toks if t in self.token_weights_
             ]
             if not matched_deltas:
-                preds.append(self.global_mean_)
+                preds.append(30.0)
             else:
                 avg_delta = sum(matched_deltas) / len(matched_deltas)
                 peak_delta = max(matched_deltas, key=lambda x: abs(x))

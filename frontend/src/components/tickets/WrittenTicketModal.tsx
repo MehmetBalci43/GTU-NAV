@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FileText,
   Sparkles,
@@ -8,10 +8,13 @@ import {
   X,
   Clock,
   AlertCircle,
+  AlertTriangle,
+  ArrowRight,
 } from 'lucide-react';
 import { Building, WrittenTicket } from '../../types/campus';
 import { TICKET_CATEGORIES } from '../../config/ticketCategories';
 import { useTickets } from '../../hooks/useTickets';
+import { api } from '../../services/apiClient';
 import {
   TactileCard,
   TactileButton,
@@ -26,6 +29,17 @@ interface WrittenTicketModalProps {
   initialBuildingId?: string | null;
   initialClassroomId?: string | null;
   onClose: () => void;
+}
+
+interface AIPreviewState {
+  ai_department: string;
+  ai_urgency_score: number;
+  ai_priority_label: string;
+  ai_is_spam: boolean;
+  confidence: number;
+  suggested_category: string;
+  user_department: string;
+  is_mismatch: boolean;
 }
 
 export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
@@ -45,6 +59,12 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
   const [createdTicket, setCreatedTicket] = useState<WrittenTicket | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Live NLP Preview & Mismatch Confirmation States
+  const [aiPreview, setAiPreview] = useState<AIPreviewState | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [showMismatchConfirm, setShowMismatchConfirm] = useState<boolean>(false);
+  const analyzeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const {
     tickets: myTickets,
     refreshTickets,
@@ -61,13 +81,54 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
     refreshTickets(reporterEmail);
   }, [isOpen, reporterEmail, refreshTickets]);
 
+  // Debounced live NLP preview as user types title / description or switches category
+  useEffect(() => {
+    if (!isOpen) return;
+    if (analyzeTimerRef.current) {
+      clearTimeout(analyzeTimerRef.current);
+    }
+
+    const trimmedTitle = title.trim();
+    const trimmedDesc = description.trim();
+
+    if (trimmedTitle.length < 3 && trimmedDesc.length < 4) {
+      setAiPreview(null);
+      setShowMismatchConfirm(false);
+      return;
+    }
+
+    analyzeTimerRef.current = setTimeout(async () => {
+      try {
+        setIsAnalyzing(true);
+        const res = await api.analyzeWrittenTicket({
+          title: trimmedTitle || 'Genel Bildirim',
+          description: trimmedDesc || trimmedTitle,
+          category,
+        });
+        setAiPreview(res);
+      } catch {
+        // Silently swallow preview errors so UI stays responsive
+      } finally {
+        setIsAnalyzing(false);
+      }
+    }, 320);
+
+    return () => {
+      if (analyzeTimerRef.current) {
+        clearTimeout(analyzeTimerRef.current);
+      }
+    };
+  }, [isOpen, title, description, category]);
+
   if (!isOpen) return null;
 
   const selectedCategoryCfg =
     TICKET_CATEGORIES.find((c) => c.id === category) || TICKET_CATEGORIES[0];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const executeSubmit = async (
+    finalCategory: string,
+    confirmedDept?: string | null
+  ) => {
     setErrorMsg(null);
     setIsSubmitting(true);
     try {
@@ -75,17 +136,38 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
         reporter_email: reporterEmail,
         building_id: buildingId || null,
         classroom_id: classroomId || null,
-        category,
+        category: finalCategory,
         title,
         description,
+        confirmed_department: confirmedDept,
       });
       setCreatedTicket(res);
       setTitle('');
       setDescription('');
+      setAiPreview(null);
+      setShowMismatchConfirm(false);
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Bildirim gönderilemedi');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // If AI detected a mismatch with high confidence and user hasn't confirmed yet, prompt user
+    if (aiPreview && aiPreview.is_mismatch && !aiPreview.ai_is_spam) {
+      setShowMismatchConfirm(true);
+      return;
+    }
+
+    await executeSubmit(category, null);
+  };
+
+  const handleApplyAISuggestion = () => {
+    if (aiPreview && aiPreview.suggested_category) {
+      setCategory(aiPreview.suggested_category);
+      setShowMismatchConfirm(false);
     }
   };
 
@@ -218,22 +300,129 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
                 maxLength={1500}
                 rows={3}
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  setShowMismatchConfirm(false);
+                }}
                 placeholder="Arızanın veya talebin yerini ve aciliyet durumunu kısaca yazınız..."
                 className="w-full bg-zinc-100 dark:bg-zinc-900 border-2 border-zinc-950 rounded-xl px-3 py-2 text-zinc-900 dark:text-zinc-100 font-semibold outline-none focus:ring-2 focus:ring-sky-400"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-1">
-              <TactileButton
-                type="submit"
-                variant="accent"
-                loading={isSubmitting}
-                icon={<Send className="w-4 h-4" />}
-              >
-                Yazılı Bildirimi Gönder
-              </TactileButton>
-            </div>
+            {/* Live AI Analysis & Suggestion Preview */}
+            {aiPreview && !createdTicket && (
+              <div className="space-y-1.5 pt-0.5">
+                {aiPreview.ai_is_spam ? (
+                  <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-900 text-rose-800 dark:text-rose-200 text-xs flex items-center gap-2 font-medium">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                    <span>
+                      Uygunsuz, spam veya test içerik algılandı. Bildirim düşük öncelikli (Spam) olarak işaretlenecektir.
+                    </span>
+                  </div>
+                ) : aiPreview.is_mismatch ? (
+                  <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border-2 border-amber-500 text-amber-900 dark:text-amber-200 text-xs space-y-1.5 shadow-sm">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 font-black text-amber-800 dark:text-amber-300">
+                        <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                        <span>Yapay Zekâ Birim Önerisi: {aiPreview.ai_department}</span>
+                      </div>
+                      <StatusBadge
+                        variant={
+                          aiPreview.ai_urgency_score >= 75
+                            ? 'rose'
+                            : aiPreview.ai_urgency_score >= 50
+                            ? 'amber'
+                            : 'emerald'
+                        }
+                      >
+                        ⚡ {aiPreview.ai_urgency_score}/100 ({aiPreview.ai_priority_label.toUpperCase()})
+                      </StatusBadge>
+                    </div>
+                    <p className="text-[11px] text-amber-800/90 dark:text-amber-300/90">
+                      Siz <strong>"{selectedCategoryCfg.label}"</strong> seçtiniz, fakat girdiğiniz arıza metni{' '}
+                      <strong>"{aiPreview.ai_department}"</strong> ile ilgili görünüyor.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleApplyAISuggestion}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-zinc-950 font-black text-xs transition-colors shadow-sm"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Kategoriyi "{aiPreview.ai_department}" Yap</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between text-[11px] text-emerald-700 dark:text-emerald-400 font-medium px-1">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Metin seçtiğiniz birim ({selectedCategoryCfg.defaultDepartment}) ile uyumlu.
+                    </span>
+                    <span className="font-bold">
+                      Aciliyet: {aiPreview.ai_urgency_score}/100 ({aiPreview.ai_priority_label.toUpperCase()})
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Mismatch Confirmation Box Before Submission */}
+            {showMismatchConfirm && aiPreview && (
+              <div className="p-3.5 rounded-xl bg-amber-100/95 dark:bg-amber-950/95 border-2 border-zinc-950 shadow-hard space-y-2.5 animate-in fade-in">
+                <div className="flex items-center gap-2 font-black text-zinc-900 dark:text-zinc-100 text-xs sm:text-sm">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Yapay Zekâ Birim Yönlendirmesini Onaylıyor musunuz?</span>
+                </div>
+                <p className="text-xs text-zinc-700 dark:text-zinc-300 font-medium leading-relaxed">
+                  Siz <span className="font-bold underline">{selectedCategoryCfg.defaultDepartment}</span> birimini seçtiniz.
+                  Fakat arıza metnine göre sistem, talebin en hızlı çözülebilmesi için{' '}
+                  <span className="font-bold text-amber-800 dark:text-amber-300 underline">
+                    {aiPreview.ai_department}
+                  </span>{' '}
+                  birimine iletilmesini öneriyor.
+                </p>
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <TactileButton
+                    type="button"
+                    variant="accent"
+                    size="sm"
+                    loading={isSubmitting}
+                    onClick={() => executeSubmit(aiPreview.suggested_category, aiPreview.ai_department)}
+                    icon={<CheckCircle2 className="w-4 h-4" />}
+                  >
+                    Öneriyi Onayla ({aiPreview.ai_department})
+                  </TactileButton>
+                  <TactileButton
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    loading={isSubmitting}
+                    onClick={() => executeSubmit(category, selectedCategoryCfg.defaultDepartment)}
+                  >
+                    Kendi Seçimimle Gönder
+                  </TactileButton>
+                  <button
+                    type="button"
+                    onClick={() => setShowMismatchConfirm(false)}
+                    className="text-[11px] font-bold text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 underline ml-auto"
+                  >
+                    Düzenlemeye Geri Dön
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {!showMismatchConfirm && (
+              <div className="flex justify-end gap-2 pt-1">
+                <TactileButton
+                  type="submit"
+                  variant="accent"
+                  loading={isSubmitting}
+                  icon={<Send className="w-4 h-4" />}
+                >
+                  Yazılı Bildirimi Gönder
+                </TactileButton>
+              </div>
+            )}
           </form>
 
           {/* Student's Past Tickets */}

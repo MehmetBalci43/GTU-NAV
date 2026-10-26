@@ -44,6 +44,7 @@ export function useTickets(reporterEmail?: string, autoFetch: boolean = false) {
       description: string;
       lat?: number | null;
       lon?: number | null;
+      confirmed_department?: string | null;
     }): Promise<WrittenTicket> => {
       setTicketError(null);
       const created = await api.createWrittenTicket(payload);

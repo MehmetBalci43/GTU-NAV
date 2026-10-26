@@ -45,6 +45,13 @@ interface AdminCommandCenterProps {
   activeEntrancePickerSlot?: 1 | 2;
   onSetActiveEntrancePickerSlot?: (slot: 1 | 2) => void;
   selectedFootprints?: { osm_way_id: number; name: string; coords: number[][] }[];
+  onTransformSelectedFootprints?: (opts: {
+    scaleX?: number;
+    scaleY?: number;
+    rotateDeg?: number;
+    dLon?: number;
+    dLat?: number;
+  }) => void;
   onClearSelectedFootprints?: () => void;
   onClearPickedEntranceCoords?: () => void;
   onClearPickedSecondaryEntranceCoords?: () => void;
@@ -102,6 +109,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
   activeEntrancePickerSlot = 1,
   onSetActiveEntrancePickerSlot,
   selectedFootprints = [],
+  onTransformSelectedFootprints,
   onClearSelectedFootprints,
   onClearPickedEntranceCoords,
   onClearPickedSecondaryEntranceCoords,
@@ -268,7 +276,10 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
         ? newSecondaryEntranceName || `${newBldCode.toUpperCase()} 2. Giriş Kapısı`
         : undefined,
       polygon_coords: polyCoords,
-      osm_way_ids: selectedFootprints.length > 0 ? selectedFootprints.map((fp) => fp.osm_way_id) : undefined,
+      osm_way_ids:
+        selectedFootprints.length > 0
+          ? selectedFootprints.filter((fp) => fp.osm_way_id > 0).map((fp) => fp.osm_way_id)
+          : undefined,
     });
 
     setNewBldCode('');
@@ -613,7 +624,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                     </TactileButton>
 
                     {selectedFootprints.length > 0 ? (
-                      <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border-2 border-emerald-500/50 space-y-1.5">
+                      <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border-2 border-emerald-500/50 space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-black text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
                             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -628,8 +639,107 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                           </button>
                         </div>
                         <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 truncate">
-                          {selectedFootprints.map((fp) => `${fp.name} (#${fp.osm_way_id})`).join(' • ')}
+                          {selectedFootprints.map((fp) => fp.name).join(' • ')}
                         </div>
+
+                        {/* Live Footprint Resize, Rotate & Nudge Controls */}
+                        {onTransformSelectedFootprints && (
+                          <div className="pt-1.5 border-t border-emerald-500/30 space-y-1.5">
+                            <div className="text-[10px] font-black text-emerald-900 dark:text-emerald-300 uppercase">
+                              Bina Boyut & Konum Ayarla (Canlı)
+                            </div>
+                            <div className="grid grid-cols-6 gap-1">
+                              <button
+                                type="button"
+                                onClick={() => onTransformSelectedFootprints({ scaleX: 0.9, scaleY: 0.9 })}
+                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                                title="Genel Küçült"
+                              >
+                                Küçült
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onTransformSelectedFootprints({ scaleX: 1.1, scaleY: 1.1 })}
+                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                                title="Genel Büyüt"
+                              >
+                                Büyüt
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onTransformSelectedFootprints({ scaleX: 0.9, scaleY: 1 })}
+                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                              >
+                                En-
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onTransformSelectedFootprints({ scaleX: 1.1, scaleY: 1 })}
+                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                              >
+                                En+
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onTransformSelectedFootprints({ scaleX: 1, scaleY: 0.9 })}
+                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                              >
+                                Boy-
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onTransformSelectedFootprints({ scaleX: 1, scaleY: 1.1 })}
+                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                              >
+                                Boy+
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-6 gap-1">
+                              <button
+                                type="button"
+                                onClick={() => onTransformSelectedFootprints({ rotateDeg: -10 })}
+                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-amber-100"
+                              >
+                                ↺ -10°
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onTransformSelectedFootprints({ rotateDeg: 10 })}
+                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-amber-100"
+                              >
+                                ↻ +10°
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onTransformSelectedFootprints({ dLon: -0.00003 })}
+                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                              >
+                                ←
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onTransformSelectedFootprints({ dLat: 0.000025 })}
+                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                              >
+                                ↑
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onTransformSelectedFootprints({ dLat: -0.000025 })}
+                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                              >
+                                ↓
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onTransformSelectedFootprints({ dLon: 0.00003 })}
+                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                              >
+                                →
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ) : pickedCoords ? (
                       <div className="p-2.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-400/50 text-xs font-bold text-sky-800 dark:text-sky-300">

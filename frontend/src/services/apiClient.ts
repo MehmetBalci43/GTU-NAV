@@ -153,6 +153,26 @@ export const api = {
     });
   },
 
+  analyzeWrittenTicket(payload: {
+    title: string;
+    description: string;
+    category: string;
+  }): Promise<{
+    ai_department: string;
+    ai_urgency_score: number;
+    ai_priority_label: string;
+    ai_is_spam: boolean;
+    confidence: number;
+    suggested_category: string;
+    user_department: string;
+    is_mismatch: boolean;
+  }> {
+    return requestJson('/api/tickets/analyze', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
   createWrittenTicket(payload: {
     reporter_email: string;
     building_id?: string | null;
@@ -162,6 +182,7 @@ export const api = {
     description: string;
     lat?: number | null;
     lon?: number | null;
+    confirmed_department?: string | null;
   }): Promise<WrittenTicket> {
     return requestJson<WrittenTicket>('/api/tickets', {
       method: 'POST',
