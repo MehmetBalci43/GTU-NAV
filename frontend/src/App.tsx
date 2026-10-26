@@ -12,6 +12,16 @@ import { MarmaraySheet } from './components/sheets/MarmaraySheet';
 import { ReportAlertModal } from './components/tickets/ReportAlertModal';
 import { WrittenTicketModal } from './components/tickets/WrittenTicketModal';
 import { AdminCommandCenter } from './components/admin/AdminCommandCenter';
+import { NavigationManeuverHUD } from './components/layout/NavigationManeuverHUD';
+
+export type AppState =
+  | 'IDLE'
+  | 'SEARCHING'
+  | 'BUILDING_SELECTED'
+  | 'NAVIGATING'
+  | 'REPORTING_ALERT'
+  | 'PICKING_ORIGIN'
+  | 'ADMIN_LIVEOPS';
 
 export const App: React.FC = () => {
   const { user, isAdmin, error: authError, clearAuthError, switchRoleQuick } = useAuth();
@@ -85,6 +95,25 @@ export const App: React.FC = () => {
     setTimeout(() => setToastBanner(null), 4000);
   };
 
+  // Finite State Machine (FSM) State Resolution
+  const currentState: AppState = useMemo(() => {
+    if (isAdmin && isAdminDrawerOpen) return 'ADMIN_LIVEOPS';
+    if (isAlertModalOpen) return 'REPORTING_ALERT';
+    if (adminMapMode === 'pick_user_start') return 'PICKING_ORIGIN';
+    if (activeRoute) return 'NAVIGATING';
+    if (searchQuery.trim().length > 0) return 'SEARCHING';
+    if (selectedBuildingId) return 'BUILDING_SELECTED';
+    return 'IDLE';
+  }, [
+    isAdmin,
+    isAdminDrawerOpen,
+    isAlertModalOpen,
+    adminMapMode,
+    activeRoute,
+    searchQuery,
+    selectedBuildingId,
+  ]);
+
   // Apply quick filter chips to buildings shown on map
   const filteredBuildings = useMemo(() => {
     if (activeFilter === 'academic') {
@@ -114,7 +143,7 @@ export const App: React.FC = () => {
     if (!selectedBuildingId) return;
     await updateBuildingEntrance(selectedBuildingId, lat, lon);
     setAdminMapMode('none');
-    showToast('✅ Bina giriş kapısı taşındı ve gtu_buildings.json dosyasına kalıcı kaydedildi!');
+    showToast('Bina giriş kapısı taşındı ve kaydedildi');
   };
 
   const handleUserPickStartOnMap = async (lat: number, lon: number) => {
@@ -126,19 +155,24 @@ export const App: React.FC = () => {
         destId,
         lat,
         lon,
-        '📍 Yeni başlangıç konumunuza göre Snap-to-Path ve A* rotası güncellendi!'
+        'Yeni başlangıç konumunuza göre Snap-to-Path rotası güncellendi'
       );
     } else {
-      showToast('📍 Başlangıç konumunuz seçilen noktaya taşındı.');
+      showToast('Başlangıç konumunuz seçilen noktaya taşındı');
     }
   };
 
-  const isLeftPanelVisible = isAdmin && isAdminDrawerOpen && adminMapMode === 'none';
-  const isRightPanelVisible = Boolean(selectedBuilding) && adminMapMode !== 'move_entrance';
+  // State-enforced drawer visibility: Never allow panel collision!
+  const isLeftPanelVisible = currentState === 'ADMIN_LIVEOPS' && adminMapMode === 'none';
+  // Building detail sheet is visible when selected, BUT hidden while navigating so map is 100% visible on mobile
+  const isRightPanelVisible =
+    currentState === 'BUILDING_SELECTED' &&
+    adminMapMode !== 'move_entrance' &&
+    !isAdminDrawerOpen;
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-slate-950 text-slate-100 font-sans">
-      {/* Compact Top Navbar & Floating Filter Pills */}
+    <div className="relative w-screen h-screen h-[100dvh] overflow-hidden bg-[#1E222D] text-slate-100 font-sans">
+      {/* Top Navigation & Omnibox Header (Hidden or minimized during full active navigation on mobile) */}
       <TopNavigationBar
         user={user}
         isAdmin={isAdmin}
@@ -149,7 +183,8 @@ export const App: React.FC = () => {
           if (ok) {
             if (r === 'admin') {
               setIsAdminDrawerOpen(true);
-              showToast('🛡️ Yönetici (LiveOps) Komuta Merkezi aktif edildi.');
+              setSelectedBuildingId(null); // Close building panel to prevent collision
+              showToast('Yönetici (LiveOps) Komuta Merkezi aktif edildi');
             } else {
               setIsAdminDrawerOpen(false);
               setAdminMapMode('none');
@@ -161,11 +196,11 @@ export const App: React.FC = () => {
         onFilterChange={(nextFilter) => {
           setActiveFilter(nextFilter);
           if (nextFilter === 'academic') {
-            showToast('🏛️ Akademik bölüm binaları filtrelendi.');
+            showToast('Akademik bölüm binaları filtrelendi');
           } else if (nextFilter === 'free_rooms') {
-            showToast('🟢 Şu an boş amfisi/dersliği bulunan binalar filtrelendi.');
+            showToast('Boş amfisi/dersliği bulunan binalar filtrelendi');
           } else if (nextFilter === 'dining_library') {
-            showToast('🍽️ Kütüphane ve sosyal/yemekhane binaları filtrelendi.');
+            showToast('Kütüphane ve yemekhane binaları filtrelendi');
           }
         }}
         searchQuery={searchQuery}
@@ -173,6 +208,7 @@ export const App: React.FC = () => {
         searchResults={searchResults}
         onSelectSearchResult={handleSelectSearchResult}
         announcements={announcements}
+        isNavigating={currentState === 'NAVIGATING'}
         isPickingUserStart={adminMapMode === 'pick_user_start'}
         onTogglePickUserStart={() =>
           setAdminMapMode((prev) =>
@@ -188,62 +224,35 @@ export const App: React.FC = () => {
           setTicketTarget({ buildingId: selectedBuildingId });
           setIsWrittenTicketOpen(true);
         }}
-        onToggleAdminDrawer={() => setIsAdminDrawerOpen((prev) => !prev)}
+        onToggleAdminDrawer={() => {
+          if (!isAdminDrawerOpen) setSelectedBuildingId(null);
+          setIsAdminDrawerOpen((prev) => !prev);
+        }}
         isAdminDrawerOpen={isAdminDrawerOpen}
       />
 
-      {/* Non-intrusive Toast / Reroute Alert Banner */}
+      {/* Tactile Toast / Reroute Notification Pill */}
       {(rerouteNotice || routeError || toastBanner) && adminMapMode === 'none' && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-full bg-slate-900/95 border border-sky-400/60 text-sky-200 text-xs font-bold shadow-2xl pointer-events-none">
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-950 text-zinc-950 dark:text-zinc-100 font-black text-xs shadow-hard-md pointer-events-none transition-all">
           {rerouteNotice || routeError || toastBanner}
         </div>
       )}
 
-      {/* Bottom-Center Active Navigation & Walk Simulator HUD (Never collides with left/right drawers) */}
-      {activeRoute && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 hidden lg:flex items-center gap-3 px-4 py-2 rounded-2xl bg-slate-900/95 backdrop-blur-md border border-sky-500/50 shadow-2xl text-xs">
-          <div>
-            <div className="font-extrabold text-sky-300 flex items-center gap-2">
-              <span>🧭 Hedef: {activeRoute.target_entrance_name}</span>
-              <span className="px-2 py-0.5 rounded-full bg-sky-500/20 text-white">
-                {userPos.remainingMeters} m (~{userPos.remainingMinutes} dk)
-              </span>
-            </div>
-            <div className="text-[11px] text-slate-300 mt-0.5">
-              {userPos.isSnapped ? (
-                <span className="text-emerald-400 font-semibold">
-                  🧲 Snap-to-Path + Kalman Kilitli ({userPos.offRouteDistanceMeters}m sapma düzeltildi)
-                </span>
-              ) : (
-                <span>Serbest Konum • Yürüyüş Simülatörünü başlatarak test edin</span>
-              )}
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setIsSimulatingWalk((prev) => !prev)}
-            className={`px-3 py-1.5 rounded-xl font-extrabold transition ${
-              isSimulatingWalk
-                ? 'bg-amber-400 text-slate-950'
-                : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
-            }`}
-          >
-            {isSimulatingWalk ? '⏸️ Duraklat' : '▶️ Yürüyüşü Simüle Et'}
-          </button>
-
-          <button
-            type="button"
-            onClick={clearNavigation}
-            className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold"
-            title="Aktif rotayı temizle"
-          >
-            ✕
-          </button>
-        </div>
+      {/* ACTIVE TURN-BY-TURN NAVIGATION HUD (Visible on both Mobile & Desktop) */}
+      {activeRoute && currentState === 'NAVIGATING' && (
+        <NavigationManeuverHUD
+          activeRoute={activeRoute}
+          userPos={userPos}
+          isSimulatingWalk={isSimulatingWalk}
+          onToggleSimulateWalk={() => setIsSimulatingWalk((prev) => !prev)}
+          onClearRoute={() => {
+            clearNavigation();
+            showToast('Navigasyon sonlandırıldı');
+          }}
+        />
       )}
 
-      {/* Main 3D MapLibre Campus Map */}
+      {/* Main Mini Motorways Campus Map Canvas */}
       <CampusMap3D
         buildings={filteredBuildings}
         walkGraph={walkGraph}
@@ -255,7 +264,10 @@ export const App: React.FC = () => {
         adminMapMode={adminMapMode}
         isLeftDrawerOpen={isLeftPanelVisible}
         isRightDrawerOpen={isRightPanelVisible}
-        onSelectBuilding={(bId) => setSelectedBuildingId(bId)}
+        onSelectBuilding={(bId) => {
+          if (isAdminDrawerOpen) setIsAdminDrawerOpen(false);
+          setSelectedBuildingId(bId);
+        }}
         onQuickRouteToBuilding={(bId) => {
           setSelectedBuildingId(bId);
           computeRouteToBuilding(bId);
@@ -265,15 +277,15 @@ export const App: React.FC = () => {
           await toggleEdgeBlocked(edgeId, !currentlyBlocked);
           showToast(
             !currentlyBlocked
-              ? `🚧 Yürüyüş yolu (${edgeId}) kapatıldı. Aktif rotalar güncellendi.`
-              : `✅ Yürüyüş yolu (${edgeId}) tekrar ulaşıma açıldı.`
+              ? `Yürüyüş yolu (${edgeId}) kapatıldı. Aktif rotalar güncellendi.`
+              : `Yürüyüş yolu (${edgeId}) tekrar ulaşıma açıldı.`
           );
         }}
         onAdminMoveEntrance={handleAdminMoveEntranceOnMap}
         onAdminPickBuildingCoords={(lat, lon) => {
           setPickedBuildingCoords({ lat, lon });
           setAdminMapMode('none');
-          showToast(`📍 Yeni bina konumu seçildi: ${lat}, ${lon}`);
+          showToast(`Yeni bina konumu seçildi: ${lat}, ${lon}`);
         }}
         onAdminDrawWalkwayPoint={(lat, lon) => {
           setDrawnEdgePoints((prev) => [...prev.slice(-1), { lat, lon }]);
@@ -287,8 +299,8 @@ export const App: React.FC = () => {
         onCancelMapMode={() => setAdminMapMode('none')}
       />
 
-      {/* Right Drawer: Building Empty Amphitheater & Weekly Schedule */}
-      {adminMapMode !== 'move_entrance' && (
+      {/* Right Drawer: Building Detail Sheet (Single Stage, Never Collides!) */}
+      {isRightPanelVisible && (
         <BuildingDetailSheet
           building={selectedBuilding}
           roomsData={roomsData}
@@ -299,17 +311,23 @@ export const App: React.FC = () => {
           isLiveGpsActive={isLiveGpsActive}
           isAdmin={isAdmin}
           onClose={() => setSelectedBuildingId(null)}
-          onStartRoute={(bId) => computeRouteToBuilding(bId)}
+          onStartRoute={async (bId) => {
+            await computeRouteToBuilding(bId);
+            // On mobile, automatically collapse sheet so the student can walk and see map!
+            if (window.innerWidth < 768) {
+              setSelectedBuildingId(null);
+            }
+          }}
           onToggleSimulateWalk={() => setIsSimulatingWalk((prev) => !prev)}
           onToggleLiveGps={toggleLiveGps}
           onClearRoute={clearNavigation}
           onReportRoomBusy={async (classroomId, reason) => {
             await reportBusy(classroomId, reason);
-            showToast('🟠 Derslik öğrenci bildirimiyle geçici dolu olarak işaretlendi.');
+            showToast('Derslik öğrenci bildirimiyle geçici dolu olarak işaretlendi');
           }}
           onClearRoomBusy={async (classroomId) => {
             await clearBusy(classroomId);
-            showToast('🟢 Derslik doluluk bildirimi sıfırlandı.');
+            showToast('Derslik doluluk bildirimi sıfırlandı');
           }}
           onOpenWrittenTicketForBuilding={(bId, cId) => {
             setTicketTarget({ buildingId: bId, classroomId: cId || null });
@@ -324,7 +342,7 @@ export const App: React.FC = () => {
 
       {/* Left Drawer: LiveOps Admin Command Center */}
       <AdminCommandCenter
-        isOpen={isAdmin && isAdminDrawerOpen}
+        isOpen={isLeftPanelVisible}
         buildings={buildings}
         activeAlerts={activeAlerts}
         blockedEdgeIds={blockedEdgeIds}
@@ -338,7 +356,7 @@ export const App: React.FC = () => {
         onToggleEdgeBlocked={toggleEdgeBlocked}
         onDeleteAlert={async (alertId) => {
           await deleteAlert(alertId);
-          showToast('🗑️ Saha uyarısı kaldırıldı.');
+          showToast('Saha uyarısı kaldırıldı');
         }}
         onAddOrUpdateBuilding={addOrUpdateCampusBuilding}
         onDeleteBuilding={async (bId) => {
@@ -378,7 +396,7 @@ export const App: React.FC = () => {
         }}
         onSubmitAlert={async (payload) => {
           await createAlert(payload);
-          showToast('⚠️ Harita saha uyarısı eklendi!');
+          showToast('Harita saha uyarısı eklendi');
         }}
       />
 
