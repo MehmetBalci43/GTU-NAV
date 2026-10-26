@@ -10,7 +10,7 @@ from app.main import (
 )
 from app.routing.astar import find_nearest_edge
 from app.schemas import BuildingCreateOrUpdate, BuildingEntranceUpdate, EdgeToggleRequest, RouteRequest
-from app.seed import load_buildings_data, load_walk_graph
+from app.seed import load_buildings_data, load_walk_graph, save_walk_graph
 
 
 def test_route_from_marmaray_to_computer_engineering() -> None:
@@ -151,5 +151,53 @@ def test_admin_create_and_delete_building_persists_to_json() -> None:
         assert nearest_edge is not None
     finally:
         db.close()
+
+
+def test_admin_create_multipart_building_and_cleans_footprints() -> None:
+    init_db()
+    db = SessionLocal()
+    try:
+        fake_way_id = 999999999
+        graph = load_walk_graph()
+        graph["extra_building_footprints"].append({
+            "osm_way_id": fake_way_id,
+            "name": "Geçici Test Ayak İzi",
+            "coords": [[29.356, 40.808], [29.357, 40.808], [29.357, 40.809], [29.356, 40.809], [29.356, 40.808]],
+            "lat": 40.8085,
+            "lon": 29.3565,
+        })
+        save_walk_graph(graph)
+
+        created = create_or_update_building(
+            BuildingCreateOrUpdate(
+                id="temp_multipart_fac",
+                code="TMULTI",
+                name="Geçici Çok Bloklu Test Tesisi",
+                category="academic",
+                floors_count=3,
+                lat=40.8085,
+                lon=29.3565,
+                polygon_coords=[
+                    [[[29.356, 40.808], [29.357, 40.808], [29.357, 40.809], [29.356, 40.809], [29.356, 40.808]]],
+                    [[[29.358, 40.808], [29.359, 40.808], [29.359, 40.809], [29.358, 40.809], [29.358, 40.808]]]
+                ],
+                osm_way_ids=[fake_way_id],
+            ),
+            db=db,
+            _=settings.admin_secret_key,
+        )
+        assert created.code == "TMULTI"
+        assert len(created.polygon_coords) == 2
+
+        # Verify footprint was removed from walk graph
+        reloaded_graph = load_walk_graph()
+        assert not any(fp.get("osm_way_id") == fake_way_id for fp in reloaded_graph["extra_building_footprints"])
+
+        # Clean up created building
+        delete_building(building_id="temp_multipart_fac", db=db, _=settings.admin_secret_key)
+        assert not any(b["id"] == "temp_multipart_fac" for b in load_buildings_data())
+    finally:
+        db.close()
+
 
 

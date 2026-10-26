@@ -581,6 +581,19 @@ def create_or_update_building(
     db.commit()
     db.refresh(b)
     sync_buildings_to_json(db)
+
+    # Clean up chosen OSM footprints from walk graph to prevent double-rendering
+    if req.osm_way_ids:
+        way_id_set = set(req.osm_way_ids)
+        if "extra_building_footprints" in graph:
+            orig_len = len(graph["extra_building_footprints"])
+            graph["extra_building_footprints"] = [
+                fp for fp in graph["extra_building_footprints"]
+                if fp.get("osm_way_id") not in way_id_set
+            ]
+            if len(graph["extra_building_footprints"]) != orig_len:
+                save_walk_graph(graph)
+
     return BuildingSchema.model_validate(b)
 
 

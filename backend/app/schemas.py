@@ -21,7 +21,7 @@ class BuildingSchema(BaseModel):
     entrance_name: str
     entrance_lat: float
     entrance_lon: float
-    polygon_coords: list[list[list[float]]]
+    polygon_coords: list[Any]
     description: Optional[str] = None
     free_rooms_count: int = 0
     total_rooms_count: int = 0
@@ -46,7 +46,8 @@ class BuildingCreateOrUpdate(BaseModel):
     entrance_lat: Optional[float] = None
     entrance_lon: Optional[float] = None
     entrance_name: Optional[str] = None
-    polygon_coords: Optional[list[list[list[float]]]] = None
+    polygon_coords: Optional[list[Any]] = None
+    osm_way_ids: Optional[list[int]] = None
     description: Optional[str] = None
 
     @field_validator("code", "name")
