@@ -26,6 +26,7 @@ from app.schemas import (
     CourseScheduleSchema,
     CustomEdgeCreate,
     EdgeToggleRequest,
+    FootprintDeleteRequest,
     MapAlertCreate,
     MapAlertSchema,
     MapAlertVoteRequest,
@@ -618,7 +619,7 @@ def create_or_update_building(
     d = 0.00024
     default_poly = [[[req.lon - d, req.lat - d], [req.lon + d, req.lat - d], [req.lon + d, req.lat + d], [req.lon - d, req.lat + d], [req.lon - d, req.lat - d]]]
 
-    b = db.query(Building).filter(Building.id == req.id).first()
+    b = db.query(Building).filter(or_(Building.id == req.id, Building.code == req.code)).first()
     if b:
         b.code = req.code
         b.name = req.name
@@ -682,6 +683,7 @@ def create_or_update_building(
 @app.delete("/api/admin/buildings/{building_id}")
 def delete_building(
     building_id: str,
+    keep_footprint: bool = False,
     db: Session = Depends(get_db),
     _: str = Depends(verify_admin_key),
 ) -> dict:
@@ -690,10 +692,10 @@ def delete_building(
     if not b:
         raise HTTPException(status_code=404, detail="Bina bulunamadı.")
 
-    # Restore building polygon blocks back to extra_building_footprints so they remain selectable on map
+    # Restore building polygon blocks back to extra_building_footprints only if keep_footprint is requested
     try:
         poly = b.polygon_coords
-        if not building_id.startswith("test_") and poly and isinstance(poly, list) and len(poly) > 0:
+        if keep_footprint and not building_id.startswith("test_") and poly and isinstance(poly, list) and len(poly) > 0:
             graph = load_walk_graph()
             extra_fps = graph.get("extra_building_footprints", [])
             is_multi = isinstance(poly[0][0][0], list)
@@ -719,6 +721,25 @@ def delete_building(
     db.commit()
     sync_buildings_to_json(db)
     return {"id": building_id, "deleted": True}
+
+
+@app.post("/api/admin/footprints/delete")
+def delete_extra_footprints(
+    req: FootprintDeleteRequest,
+    _: str = Depends(verify_admin_key),
+) -> dict:
+    init_db()
+    graph = load_walk_graph()
+    way_id_set = set(req.osm_way_ids)
+    extra_fps = graph.get("extra_building_footprints", [])
+    before_count = len(extra_fps)
+    graph["extra_building_footprints"] = [
+        fp for fp in extra_fps if fp.get("osm_way_id") not in way_id_set
+    ]
+    deleted_count = before_count - len(graph["extra_building_footprints"])
+    if deleted_count > 0:
+        save_walk_graph(graph)
+    return {"deleted_count": deleted_count, "osm_way_ids": req.osm_way_ids}
 
 
 @app.post("/api/admin/poi", response_model=MapAlertSchema)

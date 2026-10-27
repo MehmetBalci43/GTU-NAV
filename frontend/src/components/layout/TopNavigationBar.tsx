@@ -22,6 +22,8 @@ import {
   ChevronRight,
   ChevronDown,
   Radio,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import {
   CampusAnnouncement,
@@ -68,6 +70,8 @@ interface TopNavigationBarProps {
   onToggleBasemap?: () => void;
   is3DPitch?: boolean;
   onTogglePitch?: () => void;
+  themeMode?: 'night' | 'day';
+  onToggleTheme?: () => void;
   isLiveGpsActive?: boolean;
   onToggleLiveGps?: () => void;
 }
@@ -97,6 +101,8 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
   onToggleBasemap,
   is3DPitch = false,
   onTogglePitch,
+  themeMode = 'night',
+  onToggleTheme,
   isLiveGpsActive = false,
   onToggleLiveGps,
 }) => {
@@ -538,7 +544,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
             {onToggleBasemap && (
               <button
                 type="button"
-                onClick={onToggleBasemap}
+                onClick={() => onToggleBasemap()}
                 className="px-2.5 py-1 text-[11px] font-black rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-white/5 active:scale-95 transition"
               >
                 {basemapMode === 'diorama' ? 'Maket' : 'Uydu'}
@@ -548,7 +554,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
             {onTogglePitch && (
               <button
                 type="button"
-                onClick={onTogglePitch}
+                onClick={() => onTogglePitch()}
                 className={`px-2 py-1 text-[11px] font-black rounded-xl border active:scale-95 transition ${
                   is3DPitch
                     ? 'bg-sky-400 text-zinc-950 border-sky-500 font-black'
@@ -556,6 +562,22 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
                 }`}
               >
                 {is3DPitch ? '3B' : '2B'}
+              </button>
+            )}
+
+            {onToggleTheme && (
+              <button
+                type="button"
+                onClick={() => onToggleTheme()}
+                className="w-8 h-8 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-white/5 flex items-center justify-center active:scale-95 transition"
+                title={themeMode === 'night' ? 'Gündüz Moduna Geç' : 'Gece Moduna Geç'}
+                aria-label={themeMode === 'night' ? 'Gündüz Moduna Geç' : 'Gece Moduna Geç'}
+              >
+                {themeMode === 'night' ? (
+                  <Sun className="w-3.5 h-3.5 text-amber-500" />
+                ) : (
+                  <Moon className="w-3.5 h-3.5 text-indigo-500" />
+                )}
               </button>
             )}
 

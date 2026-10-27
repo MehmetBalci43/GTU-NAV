@@ -257,9 +257,17 @@ export const api = {
     });
   },
 
-  deleteBuilding(buildingId: string): Promise<{ id: string; deleted: boolean }> {
-    return requestJson<{ id: string; deleted: boolean }>(`/api/admin/buildings/${buildingId}`, {
+  deleteBuilding(buildingId: string, keepFootprint: boolean = false): Promise<{ id: string; deleted: boolean }> {
+    const qs = keepFootprint ? '?keep_footprint=true' : '';
+    return requestJson<{ id: string; deleted: boolean }>(`/api/admin/buildings/${buildingId}${qs}`, {
       method: 'DELETE',
+    });
+  },
+
+  deleteExtraFootprints(osmWayIds: number[]): Promise<{ deleted_count: number; osm_way_ids: number[] }> {
+    return requestJson<{ deleted_count: number; osm_way_ids: number[] }>('/api/admin/footprints/delete', {
+      method: 'POST',
+      body: JSON.stringify({ osm_way_ids: osmWayIds }),
     });
   },
 

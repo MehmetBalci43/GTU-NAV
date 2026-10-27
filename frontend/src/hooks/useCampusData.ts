@@ -38,6 +38,27 @@ export function useCampusData() {
 
   useEffect(() => {
     refreshBootstrap();
+
+    const interval = setInterval(() => {
+      if (typeof document === 'undefined' || document.visibilityState === 'visible') {
+        refreshBootstrap();
+      }
+    }, 4000);
+
+    const handleVisibilityOrFocus = () => {
+      if (typeof document === 'undefined' || document.visibilityState === 'visible') {
+        refreshBootstrap();
+      }
+    };
+
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+    };
   }, [refreshBootstrap]);
 
   useEffect(() => {
@@ -158,8 +179,16 @@ export function useCampusData() {
   );
 
   const removeCampusBuilding = useCallback(
-    async (buildingId: string) => {
-      await api.deleteBuilding(buildingId);
+    async (buildingId: string, keepFootprint: boolean = false) => {
+      await api.deleteBuilding(buildingId, keepFootprint);
+      await refreshBootstrap();
+    },
+    [refreshBootstrap]
+  );
+
+  const removeExtraFootprints = useCallback(
+    async (osmWayIds: number[]) => {
+      await api.deleteExtraFootprints(osmWayIds);
       await refreshBootstrap();
     },
     [refreshBootstrap]
@@ -215,6 +244,7 @@ export function useCampusData() {
     previewBuildingLocally,
     addOrUpdateCampusBuilding,
     removeCampusBuilding,
+    removeExtraFootprints,
     addWalkwayEdge,
     publishAnnouncement,
     removeAnnouncement,

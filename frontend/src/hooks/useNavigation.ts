@@ -125,15 +125,22 @@ export function useNavigation(blockedEdgeIds: string[]) {
         }
 
         const firstPt = res.coordinates[0];
-        setUserPos((prev) => ({
-          ...prev,
-          snappedLon: firstPt ? firstPt[0] : originLon,
-          snappedLat: firstPt ? firstPt[1] : originLat,
-          isSnapped: true,
-          offRouteDistanceMeters: 0,
-          remainingMeters: res.distance_m,
-          remainingMinutes: res.duration_min,
-        }));
+        setUserPos((prev) => {
+          const distToFirstM = firstPt
+            ? haversineDistanceM(originLat, originLon, firstPt[1], firstPt[0])
+            : 0;
+          const shouldSnapToStart =
+            prev.source !== 'gps' || distToFirstM <= CAMPUS_CONFIG.snapThresholdMeters;
+          return {
+            ...prev,
+            snappedLon: firstPt && shouldSnapToStart ? firstPt[0] : originLon,
+            snappedLat: firstPt && shouldSnapToStart ? firstPt[1] : originLat,
+            isSnapped: Boolean(firstPt && shouldSnapToStart),
+            offRouteDistanceMeters: Math.round(distToFirstM * 10) / 10,
+            remainingMeters: res.distance_m,
+            remainingMinutes: res.duration_min,
+          };
+        });
         return res;
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Rota hesaplanamadı';
@@ -207,7 +214,7 @@ export function useNavigation(blockedEdgeIds: string[]) {
         });
 
         // If GPS was just activated while a route from another origin was active, reroute immediately on first fix
-        const isFirstGpsLock = userPos.source !== 'gps' && source === 'gps' && snap.distanceToRouteM > 18;
+        const isFirstGpsLock = userPos.source !== 'gps' && source === 'gps';
 
         // 3 consecutive strikes off-route (or immediate first GPS lock) trigger A* recalculation from current position
         if (snap.isOffRoute) {

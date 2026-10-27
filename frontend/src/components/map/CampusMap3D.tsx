@@ -41,8 +41,10 @@ export type ThemeMode = 'night' | 'day';
 export interface MapControlActions {
   basemapMode: BasemapStyleMode;
   is3DPitch: boolean;
+  themeMode: ThemeMode;
   toggleBasemap: (mode?: BasemapStyleMode) => void;
   togglePitch: () => void;
+  toggleTheme: () => void;
 }
 
 interface CampusMap3DProps {
@@ -710,9 +712,21 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     };
   }, []);
 
+  // Sync Tailwind dark mode class on root <html> with themeMode ('night' | 'day')
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', themeMode === 'night');
+    }
+  }, [themeMode]);
+
   // Update theme & basemap paint properties
   const handleToggleBasemap = (targetMode?: BasemapStyleMode) => {
-    const nextMode = targetMode || (basemapMode === 'diorama' ? 'satellite' : 'diorama');
+    const validTarget =
+      targetMode === 'diorama' || targetMode === 'satellite' || targetMode === 'street'
+        ? targetMode
+        : undefined;
+    const nextMode: BasemapStyleMode =
+      validTarget || (basemapMode === 'diorama' ? 'satellite' : 'diorama');
     setBasemapMode(nextMode);
     const map = mapRef.current;
     if (!map || !isMapLoaded) return;
@@ -867,11 +881,13 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     onControlsReadyRef.current?.({
       basemapMode,
       is3DPitch,
+      themeMode,
       toggleBasemap: (m) => handleToggleBasemap(m),
       togglePitch: () => handleTogglePitch(),
+      toggleTheme: () => handleToggleTheme(),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [basemapMode, is3DPitch, isMapLoaded]);
+  }, [basemapMode, is3DPitch, themeMode, isMapLoaded]);
 
   // Render GeoJSON Layers (Mini Motorways Walkways, Diorama Buildings, Entrances, Active Route)
   useEffect(() => {
@@ -1004,7 +1020,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
               osm_way_id: fp.osm_way_id,
               name: override?.name || fp.name,
               is_selected: isSel,
-              is_interactive: adminMapMode === 'add_building' || isAdmin,
+              is_interactive: adminMapMode === 'add_building',
             },
             geometry: {
               type: 'Polygon' as const,

@@ -19,8 +19,8 @@ export const CAMPUS_CONFIG = {
     lon: 29.363771,
     label: 'GTÜ - Fatih Marmaray İstasyonu Çıkışı',
   },
-  snapThresholdMeters: 15.0,
-  offRouteThresholdMeters: 18.0,
+  snapThresholdMeters: 6.0,
+  offRouteThresholdMeters: 12.0,
   buildingCategoryColors: {
     academic: '#3b82f6',
     library: '#8b5cf6',

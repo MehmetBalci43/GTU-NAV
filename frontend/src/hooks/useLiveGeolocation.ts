@@ -35,6 +35,8 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
   const [gpsErrorModal, setGpsErrorModal] = useState<GpsErrorModalState | null>(null);
 
   const watchIdRef = useRef<number | null>(null);
+  const watchSessionRef = useRef<number>(0);
+  const hasFixRef = useRef<boolean>(false);
   const onPositionUpdateRef = useRef(onPositionUpdate);
   const onNoticeRef = useRef(onNotice);
 
@@ -47,10 +49,12 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
   }, [onNotice]);
 
   const stopLiveGps = useCallback(() => {
+    watchSessionRef.current += 1;
     if (watchIdRef.current !== null && typeof navigator !== 'undefined' && 'geolocation' in navigator) {
       navigator.geolocation.clearWatch(watchIdRef.current);
     }
     watchIdRef.current = null;
+    hasFixRef.current = false;
     setIsLiveGpsActive(false);
     setGpsStatus('idle');
     setGpsAccuracyMeters(null);
@@ -73,21 +77,42 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
       return;
     }
 
+    if (typeof window !== 'undefined' && window.isSecureContext === false) {
+      setGpsStatus('permission_denied');
+      setIsLiveGpsActive(false);
+      setGpsErrorModal({
+        title: 'Güvenli Bağlantı (HTTPS) Gerekli',
+        message:
+          'iOS Safari ve mobil tarayıcılar güvenlik kuralları gereği HTTP (yerel IP) üzerinden konum verisi paylaşmaz. Telefonunuzda konum izni açık olsa bile canlı GPS için HTTPS bağlantısı kullanılmalıdır.',
+      });
+      return;
+    }
+
     setGpsErrorModal(null);
     setGpsStatus('searching');
+    hasFixRef.current = false;
     onNoticeRef.current?.('📡 Canlı GPS konumu kontrol ediliyor...');
 
+    const clearCurrentWatch = () => {
+      if (watchIdRef.current !== null && 'geolocation' in navigator) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
+    };
+
     const startWatch = (highAccuracy: boolean) => {
+      clearCurrentWatch();
+      const sessionId = ++watchSessionRef.current;
+
       const id = navigator.geolocation.watchPosition(
         (pos) => {
+          if (sessionId !== watchSessionRef.current) return;
           const { latitude, longitude, accuracy } = pos.coords;
 
           // Strict boundary check: If user is at home / outside GTÜ campus, stop immediately and show error dialog!
           if (!isWithinCampusBounds(latitude, longitude)) {
-            if (watchIdRef.current !== null && 'geolocation' in navigator) {
-              navigator.geolocation.clearWatch(watchIdRef.current);
-              watchIdRef.current = null;
-            }
+            clearCurrentWatch();
+            hasFixRef.current = false;
             setIsLiveGpsActive(false);
             setGpsStatus('out_of_campus');
             setGpsAccuracyMeters(null);
@@ -100,20 +125,26 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
           }
 
           // Verified inside GTÜ campus! Now activate Live GPS mode
+          hasFixRef.current = true;
           setIsLiveGpsActive(true);
           setGpsStatus('active');
           setGpsAccuracyMeters(accuracy || 5);
           onPositionUpdateRef.current?.(latitude, longitude, accuracy || 4.0);
         },
         (err) => {
-          console.warn('Live GPS watchPosition warning:', err.message);
-          if (watchIdRef.current !== null && 'geolocation' in navigator) {
-            navigator.geolocation.clearWatch(watchIdRef.current);
-            watchIdRef.current = null;
+          if (sessionId !== watchSessionRef.current) return;
+          console.warn('Live GPS watchPosition warning:', err.code, err.message);
+
+          // Ignore transient signal loss (code 2 or 3) if we already acquired a valid GPS lock
+          if (hasFixRef.current && (err.code === 2 || err.code === 3)) {
+            return;
           }
 
-          // If high-accuracy GPS timed out indoors, automatically fall back to network/fused location
-          if (highAccuracy && err.code === 3) {
+          clearCurrentWatch();
+
+          // On iOS CoreLocation (kCLErrorLocationUnknown = code 2) or indoor timeout (code 3),
+          // automatically fall back from highAccuracy satellite mode to fused/network positioning
+          if (highAccuracy && (err.code === 2 || err.code === 3)) {
             startWatch(false);
             return;
           }
@@ -125,18 +156,22 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
             title: 'Canlı GPS Konumu Alınamadı',
             message:
               err.code === 1
-                ? 'Tarayıcı konum izni reddedildi. Lütfen telefonunuzda tarayıcı konum iznini açın (ngrok HTTPS bağlantısı kullandığınızdan emin olun).'
-                : 'Cihazınızdan GPS sinyali alınamadı. Lütfen konum servislerinizin açık olduğundan emin olun.',
+                ? 'Tarayıcı konum izni reddedildi veya bağlantı güvenli (HTTPS) değil. iOS kullanıyorsanız Ayarlar > Gizlilik ve Güvenlik > Konum Servisleri > Safari Web Siteleri izninin "Uygulamayı Kullanırken" ve "Tam Konum" açık olduğundan ve HTTPS bağlantısı kullandığınızdan emin olun.'
+                : 'Cihazınızdan anlık GPS sinyali alınamadı. Lütfen açık alanda olduğunuzdan ve cihaz konum servislerinin açık olduğundan emin olup tekrar deneyin.',
           });
         },
         {
           enableHighAccuracy: highAccuracy,
-          maximumAge: 3000,
-          timeout: highAccuracy ? 10000 : 15000,
+          maximumAge: highAccuracy ? 0 : 5000,
+          timeout: highAccuracy ? 15000 : 20000,
         }
       );
 
-      watchIdRef.current = id;
+      if (sessionId === watchSessionRef.current) {
+        watchIdRef.current = id;
+      } else {
+        navigator.geolocation.clearWatch(id);
+      }
     };
 
     startWatch(true);

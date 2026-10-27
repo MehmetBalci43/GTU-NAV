@@ -290,6 +290,11 @@ class CustomEdgeCreate(BaseModel):
     name: str = Field(default="Kampüs Yürüyüş Patikası", max_length=100)
 
 
+class FootprintDeleteRequest(BaseModel):
+    osm_way_ids: list[int]
+
+
+
 class BusyReportRequest(BaseModel):
     reason: str = Field(default="Öğrenci bildirimi: İçeride etkinlik / yoğunluk var", max_length=200)
 

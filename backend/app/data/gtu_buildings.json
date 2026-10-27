@@ -1802,49 +1802,130 @@
   {
     "id": "kyk_kiz_yurdu",
     "code": "KIZ-YURDU",
-    "name": "KYK Nilüfer Hatun Kız Öğrenci Yurdu",
-    "category": "dining",
-    "floors_count": 5,
-    "osm_way_id": 1165229901,
-    "entrance_name": "Kız Yurdu Ana Giriş Kapısı",
-    "description": "Kampüs içi KYK Nilüfer Hatun Kız Öğrenci Yurdu yerleşkesi ve sosyal tesis alanı.",
-    "lat": 40.806413,
-    "lon": 29.364354,
+    "name": "KYK Nilüfer Hatun Kız Yurdu",
+    "category": "admin",
+    "floors_count": 3,
+    "entrance_name": "Ana Giriş Kapısı",
+    "description": "KYK Nilüfer Hatun Kız Yurdu kampüs binası.",
+    "lat": 40.805933,
+    "lon": 29.364067,
     "polygon_coords": [
       [
         [
-          29.363982,
-          40.806773
-        ],
+          [
+            29.363982,
+            40.806773
+          ],
+          [
+            29.364774,
+            40.80666
+          ],
+          [
+            29.364597,
+            40.805949
+          ],
+          [
+            29.36435,
+            40.805985
+          ],
+          [
+            29.364482,
+            40.806515
+          ],
+          [
+            29.363937,
+            40.806593
+          ],
+          [
+            29.363982,
+            40.806773
+          ]
+        ]
+      ],
+      [
         [
-          29.364774,
-          40.80666
-        ],
+          [
+            29.36387,
+            40.806383
+          ],
+          [
+            29.363782,
+            40.80604
+          ],
+          [
+            29.364076,
+            40.805997
+          ],
+          [
+            29.364163,
+            40.80634
+          ],
+          [
+            29.36387,
+            40.806383
+          ]
+        ]
+      ],
+      [
         [
-          29.364597,
-          40.805949
-        ],
+          [
+            29.363622,
+            40.805496
+          ],
+          [
+            29.363703,
+            40.805856
+          ],
+          [
+            29.364019,
+            40.805815
+          ],
+          [
+            29.363938,
+            40.805455
+          ],
+          [
+            29.363622,
+            40.805496
+          ]
+        ]
+      ],
+      [
         [
-          29.36435,
-          40.805985
-        ],
-        [
-          29.364482,
-          40.806515
-        ],
-        [
-          29.363937,
-          40.806593
-        ],
-        [
-          29.363982,
-          40.806773
+          [
+            29.364294,
+            40.805747
+          ],
+          [
+            29.364534,
+            40.805714
+          ],
+          [
+            29.364366,
+            40.805014
+          ],
+          [
+            29.363565,
+            40.805125
+          ],
+          [
+            29.363607,
+            40.805302
+          ],
+          [
+            29.364169,
+            40.805225
+          ],
+          [
+            29.364294,
+            40.805747
+          ]
         ]
       ]
     ],
-    "entrance_node_id": "osm_9933047066",
-    "entrance_lat": 40.806441,
-    "entrance_lon": 29.364693,
+    "entrance_node_id": "osm_14272955054",
+    "entrance_lat": 40.806126,
+    "entrance_lon": 29.363342,
     "secondary_entrance_node_id": null,
     "secondary_entrance_name": null,
     "secondary_entrance_lat": null,
@@ -2029,6 +2110,102 @@
     "entrance_node_id": "e_1567277352_7_m3",
     "entrance_lat": 40.805911,
     "entrance_lon": 29.363339,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
+  },
+  {
+    "id": "b_bim_584",
+    "code": "BİM",
+    "name": "BİM",
+    "category": "dining",
+    "floors_count": 1,
+    "entrance_name": "Ana Giriş Kapısı",
+    "description": "BİM kampüs binası.",
+    "lat": 40.806125,
+    "lon": 29.359615,
+    "polygon_coords": [
+      [
+        [
+          29.359524,
+          40.806045
+        ],
+        [
+          29.359559,
+          40.806158
+        ],
+        [
+          29.359578,
+          40.806218
+        ],
+        [
+          29.359579,
+          40.806222
+        ],
+        [
+          29.3598,
+          40.806184
+        ],
+        [
+          29.359744,
+          40.806004
+        ],
+        [
+          29.359524,
+          40.806045
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_14312064440",
+    "entrance_lat": 40.806158,
+    "entrance_lon": 29.359559,
+    "secondary_entrance_node_id": null,
+    "secondary_entrance_name": null,
+    "secondary_entrance_lat": null,
+    "secondary_entrance_lon": null
+  },
+  {
+    "id": "b_igzidecafe_779",
+    "code": "İÇ GÜZIDE CAFE",
+    "name": "İç Güzide Cafe",
+    "category": "dining",
+    "floors_count": 1,
+    "entrance_name": "Ana Giriş Kapısı",
+    "description": "İç Güzide Cafe kampüs binası.",
+    "lat": 40.806317,
+    "lon": 29.359684,
+    "polygon_coords": [
+      [
+        [
+          29.35963,
+          40.806399
+        ],
+        [
+          29.359853,
+          40.80636
+        ],
+        [
+          29.3598,
+          40.806184
+        ],
+        [
+          29.359579,
+          40.806222
+        ],
+        [
+          29.359613,
+          40.80634
+        ],
+        [
+          29.35963,
+          40.806399
+        ]
+      ]
+    ],
+    "entrance_node_id": "osm_14312064441",
+    "entrance_lat": 40.80634,
+    "entrance_lon": 29.359613,
     "secondary_entrance_node_id": null,
     "secondary_entrance_name": null,
     "secondary_entrance_lat": null,

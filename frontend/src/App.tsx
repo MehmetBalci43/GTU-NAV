@@ -48,6 +48,7 @@ export const App: React.FC = () => {
     previewBuildingLocally,
     addOrUpdateCampusBuilding,
     removeCampusBuilding,
+    removeExtraFootprints,
     addWalkwayEdge,
     publishAnnouncement,
     removeAnnouncement,
@@ -309,6 +310,8 @@ export const App: React.FC = () => {
         onToggleBasemap={mapControls?.toggleBasemap}
         is3DPitch={mapControls?.is3DPitch ?? false}
         onTogglePitch={mapControls?.togglePitch}
+        themeMode={mapControls?.themeMode ?? 'night'}
+        onToggleTheme={mapControls?.toggleTheme}
         isLiveGpsActive={isLiveGpsActive}
         onToggleLiveGps={() => {
           if (!isLiveGpsActive) {
@@ -586,6 +589,17 @@ export const App: React.FC = () => {
         onClearSelectedFootprints={() => {
           setSelectedFootprints([]);
           setPickedBuildingCoords(null);
+        }}
+        onDeleteSelectedFootprints={async () => {
+          const positiveIds = selectedFootprints
+            .filter((fp) => fp.osm_way_id > 0)
+            .map((fp) => fp.osm_way_id);
+          if (positiveIds.length > 0) {
+            await removeExtraFootprints(positiveIds);
+          }
+          setSelectedFootprints([]);
+          setPickedBuildingCoords(null);
+          showToast('Seçili boş bina yapıları haritadan kalıcı olarak silindi');
         }}
         onClearPickedEntranceCoords={() => setPickedEntranceCoords(null)}
         onClearPickedSecondaryEntranceCoords={() => setPickedSecondaryEntranceCoords(null)}

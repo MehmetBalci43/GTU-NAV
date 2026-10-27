@@ -53,6 +53,7 @@ interface AdminCommandCenterProps {
     dLat?: number;
   }) => void;
   onClearSelectedFootprints?: () => void;
+  onDeleteSelectedFootprints?: () => Promise<void>;
   onClearPickedEntranceCoords?: () => void;
   onClearPickedSecondaryEntranceCoords?: () => void;
   drawnEdgePoints: { lat: number; lon: number }[];
@@ -111,6 +112,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
   selectedFootprints = [],
   onTransformSelectedFootprints,
   onClearSelectedFootprints,
+  onDeleteSelectedFootprints,
   onClearPickedEntranceCoords,
   onClearPickedSecondaryEntranceCoords,
   drawnEdgePoints,
@@ -625,18 +627,33 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
 
                     {selectedFootprints.length > 0 ? (
                       <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border-2 border-emerald-500/50 space-y-2">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-2">
                           <span className="text-xs font-black text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
                             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                             <span>{selectedFootprints.length} Bina Bloğu Seçildi</span>
                           </span>
-                          <button
-                            type="button"
-                            onClick={() => onClearSelectedFootprints?.()}
-                            className="text-[10px] font-black text-rose-600 dark:text-rose-400 hover:underline"
-                          >
-                            Seçimi Temizle
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => onClearSelectedFootprints?.()}
+                              className="text-[10px] font-black text-zinc-600 dark:text-zinc-400 hover:underline"
+                            >
+                              Seçimi Bırak
+                            </button>
+                            {onDeleteSelectedFootprints && (
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  await onDeleteSelectedFootprints();
+                                }}
+                                className="px-2 py-0.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-[10px] font-black border border-zinc-950 flex items-center gap-1 shadow-sm active:scale-95 transition"
+                                title="Seçili boş bina yapılarını haritadan kalıcı olarak sil"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                                <span>Haritadan Sil</span>
+                              </button>
+                            )}
+                          </div>
                         </div>
                         <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 truncate">
                           {selectedFootprints.map((fp) => fp.name).join(' • ')}

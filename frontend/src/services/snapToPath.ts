@@ -51,8 +51,8 @@ class LightweightKalman2D {
     }
 
     const deltaM = haversineDistanceM(this.lat, this.lon, rawLat, rawLon);
-    // Eğer ani sıçrama > 12m ise (simülatör adımı veya haritadan yeni konum seçimi), gecikme yapmadan doğrudan yeni konuma kilitlen
-    if (deltaM > 12.0) {
+    // Eğer ani sıçrama > 8m ise veya yeni GPS verisi önceki kaba Wi-Fi/hücresel tahminden çok daha hassassa doğrudan yeni konuma kilitlen
+    if (deltaM > 8.0 || clampedAcc * clampedAcc < this.variance * 0.45) {
       this.lat = rawLat;
       this.lon = rawLon;
       this.variance = clampedAcc * clampedAcc;

@@ -85,33 +85,56 @@ def sync_buildings_to_json(db: Session) -> None:
 def seed_database(db: Session) -> None:
     raw_buildings = load_buildings_data()
     if db.query(Building).count() > 0:
-        existing_ids = {row[0] for row in db.query(Building.id).all()}
-        added_any = False
+        existing_by_id = {b.id: b for b in db.query(Building).all()}
+        existing_by_code = {b.code: b for b in existing_by_id.values()}
+        changed_any = False
         for b in raw_buildings:
-            if b["id"] not in existing_ids:
-                db.add(
-                    Building(
-                        id=b["id"],
-                        code=b["code"],
-                        name=b["name"],
-                        category=b["category"],
-                        floors_count=b["floors_count"],
-                        lat=b["lat"],
-                        lon=b["lon"],
-                        entrance_node_id=b["entrance_node_id"],
-                        entrance_name=b["entrance_name"],
-                        entrance_lat=b["entrance_lat"],
-                        entrance_lon=b["entrance_lon"],
-                        secondary_entrance_node_id=b.get("secondary_entrance_node_id"),
-                        secondary_entrance_name=b.get("secondary_entrance_name"),
-                        secondary_entrance_lat=b.get("secondary_entrance_lat"),
-                        secondary_entrance_lon=b.get("secondary_entrance_lon"),
-                        polygon_coords=b["polygon_coords"],
-                        description=b.get("description", ""),
-                    )
+            if b["id"] in existing_by_id:
+                continue
+            if b["code"] in existing_by_code:
+                # Update existing record that shares the same building code
+                target = existing_by_code[b["code"]]
+                target.name = b["name"]
+                target.category = b["category"]
+                target.floors_count = b["floors_count"]
+                target.lat = b["lat"]
+                target.lon = b["lon"]
+                target.entrance_node_id = b["entrance_node_id"]
+                target.entrance_name = b["entrance_name"]
+                target.entrance_lat = b["entrance_lat"]
+                target.entrance_lon = b["entrance_lon"]
+                target.secondary_entrance_node_id = b.get("secondary_entrance_node_id")
+                target.secondary_entrance_name = b.get("secondary_entrance_name")
+                target.secondary_entrance_lat = b.get("secondary_entrance_lat")
+                target.secondary_entrance_lon = b.get("secondary_entrance_lon")
+                target.polygon_coords = b["polygon_coords"]
+                target.description = b.get("description", "")
+                changed_any = True
+            else:
+                new_b = Building(
+                    id=b["id"],
+                    code=b["code"],
+                    name=b["name"],
+                    category=b["category"],
+                    floors_count=b["floors_count"],
+                    lat=b["lat"],
+                    lon=b["lon"],
+                    entrance_node_id=b["entrance_node_id"],
+                    entrance_name=b["entrance_name"],
+                    entrance_lat=b["entrance_lat"],
+                    entrance_lon=b["entrance_lon"],
+                    secondary_entrance_node_id=b.get("secondary_entrance_node_id"),
+                    secondary_entrance_name=b.get("secondary_entrance_name"),
+                    secondary_entrance_lat=b.get("secondary_entrance_lat"),
+                    secondary_entrance_lon=b.get("secondary_entrance_lon"),
+                    polygon_coords=b["polygon_coords"],
+                    description=b.get("description", ""),
                 )
-                added_any = True
-        if added_any:
+                db.add(new_b)
+                existing_by_id[b["id"]] = new_b
+                existing_by_code[b["code"]] = new_b
+                changed_any = True
+        if changed_any:
             db.commit()
         return
 
