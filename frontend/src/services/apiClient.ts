@@ -271,6 +271,15 @@ export const api = {
     });
   },
 
+  updateExtraFootprints(
+    footprints: { osm_way_id: number; name?: string; coords: number[][] }[]
+  ): Promise<{ updated_count: number; osm_way_ids: number[] }> {
+    return requestJson<{ updated_count: number; osm_way_ids: number[] }>('/api/admin/footprints/update', {
+      method: 'POST',
+      body: JSON.stringify({ footprints }),
+    });
+  },
+
   createCustomWalkwayEdge(payload: {
     from_lat: number;
     from_lon: number;

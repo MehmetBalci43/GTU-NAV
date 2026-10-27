@@ -49,6 +49,7 @@ export const App: React.FC = () => {
     addOrUpdateCampusBuilding,
     removeCampusBuilding,
     removeExtraFootprints,
+    updateExtraFootprints,
     addWalkwayEdge,
     publishAnnouncement,
     removeAnnouncement,
@@ -387,6 +388,9 @@ export const App: React.FC = () => {
           setAdminMapMode('none');
         }}
         onSelectBuilding={(bId) => {
+          setSelectedFootprints([]);
+          setPickedBuildingCoords(null);
+          if (adminMapMode === 'add_building') setAdminMapMode('none');
           if (isAdminDrawerOpen) setIsAdminDrawerOpen(false);
           setSelectedBuildingId(bId);
         }}
@@ -407,14 +411,16 @@ export const App: React.FC = () => {
         onAdminPickBuildingCoords={(lat, lon) => {
           const customRing = createDefaultBuildingRing(lon, lat, 36, 22);
           const customWayId = -Math.floor(Date.now() % 100000000);
-          setSelectedFootprints((prev) => [
-            ...prev,
-            {
-              osm_way_id: customWayId,
-              name: 'Özel Yeni Bina Bloğu',
-              coords: customRing,
-            },
-          ]);
+          const newFp = {
+            osm_way_id: customWayId,
+            name: 'Özel Yeni Bina Bloğu',
+            coords: customRing,
+          };
+          setSelectedFootprints((prev) => {
+            const next = [...prev, newFp];
+            updateExtraFootprints(next);
+            return next;
+          });
           setPickedBuildingCoords({ lat, lon });
           setIsAdminDrawerOpen(true);
           showToast('Yeni bina kutusu haritaya yerleştirildi. Sol panelden boyutunu ve açısını ayarlayabilirsiniz.');
@@ -566,6 +572,17 @@ export const App: React.FC = () => {
         announcements={announcements}
         adminMapMode={adminMapMode}
         selectedBuildingId={selectedBuildingId}
+        onSelectBuildingId={setSelectedBuildingId}
+        onTransformSelectedBuilding={(buildingId, opts) => {
+          const target = buildings.find((b) => b.id === buildingId);
+          if (!target) return;
+          const res = transformBuildingPolygon(target.polygon_coords, opts);
+          previewBuildingLocally(buildingId, {
+            polygon_coords: res.polygon_coords,
+            lat: res.lat,
+            lon: res.lon,
+          });
+        }}
         pickedCoords={pickedBuildingCoords}
         pickedEntranceCoords={pickedEntranceCoords}
         pickedSecondaryEntranceCoords={pickedSecondaryEntranceCoords}
@@ -577,10 +594,12 @@ export const App: React.FC = () => {
             if (prev.length === 0) return prev;
             const multiPoly = prev.map((fp) => [fp.coords]);
             const transformed = transformBuildingPolygon(multiPoly, opts);
-            return prev.map((fp, idx) => ({
+            const next = prev.map((fp, idx) => ({
               ...fp,
               coords: transformed.polygon_coords[idx]?.[0] || fp.coords,
             }));
+            updateExtraFootprints(next);
+            return next;
           });
         }}
         onClearSelectedFootprints={() => {
@@ -588,11 +607,9 @@ export const App: React.FC = () => {
           setPickedBuildingCoords(null);
         }}
         onDeleteSelectedFootprints={async () => {
-          const positiveIds = selectedFootprints
-            .filter((fp) => fp.osm_way_id > 0)
-            .map((fp) => fp.osm_way_id);
-          if (positiveIds.length > 0) {
-            await removeExtraFootprints(positiveIds);
+          const allIds = selectedFootprints.map((fp) => fp.osm_way_id);
+          if (allIds.length > 0) {
+            await removeExtraFootprints(allIds);
           }
           setSelectedFootprints([]);
           setPickedBuildingCoords(null);

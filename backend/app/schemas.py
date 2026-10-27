@@ -294,6 +294,16 @@ class FootprintDeleteRequest(BaseModel):
     osm_way_ids: list[int]
 
 
+class FootprintItemUpdate(BaseModel):
+    osm_way_id: int
+    name: Optional[str] = None
+    coords: list[list[float]]
+
+
+class FootprintUpdateRequest(BaseModel):
+    footprints: list[FootprintItemUpdate]
+
+
 
 class BusyReportRequest(BaseModel):
     reason: str = Field(default="Öğrenci bildirimi: İçeride etkinlik / yoğunluk var", max_length=200)

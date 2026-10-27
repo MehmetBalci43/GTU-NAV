@@ -4,12 +4,22 @@ from app.main import (
     calculate_route,
     create_or_update_building,
     delete_building,
+    delete_extra_footprints,
     init_db,
     toggle_walkway_edge,
     update_building_entrance,
+    update_extra_footprints,
 )
 from app.routing.astar import find_nearest_edge
-from app.schemas import BuildingCreateOrUpdate, BuildingEntranceUpdate, EdgeToggleRequest, RouteRequest
+from app.schemas import (
+    BuildingCreateOrUpdate,
+    BuildingEntranceUpdate,
+    EdgeToggleRequest,
+    FootprintDeleteRequest,
+    FootprintItemUpdate,
+    FootprintUpdateRequest,
+    RouteRequest,
+)
 from app.seed import load_buildings_data, load_walk_graph, save_walk_graph
 
 
@@ -198,6 +208,104 @@ def test_admin_create_multipart_building_and_cleans_footprints() -> None:
         assert not any(b["id"] == "temp_multipart_fac" for b in load_buildings_data())
     finally:
         db.close()
+
+
+def test_route_starting_inside_building_uses_building_exit_door() -> None:
+    init_db()
+    db = SessionLocal()
+    try:
+        bmb = next(b for b in load_buildings_data() if b["id"] == "bmb")
+        res = calculate_route(
+            RouteRequest(
+                start_lat=bmb["lat"],
+                start_lon=bmb["lon"],
+                target_building_id="kut",
+            ),
+            db=db,
+        )
+        assert len(res.coordinates) >= 3
+        first_lon, first_lat = res.coordinates[0]
+        assert abs(first_lat - bmb["entrance_lat"]) < 0.0002
+        assert abs(first_lon - bmb["entrance_lon"]) < 0.0002
+    finally:
+        db.close()
+
+
+def test_building_and_footprint_geometry_updates_persist_to_json() -> None:
+    init_db()
+    db = SessionLocal()
+    try:
+        # 1. Test extra_building_footprints resize/move persistence in gtu_walk_graph.json
+        fake_fp_id = 888888888
+        resized_coords = [
+            [29.3571, 40.8081],
+            [29.3579, 40.8081],
+            [29.3579, 40.8087],
+            [29.3571, 40.8087],
+            [29.3571, 40.8081],
+        ]
+        res_fp = update_extra_footprints(
+            FootprintUpdateRequest(
+                footprints=[
+                    FootprintItemUpdate(
+                        osm_way_id=fake_fp_id,
+                        name="Boyutlandırılmış Test Bloğu",
+                        coords=resized_coords,
+                    )
+                ]
+            ),
+            _=settings.admin_secret_key,
+        )
+        assert res_fp["updated_count"] == 1
+        saved_fp = next(
+            fp for fp in load_walk_graph()["extra_building_footprints"] if fp.get("osm_way_id") == fake_fp_id
+        )
+        assert saved_fp["coords"] == resized_coords
+
+        delete_extra_footprints(
+            FootprintDeleteRequest(osm_way_ids=[fake_fp_id]),
+            _=settings.admin_secret_key,
+        )
+
+        # 2. Test existing building geometry resize/rotate/move persistence in gtu_buildings.json
+        created = create_or_update_building(
+            BuildingCreateOrUpdate(
+                id="temp_geom_test",
+                code="TGEOM",
+                name="Geometri Test Binası",
+                category="academic",
+                floors_count=2,
+                lat=40.8082,
+                lon=29.3572,
+                polygon_coords=[[[29.357, 40.808], [29.3574, 40.808], [29.3574, 40.8084], [29.357, 40.8084], [29.357, 40.808]]],
+            ),
+            db=db,
+            _=settings.admin_secret_key,
+        )
+        new_poly = [[[29.3568, 40.8079], [29.3578, 40.8079], [29.3578, 40.8086], [29.3568, 40.8086], [29.3568, 40.8079]]]
+        updated = create_or_update_building(
+            BuildingCreateOrUpdate(
+                id=created.id,
+                code="TGEOM",
+                name="Geometri Test Binası",
+                category="academic",
+                floors_count=2,
+                lat=40.80825,
+                lon=29.3573,
+                polygon_coords=new_poly,
+            ),
+            db=db,
+            _=settings.admin_secret_key,
+        )
+        assert updated.polygon_coords == new_poly
+        json_bld = next(b for b in load_buildings_data() if b["id"] == "temp_geom_test")
+        assert json_bld["polygon_coords"] == new_poly
+        assert json_bld["lat"] == 40.80825
+
+        delete_building(building_id="temp_geom_test", db=db, _=settings.admin_secret_key)
+    finally:
+        db.close()
+
 
 
 

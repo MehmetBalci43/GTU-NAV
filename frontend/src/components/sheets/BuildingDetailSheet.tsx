@@ -101,7 +101,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
   const [busyReasonInput, setBusyReasonInput] = useState<Record<string, string>>({});
   const [filterOnlyFree, setFilterOnlyFree] = useState<boolean>(false);
   const [isAdminEntranceMenuOpen, setIsAdminEntranceMenuOpen] = useState<boolean>(false);
-  const [isAdminGeometryOpen, setIsAdminGeometryOpen] = useState<boolean>(false);
+  const [isAdminGeometryOpen, setIsAdminGeometryOpen] = useState<boolean>(isAdmin);
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [isSavingGeometry, setIsSavingGeometry] = useState<boolean>(false);
 
@@ -601,17 +601,6 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                 >
                   {isSimulatingWalk ? 'Duraklat' : 'Simülatörü Başlat'}
                 </TactileButton>
-
-                {isLiveGpsActive && (
-                  <TactileButton
-                    size="sm"
-                    variant="accent"
-                    icon={<Radio className="w-3.5 h-3.5 animate-pulse" />}
-                    onClick={onToggleLiveGps}
-                  >
-                    GPS Kapat
-                  </TactileButton>
-                )}
 
                 <TactileButton
                   size="sm"

@@ -95,6 +95,13 @@ export function useNavigation(blockedEdgeIds: string[]) {
     source: 'default',
   });
 
+  const routeOriginRef = useRef<{
+    rawLat: number;
+    rawLon: number;
+    doorLat: number;
+    doorLon: number;
+  } | null>(null);
+
   const computeRouteToBuilding = useCallback(
     async (buildingId: string, startLat?: number, startLon?: number, reasonBanner?: string) => {
       // Defensive origin determination:
@@ -153,14 +160,24 @@ export function useNavigation(blockedEdgeIds: string[]) {
           setTimeout(() => setRerouteNotice((prev) => (prev === reasonBanner ? null : prev)), 5000);
         }
 
-        // Keep user marker at their true origin (e.g. inside the building) instead of teleporting to the nearest street edge
+        const firstPt = res.coordinates[0];
+        const doorLon = firstPt ? firstPt[0] : originLon;
+        const doorLat = firstPt ? firstPt[1] : originLat;
+        routeOriginRef.current = {
+          rawLat: originLat,
+          rawLon: originLon,
+          doorLat,
+          doorLon,
+        };
+
+        // Snap character to the route start (which is the building's exit door if started inside a building)
         setUserPos((prev) => ({
           ...prev,
           rawLat: originLat,
           rawLon: originLon,
-          snappedLat: originLat,
-          snappedLon: originLon,
-          isSnapped: false,
+          snappedLat: doorLat,
+          snappedLon: doorLon,
+          isSnapped: true,
           offRouteDistanceMeters: 0,
           remainingMeters: res.distance_m,
           remainingMinutes: res.duration_min,
@@ -228,11 +245,32 @@ export function useNavigation(blockedEdgeIds: string[]) {
           source === 'simulator'
         );
 
+        // If user started inside a building (teleported to exit door) and hasn't walked away from their indoor origin yet,
+        // keep them anchored at the building exit door and prevent false off-route loops
+        const originInfo = routeOriginRef.current;
+        const distFromRawOriginM = originInfo
+          ? haversineDistanceM(rawLat, rawLon, originInfo.rawLat, originInfo.rawLon)
+          : Infinity;
+        const originToDoorM = originInfo
+          ? haversineDistanceM(originInfo.rawLat, originInfo.rawLon, originInfo.doorLat, originInfo.doorLon)
+          : 0;
+        const isStillInsideStartBuilding =
+          source !== 'simulator' &&
+          originInfo !== null &&
+          originToDoorM > 3.0 &&
+          distFromRawOriginM <= 18.0 &&
+          snap.distanceToRouteM > CAMPUS_CONFIG.snapThresholdMeters;
+
+        const effectiveSnappedLat = isStillInsideStartBuilding ? originInfo!.doorLat : snap.lat;
+        const effectiveSnappedLon = isStillInsideStartBuilding ? originInfo!.doorLon : snap.lon;
+        const effectiveIsSnapped = isStillInsideStartBuilding ? true : snap.isSnapped;
+        const effectiveIsOffRoute = isStillInsideStartBuilding ? false : snap.isOffRoute;
+
         // Calculate remaining route distance from snapped point
         let remainingMeters = activeRoute.distance_m;
         if (snap.segmentIndex < activeRoute.coordinates.length - 1) {
           const nextPt = activeRoute.coordinates[snap.segmentIndex + 1];
-          let dist = haversineDistanceM(snap.lat, snap.lon, nextPt[1], nextPt[0]);
+          let dist = haversineDistanceM(effectiveSnappedLat, effectiveSnappedLon, nextPt[1], nextPt[0]);
           for (let i = snap.segmentIndex + 1; i < activeRoute.coordinates.length - 1; i++) {
             const a = activeRoute.coordinates[i];
             const b = activeRoute.coordinates[i + 1];
@@ -245,10 +283,10 @@ export function useNavigation(blockedEdgeIds: string[]) {
         setUserPos({
           rawLat,
           rawLon,
-          snappedLat: snap.lat,
-          snappedLon: snap.lon,
-          isSnapped: snap.isSnapped,
-          offRouteDistanceMeters: snap.distanceToRouteM,
+          snappedLat: effectiveSnappedLat,
+          snappedLon: effectiveSnappedLon,
+          isSnapped: effectiveIsSnapped,
+          offRouteDistanceMeters: isStillInsideStartBuilding ? 0 : snap.distanceToRouteM,
           remainingMeters,
           remainingMinutes,
           source,
@@ -263,7 +301,7 @@ export function useNavigation(blockedEdgeIds: string[]) {
         const isFirstGpsLock = prevSource !== 'gps' && source === 'gps';
 
         // 3 consecutive strikes off-route (or immediate first GPS lock) trigger A* recalculation from current position
-        if (snap.isOffRoute) {
+        if (effectiveIsOffRoute) {
           offRouteStrikeCountRef.current += 1;
         } else {
           offRouteStrikeCountRef.current = 0;
@@ -361,6 +399,7 @@ export function useNavigation(blockedEdgeIds: string[]) {
   const clearNavigation = useCallback(() => {
     routeRequestIdRef.current += 1;
     offRouteStrikeCountRef.current = 0;
+    routeOriginRef.current = null;
     setIsCalculatingRoute(false);
     setIsSimulatingWalk(false);
     setActiveRoute(null);

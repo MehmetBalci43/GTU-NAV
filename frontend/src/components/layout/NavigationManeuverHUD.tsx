@@ -231,20 +231,8 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
             ) : null}
           </div>
 
-          {/* Action Controls: Simulator, End Route (Live GPS only shown if already activated from menu) */}
+          {/* Action Controls: Simulator, End Route */}
           <div className="flex items-center justify-end gap-2 pt-1.5 border-t border-zinc-200/80 dark:border-white/10">
-            {isLiveGpsActive && onToggleLiveGps && (
-              <TactileButton
-                size="sm"
-                variant="primary"
-                icon={<Radio className="w-3.5 h-3.5 animate-pulse" />}
-                onClick={onToggleLiveGps}
-                title="Canlı GPS Takibini Durdur"
-              >
-                GPS Kapat
-              </TactileButton>
-            )}
-
             <TactileButton
               size="sm"
               variant={isSimulatingWalk ? 'warning' : 'primary'}

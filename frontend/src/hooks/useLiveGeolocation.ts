@@ -37,6 +37,7 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
   const watchIdRef = useRef<number | null>(null);
   const watchSessionRef = useRef<number>(0);
   const hasFixRef = useRef<boolean>(false);
+  const lastEmittedRef = useRef<{ lat: number; lon: number; acc: number } | null>(null);
   const onPositionUpdateRef = useRef(onPositionUpdate);
   const onNoticeRef = useRef(onNotice);
 
@@ -55,6 +56,7 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
     }
     watchIdRef.current = null;
     hasFixRef.current = false;
+    lastEmittedRef.current = null;
     setIsLiveGpsActive(false);
     setGpsStatus('idle');
     setGpsAccuracyMeters(null);
@@ -64,34 +66,40 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
     setGpsErrorModal(null);
   }, []);
 
-  const startLiveGps = useCallback(() => {
+  const startLiveGps = useCallback((silentAutoStart: boolean = false) => {
     if (watchIdRef.current !== null) return;
 
     if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
       setGpsStatus('unsupported');
       setIsLiveGpsActive(false);
-      setGpsErrorModal({
-        title: 'GPS Desteklenmiyor',
-        message: 'Tarayıcınız canlı GPS konum servisini desteklemiyor.',
-      });
+      if (!silentAutoStart) {
+        setGpsErrorModal({
+          title: 'GPS Desteklenmiyor',
+          message: 'Tarayıcınız canlı GPS konum servisini desteklemiyor.',
+        });
+      }
       return;
     }
 
     if (typeof window !== 'undefined' && window.isSecureContext === false) {
       setGpsStatus('permission_denied');
       setIsLiveGpsActive(false);
-      setGpsErrorModal({
-        title: 'Güvenli Bağlantı (HTTPS) Gerekli',
-        message:
-          'iOS Safari ve mobil tarayıcılar güvenlik kuralları gereği HTTP (yerel IP) üzerinden konum verisi paylaşmaz. Telefonunuzda konum izni açık olsa bile canlı GPS için HTTPS bağlantısı kullanılmalıdır.',
-      });
+      if (!silentAutoStart) {
+        setGpsErrorModal({
+          title: 'Güvenli Bağlantı (HTTPS) Gerekli',
+          message:
+            'iOS Safari ve mobil tarayıcılar güvenlik kuralları gereği HTTP (yerel IP) üzerinden konum verisi paylaşmaz. Telefonunuzda konum izni açık olsa bile canlı GPS için HTTPS bağlantısı kullanılmalıdır.',
+        });
+      }
       return;
     }
 
     setGpsErrorModal(null);
     setGpsStatus('searching');
     hasFixRef.current = false;
-    onNoticeRef.current?.('📡 Canlı GPS konumu kontrol ediliyor...');
+    if (!silentAutoStart) {
+      onNoticeRef.current?.('📡 Canlı GPS konumu kontrol ediliyor...');
+    }
 
     const clearCurrentWatch = () => {
       if (watchIdRef.current !== null && 'geolocation' in navigator) {
@@ -103,32 +111,50 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
     const startWatch = (highAccuracy: boolean) => {
       clearCurrentWatch();
       const sessionId = ++watchSessionRef.current;
+      let transientErrorCount = 0;
 
       const id = navigator.geolocation.watchPosition(
         (pos) => {
           if (sessionId !== watchSessionRef.current) return;
           const { latitude, longitude, accuracy } = pos.coords;
+          transientErrorCount = 0;
 
-          // Strict boundary check: If user is at home / outside GTÜ campus, stop immediately and show error dialog!
+          // Strict boundary check: If user is at home / outside GTÜ campus, stop immediately and fallback to Marmaray!
           if (!isWithinCampusBounds(latitude, longitude)) {
             clearCurrentWatch();
             hasFixRef.current = false;
             setIsLiveGpsActive(false);
             setGpsStatus('out_of_campus');
             setGpsAccuracyMeters(null);
-            setGpsErrorModal({
-              title: 'Kampüs Sınırları Dışındasınız',
-              message:
-                'Mevcut konumunuz GTÜ Çayırova Yerleşkesi sınırları dışında algılandı. Canlı GPS takibi yalnızca kampüs içerisindeyken açılabilir. Kampüs dışındayken harita üzerinden rota çizebilir ve yürüyüş simülatörünü kullanabilirsiniz.',
-            });
+            if (!silentAutoStart) {
+              setGpsErrorModal({
+                title: 'Kampüs Sınırları Dışındasınız',
+                message:
+                  'Mevcut konumunuz GTÜ Çayırova Yerleşkesi sınırları dışında algılandı. Canlı GPS takibi yalnızca kampüs içerisindeyken açılabilir. Başlangıç noktanız Marmaray çıkışı olarak korundu.',
+              });
+            }
             return;
           }
 
           // Verified inside GTÜ campus! Now activate Live GPS mode
+          const nextAcc = Math.round(accuracy || 5);
+          const prev = lastEmittedRef.current;
+          if (prev) {
+            const approxDistM = Math.hypot(
+              (latitude - prev.lat) * 111320,
+              (longitude - prev.lon) * 84200
+            );
+            // Battery saver deadband: ignore sub-1.2m stationary noise unless accuracy improved significantly
+            if (approxDistM < 1.2 && nextAcc >= prev.acc - 2) {
+              return;
+            }
+          }
+          lastEmittedRef.current = { lat: latitude, lon: longitude, acc: nextAcc };
+
           hasFixRef.current = true;
           setIsLiveGpsActive(true);
           setGpsStatus('active');
-          setGpsAccuracyMeters(accuracy || 5);
+          setGpsAccuracyMeters(nextAcc);
           onPositionUpdateRef.current?.(latitude, longitude, accuracy || 4.0);
         },
         (err) => {
@@ -140,10 +166,16 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
             return;
           }
 
+          // On iOS CoreLocation, watchPosition(enableHighAccuracy: true) often emits 1-2 transient
+          // kCLErrorLocationUnknown (code 2) events while warming up the GNSS receiver.
+          // Let watchPosition keep trying before falling back to low-accuracy network mode!
+          if (highAccuracy && err.code === 2 && transientErrorCount < 2) {
+            transientErrorCount += 1;
+            return;
+          }
+
           clearCurrentWatch();
 
-          // On iOS CoreLocation (kCLErrorLocationUnknown = code 2) or indoor timeout (code 3),
-          // automatically fall back from highAccuracy satellite mode to fused/network positioning
           if (highAccuracy && (err.code === 2 || err.code === 3)) {
             startWatch(false);
             return;
@@ -152,17 +184,19 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
           setGpsStatus('permission_denied');
           setIsLiveGpsActive(false);
           setGpsAccuracyMeters(null);
-          setGpsErrorModal({
-            title: 'Canlı GPS Konumu Alınamadı',
-            message:
-              err.code === 1
-                ? 'Tarayıcı konum izni reddedildi veya bağlantı güvenli (HTTPS) değil. iOS kullanıyorsanız Ayarlar > Gizlilik ve Güvenlik > Konum Servisleri > Safari Web Siteleri izninin "Uygulamayı Kullanırken" ve "Tam Konum" açık olduğundan ve HTTPS bağlantısı kullandığınızdan emin olun.'
-                : 'Cihazınızdan anlık GPS sinyali alınamadı. Lütfen açık alanda olduğunuzdan ve cihaz konum servislerinin açık olduğundan emin olup tekrar deneyin.',
-          });
+          if (!silentAutoStart) {
+            setGpsErrorModal({
+              title: 'Canlı GPS Konumu Alınamadı',
+              message:
+                err.code === 1
+                  ? 'Tarayıcı konum izni reddedildi veya bağlantı güvenli (HTTPS) değil. iOS kullanıyorsanız Ayarlar > Gizlilik ve Güvenlik > Konum Servisleri > Safari Web Siteleri izninin "Uygulamayı Kullanırken" ve "Tam Konum" açık olduğundan ve HTTPS bağlantısı kullandığınızdan emin olun.'
+                  : 'Cihazınızdan anlık GPS sinyali alınamadı. Lütfen açık alanda olduğunuzdan ve cihaz konum servislerinin açık olduğundan emin olup tekrar deneyin.',
+            });
+          }
         },
         {
           enableHighAccuracy: highAccuracy,
-          maximumAge: highAccuracy ? 0 : 5000,
+          maximumAge: highAccuracy ? 2000 : 5000,
           timeout: highAccuracy ? 15000 : 20000,
         }
       );
@@ -182,9 +216,35 @@ export function useLiveGeolocation({ onPositionUpdate, onNotice }: UseLiveGeoloc
       stopLiveGps();
       onNoticeRef.current?.('Canlı GPS takibi durduruldu.');
     } else {
-      startLiveGps();
+      startLiveGps(false);
     }
   }, [isLiveGpsActive, gpsStatus, stopLiveGps, startLiveGps]);
+
+  // Auto-request GPS on initial app mount; silently falls back to Marmaray default if off-campus or unavailable
+  useEffect(() => {
+    startLiveGps(true);
+  }, [startLiveGps]);
+
+  // Battery saver: automatically suspend hardware GPS watch when phone screen is locked or tab is in background,
+  // and resume seamlessly when the student returns to the app.
+  useEffect(() => {
+    if (!isLiveGpsActive && gpsStatus !== 'searching') return;
+
+    const handleVisibility = () => {
+      if (typeof document === 'undefined') return;
+      if (document.visibilityState === 'hidden') {
+        if (watchIdRef.current !== null && 'geolocation' in navigator) {
+          navigator.geolocation.clearWatch(watchIdRef.current);
+          watchIdRef.current = null;
+        }
+      } else if (document.visibilityState === 'visible' && watchIdRef.current === null) {
+        startLiveGps(true);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [isLiveGpsActive, gpsStatus, startLiveGps]);
 
   // Cleanup on unmount
   useEffect(() => {

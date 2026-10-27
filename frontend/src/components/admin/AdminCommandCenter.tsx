@@ -39,6 +39,17 @@ interface AdminCommandCenterProps {
   announcements: CampusAnnouncement[];
   adminMapMode: AdminMapInteractionMode;
   selectedBuildingId: string | null;
+  onSelectBuildingId?: (buildingId: string | null) => void;
+  onTransformSelectedBuilding?: (
+    buildingId: string,
+    opts: {
+      scaleX?: number;
+      scaleY?: number;
+      rotateDeg?: number;
+      dLon?: number;
+      dLat?: number;
+    }
+  ) => void;
   pickedCoords: { lat: number; lon: number } | null;
   pickedEntranceCoords?: { lat: number; lon: number } | null;
   pickedSecondaryEntranceCoords?: { lat: number; lon: number } | null;
@@ -104,6 +115,8 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
   announcements,
   adminMapMode,
   selectedBuildingId,
+  onSelectBuildingId,
+  onTransformSelectedBuilding,
   pickedCoords,
   pickedEntranceCoords = null,
   pickedSecondaryEntranceCoords = null,
@@ -222,6 +235,9 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
       entrance_lat: selectedBuilding.entrance_lat,
       entrance_lon: selectedBuilding.entrance_lon,
       entrance_name: editEntranceName.trim() || selectedBuilding.entrance_name,
+      secondary_entrance_lat: selectedBuilding.secondary_entrance_lat ?? undefined,
+      secondary_entrance_lon: selectedBuilding.secondary_entrance_lon ?? undefined,
+      secondary_entrance_name: selectedBuilding.secondary_entrance_name ?? undefined,
       polygon_coords: selectedBuilding.polygon_coords,
       description: selectedBuilding.description || undefined,
     });
@@ -280,7 +296,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
       polygon_coords: polyCoords,
       osm_way_ids:
         selectedFootprints.length > 0
-          ? selectedFootprints.filter((fp) => fp.osm_way_id > 0).map((fp) => fp.osm_way_id)
+          ? selectedFootprints.map((fp) => fp.osm_way_id)
           : undefined,
     });
 
@@ -1078,17 +1094,116 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                   <DoorClosed className="w-4 h-4 text-emerald-500" />
                   <span>3. Mevcut Binayı Düzenle / Sil</span>
                 </div>
-                <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
-                  Seçili Bina:{' '}
-                  <strong className="text-zinc-900 dark:text-zinc-100">
-                    {selectedBuilding
-                      ? `${selectedBuilding.code} — ${selectedBuilding.name}`
-                      : 'Haritadan kayıtlı bir binaya tıklayın'}
-                  </strong>
-                </p>
+                <select
+                  value={selectedBuildingId || ''}
+                  onChange={(e) => onSelectBuildingId?.(e.target.value || null)}
+                  className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold text-xs outline-none"
+                >
+                  <option value="">— Haritadan veya listeden bina seçin —</option>
+                  {buildings.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.code} — {b.name}
+                    </option>
+                  ))}
+                </select>
 
                 {selectedBuilding && (
                   <form onSubmit={handleUpdateSelectedBuilding} className="space-y-2 pt-2 border-t-2 border-zinc-950/20">
+                    {onTransformSelectedBuilding && (
+                      <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/40 space-y-1.5">
+                        <div className="text-[10px] font-black text-emerald-900 dark:text-emerald-300 uppercase">
+                          Bina Boyut, Yön & Konum Ayarla (Otomatik Kaydedilir)
+                        </div>
+                        <div className="grid grid-cols-6 gap-1">
+                          <button
+                            type="button"
+                            onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { scaleX: 0.9, scaleY: 0.9 })}
+                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                          >
+                            Küçült
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { scaleX: 1.1, scaleY: 1.1 })}
+                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                          >
+                            Büyüt
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { scaleX: 0.9, scaleY: 1 })}
+                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                          >
+                            En-
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { scaleX: 1.1, scaleY: 1 })}
+                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                          >
+                            En+
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { scaleX: 1, scaleY: 0.9 })}
+                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                          >
+                            Boy-
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { scaleX: 1, scaleY: 1.1 })}
+                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                          >
+                            Boy+
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-6 gap-1">
+                          <button
+                            type="button"
+                            onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { rotateDeg: -10 })}
+                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-amber-100"
+                          >
+                            ↺ -10°
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { rotateDeg: 10 })}
+                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-amber-100"
+                          >
+                            ↻ +10°
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { dLon: -0.00003 })}
+                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                          >
+                            ←
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { dLat: 0.000025 })}
+                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { dLat: -0.000025 })}
+                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                          >
+                            ↓
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { dLon: 0.00003 })}
+                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                          >
+                            →
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <div className="grid grid-cols-3 gap-2">
                       <input
                         type="text"

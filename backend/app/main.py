@@ -6,6 +6,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import or_, text
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.ai.ticket_classifier import analyze_written_ticket, get_or_load_model
 from app.config import settings
@@ -27,6 +28,7 @@ from app.schemas import (
     CustomEdgeCreate,
     EdgeToggleRequest,
     FootprintDeleteRequest,
+    FootprintUpdateRequest,
     MapAlertCreate,
     MapAlertSchema,
     MapAlertVoteRequest,
@@ -271,6 +273,48 @@ def get_campus_bootstrap(
     )
 
 
+def _extract_building_rings(polygon_coords: list | None) -> list[list[list[float]]]:
+    if not polygon_coords or not isinstance(polygon_coords, list):
+        return []
+    try:
+        first = polygon_coords[0][0][0]
+        if isinstance(first, (int, float)):
+            return polygon_coords  # Polygon: [ring, ...]
+        if isinstance(first, list):
+            return [ring for poly in polygon_coords if isinstance(poly, list) for ring in poly]
+    except (IndexError, TypeError):
+        pass
+    return []
+
+
+def _point_in_ring(lon: float, lat: float, ring: list[list[float]]) -> bool:
+    inside = False
+    n = len(ring)
+    if n < 3:
+        return False
+    j = n - 1
+    for i in range(n):
+        xi, yi = float(ring[i][0]), float(ring[i][1])
+        xj, yj = float(ring[j][0]), float(ring[j][1])
+        if ((yi > lat) != (yj > lat)) and (lon < (xj - xi) * (lat - yi) / ((yj - yi) or 1e-12) + xi):
+            inside = not inside
+        j = i
+    return inside
+
+
+def _find_containing_building(
+    db: Session, lat: float, lon: float, exclude_building_id: str | None = None
+) -> Building | None:
+    buildings = db.query(Building).all()
+    for b in buildings:
+        if exclude_building_id and b.id == exclude_building_id:
+            continue
+        for ring in _extract_building_rings(b.polygon_coords):
+            if _point_in_ring(lon, lat, ring):
+                return b
+    return None
+
+
 @app.post("/api/route", response_model=RouteResponse)
 def calculate_route(req: RouteRequest, db: Session = Depends(get_db)) -> RouteResponse:
     init_db()
@@ -283,52 +327,77 @@ def calculate_route(req: RouteRequest, db: Session = Depends(get_db)) -> RouteRe
     )
     blocked_edges = {a.edge_id for a in active_closures if a.edge_id}
 
+    # If the user starts inside a building polygon, snap start to that building's exit door(s)
+    # so routes never cut through closed walls where there is no exit door.
+    start_b = _find_containing_building(db, req.start_lat, req.start_lon, req.target_building_id)
+    start_doors: list[tuple[float, float]] = [(req.start_lat, req.start_lon)]
+    if start_b is not None:
+        start_doors = [(start_b.entrance_lat, start_b.entrance_lon)]
+        if start_b.secondary_entrance_lat is not None and start_b.secondary_entrance_lon is not None:
+            start_doors.append((start_b.secondary_entrance_lat, start_b.secondary_entrance_lon))
+
+    def _run_with_start_door(
+        s_lat: float,
+        s_lon: float,
+        t_lat: float,
+        t_lon: float,
+        t_node_id: str | None,
+        t_name: str,
+    ) -> dict:
+        res = compute_pedestrian_route(
+            graph=graph,
+            start_lat=s_lat,
+            start_lon=s_lon,
+            target_lat=t_lat,
+            target_lon=t_lon,
+            blocked_edges=blocked_edges,
+            target_node_id=t_node_id,
+            target_entrance_name=t_name,
+        )
+        if start_b is not None and res["coordinates"]:
+            first_lon, first_lat = res["coordinates"][0]
+            if haversine_m(s_lat, s_lon, first_lat, first_lon) > 1.0:
+                res["coordinates"] = [[round(s_lon, 6), round(s_lat, 6)]] + res["coordinates"]
+        return res
+
     if req.target_building_id:
         b = db.query(Building).filter(Building.id == req.target_building_id).first()
         if not b:
             raise HTTPException(status_code=404, detail="Hedef bina bulunamadı.")
 
-        primary_res = compute_pedestrian_route(
-            graph=graph,
-            start_lat=req.start_lat,
-            start_lon=req.start_lon,
-            target_lat=b.entrance_lat,
-            target_lon=b.entrance_lon,
-            blocked_edges=blocked_edges,
-            target_node_id=b.entrance_node_id,
-            target_entrance_name=b.entrance_name,
-        )
-
+        target_doors: list[tuple[float, float, str | None, str]] = [
+            (b.entrance_lat, b.entrance_lon, b.entrance_node_id, b.entrance_name)
+        ]
         if b.secondary_entrance_lat is not None and b.secondary_entrance_lon is not None:
-            secondary_res = compute_pedestrian_route(
-                graph=graph,
-                start_lat=req.start_lat,
-                start_lon=req.start_lon,
-                target_lat=b.secondary_entrance_lat,
-                target_lon=b.secondary_entrance_lon,
-                blocked_edges=blocked_edges,
-                target_node_id=b.secondary_entrance_node_id,
-                target_entrance_name=b.secondary_entrance_name or f"{b.code} 2. Giriş Kapısı",
+            target_doors.append(
+                (
+                    b.secondary_entrance_lat,
+                    b.secondary_entrance_lon,
+                    b.secondary_entrance_node_id,
+                    b.secondary_entrance_name or f"{b.code} 2. Giriş Kapısı",
+                )
             )
-            if secondary_res["distance_m"] < primary_res["distance_m"]:
-                return RouteResponse(**secondary_res)
 
-        return RouteResponse(**primary_res)
+        best_res: dict | None = None
+        for s_lat, s_lon in start_doors:
+            for t_lat, t_lon, t_node_id, t_name in target_doors:
+                cand = _run_with_start_door(s_lat, s_lon, t_lat, t_lon, t_node_id, t_name)
+                if best_res is None or cand["distance_m"] < best_res["distance_m"]:
+                    best_res = cand
+
+        return RouteResponse(**best_res)
 
     if req.target_lat is None or req.target_lon is None:
         raise HTTPException(status_code=422, detail="Hedef bina veya koordinat belirtilmelidir.")
 
-    result = compute_pedestrian_route(
-        graph=graph,
-        start_lat=req.start_lat,
-        start_lon=req.start_lon,
-        target_lat=req.target_lat,
-        target_lon=req.target_lon,
-        blocked_edges=blocked_edges,
-        target_node_id=None,
-        target_entrance_name="Seçilen Kampüs Noktası",
-    )
-    return RouteResponse(**result)
+    best_custom: dict | None = None
+    for s_lat, s_lon in start_doors:
+        cand = _run_with_start_door(
+            s_lat, s_lon, req.target_lat, req.target_lon, None, "Seçilen Kampüs Noktası"
+        )
+        if best_custom is None or cand["distance_m"] < best_custom["distance_m"]:
+            best_custom = cand
+    return RouteResponse(**best_custom)
 
 
 @app.post("/api/alerts", response_model=MapAlertSchema)
@@ -638,6 +707,7 @@ def create_or_update_building(
             b.secondary_entrance_name = sec_name
         if req.polygon_coords:
             b.polygon_coords = req.polygon_coords
+            flag_modified(b, "polygon_coords")
         if req.description is not None:
             b.description = req.description
     else:
@@ -740,6 +810,55 @@ def delete_extra_footprints(
     if deleted_count > 0:
         save_walk_graph(graph)
     return {"deleted_count": deleted_count, "osm_way_ids": req.osm_way_ids}
+
+
+@app.post("/api/admin/footprints/update")
+def update_extra_footprints(
+    req: FootprintUpdateRequest,
+    _: str = Depends(verify_admin_key),
+) -> dict:
+    init_db()
+    graph = load_walk_graph()
+    extra_fps = graph.get("extra_building_footprints", [])
+    fp_map = {fp.get("osm_way_id"): fp for fp in extra_fps if fp.get("osm_way_id") is not None}
+    updated_count = 0
+
+    for item in req.footprints:
+        if not item.coords or len(item.coords) < 3:
+            continue
+        ring = item.coords
+        n = len(ring) - 1 if (len(ring) > 3 and ring[0] == ring[-1]) else len(ring)
+        avg_lon = round(sum(pt[0] for pt in ring[:n]) / max(1, n), 6)
+        avg_lat = round(sum(pt[1] for pt in ring[:n]) / max(1, n), 6)
+
+        if item.osm_way_id in fp_map:
+            target = fp_map[item.osm_way_id]
+            target["coords"] = ring
+            target["lat"] = avg_lat
+            target["lon"] = avg_lon
+            if item.name:
+                target["name"] = item.name
+            updated_count += 1
+        else:
+            new_fp = {
+                "osm_way_id": item.osm_way_id,
+                "name": item.name or "Kampüs Ek Bina / Laboratuvar",
+                "coords": ring,
+                "lat": avg_lat,
+                "lon": avg_lon,
+            }
+            extra_fps.append(new_fp)
+            fp_map[item.osm_way_id] = new_fp
+            updated_count += 1
+
+    if updated_count > 0:
+        graph["extra_building_footprints"] = extra_fps
+        save_walk_graph(graph)
+
+    return {
+        "updated_count": updated_count,
+        "osm_way_ids": [f.osm_way_id for f in req.footprints],
+    }
 
 
 @app.post("/api/admin/poi", response_model=MapAlertSchema)

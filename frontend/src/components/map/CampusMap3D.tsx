@@ -634,6 +634,22 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             }
           }
         }
+        // Check if an existing registered building was clicked
+        const existingBldLayers = ['campus-buildings-3d', 'buildings-top'].filter((id) =>
+          Boolean(map.getLayer(id))
+        );
+        if (existingBldLayers.length > 0) {
+          const bFeatures = map.queryRenderedFeatures(e.point, {
+            layers: existingBldLayers,
+          });
+          if (bFeatures.length > 0) {
+            const bId = String(bFeatures[0].properties?.id || '');
+            if (bId) {
+              cb.onSelectBuilding(bId);
+              return;
+            }
+          }
+        }
         // Fallback: clicked open ground
         cb.onAdminPickBuildingCoords(clickLat, clickLon);
         return;

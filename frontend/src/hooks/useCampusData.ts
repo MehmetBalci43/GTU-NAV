@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Building,
   WalkGraph,
@@ -20,14 +20,33 @@ export function useCampusData() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<SearchResultItem[]>([]);
 
+  const buildingsRef = useRef<Building[]>(buildings);
+  buildingsRef.current = buildings;
+  const dirtyBuildingsRef = useRef<Map<string, Partial<Building>>>(new Map());
+  const autoSaveTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+
   const refreshBootstrap = useCallback(async () => {
     try {
       const data = await api.getBootstrap();
-      setBuildings(data.buildings);
-      setWalkGraph(data.walk_graph);
-      setActiveAlerts(data.active_alerts);
-      setBlockedEdgeIds(data.blocked_edge_ids);
-      setAnnouncements(data.announcements);
+      const mergedBuildings = data.buildings.map((b) => {
+        const pendingPatch = dirtyBuildingsRef.current.get(b.id);
+        return pendingPatch ? { ...b, ...pendingPatch } : b;
+      });
+      setBuildings((prev) =>
+        JSON.stringify(prev) === JSON.stringify(mergedBuildings) ? prev : mergedBuildings
+      );
+      setWalkGraph((prev) =>
+        JSON.stringify(prev) === JSON.stringify(data.walk_graph) ? prev : data.walk_graph
+      );
+      setActiveAlerts((prev) =>
+        JSON.stringify(prev) === JSON.stringify(data.active_alerts) ? prev : data.active_alerts
+      );
+      setBlockedEdgeIds((prev) =>
+        JSON.stringify(prev) === JSON.stringify(data.blocked_edge_ids) ? prev : data.blocked_edge_ids
+      );
+      setAnnouncements((prev) =>
+        JSON.stringify(prev) === JSON.stringify(data.announcements) ? prev : data.announcements
+      );
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Kampüs verileri yüklenemedi');
@@ -43,7 +62,7 @@ export function useCampusData() {
       if (typeof document === 'undefined' || document.visibilityState === 'visible') {
         refreshBootstrap();
       }
-    }, 4000);
+    }, 8000);
 
     const handleVisibilityOrFocus = () => {
       if (typeof document === 'undefined' || document.visibilityState === 'visible') {
@@ -146,9 +165,49 @@ export function useCampusData() {
 
   const previewBuildingLocally = useCallback(
     (buildingId: string, patch: Partial<Building>) => {
-      setBuildings((prev) =>
-        prev.map((b) => (b.id === buildingId ? { ...b, ...patch } : b))
-      );
+      const prevPatch = dirtyBuildingsRef.current.get(buildingId) || {};
+      const nextPatch = { ...prevPatch, ...patch };
+      dirtyBuildingsRef.current.set(buildingId, nextPatch);
+
+      setBuildings((prev) => {
+        const nextList = prev.map((b) => (b.id === buildingId ? { ...b, ...nextPatch } : b));
+        buildingsRef.current = nextList;
+        return nextList;
+      });
+
+      const prevTimer = autoSaveTimersRef.current.get(buildingId);
+      if (prevTimer) clearTimeout(prevTimer);
+
+      const timer = setTimeout(async () => {
+        const target = buildingsRef.current.find((b) => b.id === buildingId);
+        if (!target || target.code.trim().length < 2 || target.name.trim().length < 3) return;
+        try {
+          await api.createOrUpdateBuilding({
+            id: target.id,
+            code: target.code,
+            name: target.name,
+            category: target.category,
+            floors_count: target.floors_count,
+            lat: target.lat,
+            lon: target.lon,
+            entrance_lat: target.entrance_lat,
+            entrance_lon: target.entrance_lon,
+            entrance_name: target.entrance_name,
+            secondary_entrance_lat: target.secondary_entrance_lat ?? undefined,
+            secondary_entrance_lon: target.secondary_entrance_lon ?? undefined,
+            secondary_entrance_name: target.secondary_entrance_name ?? undefined,
+            polygon_coords: target.polygon_coords,
+            description: target.description ?? undefined,
+          });
+          if (dirtyBuildingsRef.current.get(buildingId) === nextPatch) {
+            dirtyBuildingsRef.current.delete(buildingId);
+          }
+        } catch {
+          // Keep dirty patch in memory if network/auth temporarily fails
+        }
+      }, 220);
+
+      autoSaveTimersRef.current.set(buildingId, timer);
     },
     []
   );
@@ -172,6 +231,12 @@ export function useCampusData() {
       osm_way_ids?: number[];
       description?: string;
     }) => {
+      const prevTimer = autoSaveTimersRef.current.get(payload.id);
+      if (prevTimer) {
+        clearTimeout(prevTimer);
+        autoSaveTimersRef.current.delete(payload.id);
+      }
+      dirtyBuildingsRef.current.delete(payload.id);
       await api.createOrUpdateBuilding(payload);
       await refreshBootstrap();
     },
@@ -180,6 +245,12 @@ export function useCampusData() {
 
   const removeCampusBuilding = useCallback(
     async (buildingId: string, keepFootprint: boolean = false) => {
+      const prevTimer = autoSaveTimersRef.current.get(buildingId);
+      if (prevTimer) {
+        clearTimeout(prevTimer);
+        autoSaveTimersRef.current.delete(buildingId);
+      }
+      dirtyBuildingsRef.current.delete(buildingId);
       await api.deleteBuilding(buildingId, keepFootprint);
       await refreshBootstrap();
     },
@@ -192,6 +263,55 @@ export function useCampusData() {
       await refreshBootstrap();
     },
     [refreshBootstrap]
+  );
+
+  const updateExtraFootprints = useCallback(
+    async (footprints: { osm_way_id: number; name?: string; coords: number[][] }[]) => {
+      if (footprints.length === 0) return;
+      setWalkGraph((prev) => {
+        if (!prev) return prev;
+        const fpMap = new Map(footprints.map((f) => [f.osm_way_id, f]));
+        const existingIds = new Set(
+          (prev.extra_building_footprints || []).map((f) => f.osm_way_id)
+        );
+        const updatedExisting = (prev.extra_building_footprints || []).map((fp) => {
+          const patch = fpMap.get(fp.osm_way_id);
+          if (!patch) return fp;
+          const ring = patch.coords;
+          const n = ring.length > 3 && ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1] ? ring.length - 1 : ring.length;
+          const avgLon = Number((ring.slice(0, n).reduce((s, p) => s + p[0], 0) / Math.max(1, n)).toFixed(6));
+          const avgLat = Number((ring.slice(0, n).reduce((s, p) => s + p[1], 0) / Math.max(1, n)).toFixed(6));
+          return {
+            ...fp,
+            name: patch.name || fp.name,
+            coords: patch.coords,
+            lat: avgLat,
+            lon: avgLon,
+          };
+        });
+        const newItems = footprints
+          .filter((f) => !existingIds.has(f.osm_way_id))
+          .map((f) => {
+            const ring = f.coords;
+            const n = ring.length > 3 ? ring.length - 1 : ring.length;
+            const avgLon = Number((ring.slice(0, n).reduce((s, p) => s + p[0], 0) / Math.max(1, n)).toFixed(6));
+            const avgLat = Number((ring.slice(0, n).reduce((s, p) => s + p[1], 0) / Math.max(1, n)).toFixed(6));
+            return {
+              osm_way_id: f.osm_way_id,
+              name: f.name || 'Kampüs Ek Bina / Laboratuvar',
+              coords: f.coords,
+              lat: avgLat,
+              lon: avgLon,
+            };
+          });
+        return {
+          ...prev,
+          extra_building_footprints: [...updatedExisting, ...newItems],
+        };
+      });
+      await api.updateExtraFootprints(footprints);
+    },
+    []
   );
 
   const addWalkwayEdge = useCallback(
@@ -245,6 +365,7 @@ export function useCampusData() {
     addOrUpdateCampusBuilding,
     removeCampusBuilding,
     removeExtraFootprints,
+    updateExtraFootprints,
     addWalkwayEdge,
     publishAnnouncement,
     removeAnnouncement,
