@@ -307,12 +307,28 @@ def _find_containing_building(
     db: Session, lat: float, lon: float, exclude_building_id: str | None = None
 ) -> Building | None:
     buildings = db.query(Building).all()
+    # 1. Exact polygon footprint containment check
     for b in buildings:
         if exclude_building_id and b.id == exclude_building_id:
             continue
         for ring in _extract_building_rings(b.polygon_coords):
             if _point_in_ring(lon, lat, ring):
                 return b
+
+    # 2. Indoor GPS drift proximity tolerance (within 25m of building center)
+    nearest_b = None
+    min_dist = float("inf")
+    for b in buildings:
+        if exclude_building_id and b.id == exclude_building_id:
+            continue
+        dist = haversine_m(lat, lon, b.lat, b.lon)
+        if dist < min_dist:
+            min_dist = dist
+            nearest_b = b
+
+    if nearest_b is not None and min_dist <= 25.0:
+        return nearest_b
+
     return None
 
 
