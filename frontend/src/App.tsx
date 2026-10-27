@@ -69,8 +69,9 @@ export const App: React.FC = () => {
     computeRouteToBuilding,
     applyRawCoordinates,
     setUserStartCoords,
+    toggleSimulateWalk,
     clearNavigation,
-  } = useNavigation(blockedEdgeIds);
+  } = useNavigation(blockedEdgeIds, isAdmin);
 
   const {
     isLiveGpsActive,
@@ -237,7 +238,9 @@ export const App: React.FC = () => {
         destId,
         lat,
         lon,
-        'Yeni başlangıç konumunuza göre Snap-to-Path rotası güncellendi'
+        isAdmin
+          ? 'Yeni başlangıç konumunuza göre Snap-to-Path rotası güncellendi'
+          : 'Yeni başlangıç konumunuza göre rota güncellendi'
       );
     } else {
       showToast('Başlangıç konumunuz seçilen noktaya taşındı');
@@ -321,11 +324,13 @@ export const App: React.FC = () => {
           }
           toggleLiveGps();
         }}
+        showAlerts={mapControls?.showAlerts ?? true}
+        onToggleAlerts={mapControls?.toggleAlerts}
       />
 
       {/* Tactile Toast / Reroute Notification Pill (Positioned at top-28 with spring animation so it never collides with top bars) */}
       {(rerouteNotice || routeError || toastBanner) && adminMapMode === 'none' && (
-        <div className="fixed top-28 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-950 text-zinc-950 dark:text-zinc-100 font-black text-xs shadow-hard-md pointer-events-none animate-toast-pop">
+        <div className="fixed top-28 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-2xl bg-white/92 dark:bg-[#161922]/92 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] text-zinc-900 dark:text-zinc-100 font-semibold text-xs shadow-hard-md dark:shadow-hard-night-md pointer-events-none animate-toast-pop">
           {rerouteNotice || routeError || toastBanner}
         </div>
       )}
@@ -335,10 +340,9 @@ export const App: React.FC = () => {
         <NavigationManeuverHUD
           activeRoute={activeRoute}
           userPos={userPos}
+          isAdmin={isAdmin}
           isSimulatingWalk={isSimulatingWalk}
-          onToggleSimulateWalk={() => {
-            setIsSimulatingWalk((prev) => !prev);
-          }}
+          onToggleSimulateWalk={toggleSimulateWalk}
           isLiveGpsActive={isLiveGpsActive}
           onToggleLiveGps={() => {
             if (!isLiveGpsActive) {
@@ -507,7 +511,7 @@ export const App: React.FC = () => {
               setSelectedBuildingId(null);
             }
           }}
-          onToggleSimulateWalk={() => setIsSimulatingWalk((prev) => !prev)}
+          onToggleSimulateWalk={toggleSimulateWalk}
           onToggleLiveGps={toggleLiveGps}
           onClearRoute={() => {
             clearNavigation();
@@ -672,6 +676,7 @@ export const App: React.FC = () => {
         isOpen={isWrittenTicketOpen}
         buildings={buildings}
         reporterEmail={user.email}
+        isAdmin={isAdmin}
         initialBuildingId={ticketTarget.buildingId}
         initialClassroomId={ticketTarget.classroomId}
         onClose={() => setIsWrittenTicketOpen(false)}
@@ -684,28 +689,28 @@ export const App: React.FC = () => {
           onClick={clearGpsErrorModal}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white dark:bg-[#1E222D] border-2 border-zinc-950 shadow-hard-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150"
+            className="w-full max-w-md rounded-2xl bg-white/95 dark:bg-[#161922]/95 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] shadow-hard-lg dark:shadow-hard-night-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/80 border-2 border-zinc-950 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 font-black text-lg">
+              <div className="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 font-bold text-lg">
                 !
               </div>
               <div>
-                <h3 className="text-base font-black text-zinc-950 dark:text-zinc-100">
+                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
                   {gpsErrorModal.title}
                 </h3>
-                <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
+                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
                   {gpsErrorModal.message}
                 </p>
               </div>
             </div>
 
-            <div className="flex justify-end pt-2 border-t border-zinc-200 dark:border-white/10">
+            <div className="flex justify-end pt-2 border-t border-black/[0.08] dark:border-white/[0.10]">
               <button
                 type="button"
                 onClick={clearGpsErrorModal}
-                className="px-4 py-2 rounded-xl bg-sky-400 hover:bg-sky-500 text-zinc-950 font-black text-xs border-2 border-zinc-950 shadow-hard-sm active:scale-95 transition"
+                className="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-semibold text-xs border border-sky-400/40 shadow-sm active:scale-95 transition"
               >
                 Tamam, Anladım
               </button>

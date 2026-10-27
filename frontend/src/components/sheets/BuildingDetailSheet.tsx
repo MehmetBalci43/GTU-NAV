@@ -101,7 +101,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
   const [busyReasonInput, setBusyReasonInput] = useState<Record<string, string>>({});
   const [filterOnlyFree, setFilterOnlyFree] = useState<boolean>(false);
   const [isAdminEntranceMenuOpen, setIsAdminEntranceMenuOpen] = useState<boolean>(false);
-  const [isAdminGeometryOpen, setIsAdminGeometryOpen] = useState<boolean>(isAdmin);
+  const [isAdminGeometryOpen, setIsAdminGeometryOpen] = useState<boolean>(false);
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [isSavingGeometry, setIsSavingGeometry] = useState<boolean>(false);
 
@@ -155,9 +155,9 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
       key={building.id}
       className="hidden md:flex fixed md:top-24 md:right-4 md:bottom-6 md:w-[404px] z-40 pointer-events-auto flex-col animate-sheet-right"
     >
-      <TactileCard className="flex-1 flex flex-col overflow-hidden p-0 border border-zinc-300 dark:border-white/10 shadow-hard-lg dark:shadow-hard-night-lg bg-white dark:bg-[#1E222D]">
+      <TactileCard className="flex-1 flex flex-col overflow-hidden p-0 border-2 border-zinc-950 shadow-hard-lg dark:shadow-hard-night-lg bg-white dark:bg-[#1E222D]">
         {/* Header */}
-        <div className="p-4 border-b border-zinc-200 dark:border-white/10 flex items-start justify-between gap-3 bg-zinc-50/80 dark:bg-zinc-900/60 relative">
+        <div className="p-4 border-b-2 border-zinc-950 flex items-start justify-between gap-3 bg-zinc-50/80 dark:bg-zinc-900/60 relative">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="px-2 py-0.5 rounded-lg bg-sky-400 text-zinc-950 font-black text-xs border border-zinc-950 shadow-[1px_1px_0px_#18181B]">
@@ -310,7 +310,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
               <button
                 type="button"
                 onClick={resetToCleanRectangle}
-                className="text-[10px] font-black px-2 py-0.5 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-white/10 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100"
+                className="text-[10px] font-black px-2 py-0.5 rounded-md bg-white dark:bg-zinc-800 border-2 border-zinc-950 text-zinc-900 dark:text-zinc-100 shadow-hard-sm active:translate-x-0.5 active:translate-y-0.5 transition"
                 title="Bina şeklini düzgün dikdörtgene çevir"
               >
                 Dikdörtgen Yap
@@ -319,13 +319,13 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
 
             {/* 1. Scale & Aspect Ratio Controls */}
             <div className="grid grid-cols-2 gap-2">
-              <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 space-y-1.5">
+              <div className="p-2 rounded-lg bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-1.5">
                 <div className="text-[10px] font-black text-zinc-500 uppercase">Genel Boyut</div>
                 <div className="grid grid-cols-2 gap-1.5">
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ scaleX: 0.9, scaleY: 0.9 })}
-                    className="py-1.5 px-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 dark:hover:bg-sky-950 font-black text-xs flex items-center justify-center gap-1 border border-zinc-300 dark:border-white/10 active:scale-95 transition"
+                    className="py-1.5 px-2 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 dark:hover:bg-sky-950 font-black text-xs flex items-center justify-center gap-1 border-2 border-zinc-950 active:translate-x-0.5 active:translate-y-0.5 transition"
                   >
                     <ZoomOut className="w-3.5 h-3.5" />
                     <span>Küçült</span>
@@ -333,7 +333,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ scaleX: 1.1, scaleY: 1.1 })}
-                    className="py-1.5 px-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 dark:hover:bg-sky-950 font-black text-xs flex items-center justify-center gap-1 border border-zinc-300 dark:border-white/10 active:scale-95 transition"
+                    className="py-1.5 px-2 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 dark:hover:bg-sky-950 font-black text-xs flex items-center justify-center gap-1 border-2 border-zinc-950 active:translate-x-0.5 active:translate-y-0.5 transition"
                   >
                     <ZoomIn className="w-3.5 h-3.5" />
                     <span>Büyüt</span>
@@ -341,13 +341,13 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                 </div>
               </div>
 
-              <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 space-y-1.5">
+              <div className="p-2 rounded-lg bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-1.5">
                 <div className="text-[10px] font-black text-zinc-500 uppercase">En / Boy Oranı</div>
                 <div className="grid grid-cols-4 gap-1">
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ scaleX: 0.9, scaleY: 1 })}
-                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 font-black text-[11px] border border-zinc-300 dark:border-white/10"
+                    className="py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 font-black text-[11px] border-2 border-zinc-950"
                     title="Enini Daralt"
                   >
                     En-
@@ -355,7 +355,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ scaleX: 1.1, scaleY: 1 })}
-                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 font-black text-[11px] border border-zinc-300 dark:border-white/10"
+                    className="py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 font-black text-[11px] border-2 border-zinc-950"
                     title="Enini Genişlet"
                   >
                     En+
@@ -363,7 +363,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ scaleX: 1, scaleY: 0.9 })}
-                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 font-black text-[11px] border border-zinc-300 dark:border-white/10"
+                    className="py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 font-black text-[11px] border-2 border-zinc-950"
                     title="Boyunu Kısalt"
                   >
                     Boy-
@@ -371,7 +371,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ scaleX: 1, scaleY: 1.1 })}
-                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 font-black text-[11px] border border-zinc-300 dark:border-white/10"
+                    className="py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-sky-100 font-black text-[11px] border-2 border-zinc-950"
                     title="Boyunu Uzat"
                   >
                     Boy+
@@ -382,41 +382,41 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
 
             {/* 2. Rotation & Position Nudge Controls */}
             <div className="grid grid-cols-2 gap-2">
-              <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 space-y-1.5">
+              <div className="p-2 rounded-lg bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-1.5">
                 <div className="text-[10px] font-black text-zinc-500 uppercase">Döndür (Açı)</div>
                 <div className="grid grid-cols-4 gap-1">
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ rotateDeg: -15 })}
-                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-100 font-black text-[11px] border border-zinc-300 dark:border-white/10"
+                    className="py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-100 font-black text-[11px] border-2 border-zinc-950"
                   >
                     -15°
                   </button>
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ rotateDeg: -3 })}
-                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-100 font-black text-[11px] border border-zinc-300 dark:border-white/10 flex items-center justify-center"
+                    className="py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-100 font-black text-[11px] border-2 border-zinc-950 flex items-center justify-center"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                   </button>
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ rotateDeg: 3 })}
-                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-100 font-black text-[11px] border border-zinc-300 dark:border-white/10 flex items-center justify-center"
+                    className="py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-100 font-black text-[11px] border-2 border-zinc-950 flex items-center justify-center"
                   >
                     <RotateCw className="w-3.5 h-3.5" />
                   </button>
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ rotateDeg: 15 })}
-                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-100 font-black text-[11px] border border-zinc-300 dark:border-white/10"
+                    className="py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-100 font-black text-[11px] border-2 border-zinc-950"
                   >
                     +15°
                   </button>
                 </div>
               </div>
 
-              <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 space-y-1.5">
+              <div className="p-2 rounded-lg bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-1.5">
                 <div className="text-[10px] font-black text-zinc-500 uppercase flex items-center gap-1">
                   <Move className="w-3 h-3" />
                   <span>Konum Kaydır</span>
@@ -425,7 +425,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ dLon: -0.00003 })}
-                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-100 font-black text-xs border border-zinc-300 dark:border-white/10"
+                    className="py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-100 font-black text-xs border-2 border-zinc-950"
                     title="Batıya Kaydır"
                   >
                     ←
@@ -433,7 +433,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ dLat: 0.000025 })}
-                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-100 font-black text-xs border border-zinc-300 dark:border-white/10"
+                    className="py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-100 font-black text-xs border-2 border-zinc-950"
                     title="Kuzeye Kaydır"
                   >
                     ↑
@@ -441,7 +441,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ dLat: -0.000025 })}
-                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-100 font-black text-xs border border-zinc-300 dark:border-white/10"
+                    className="py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-100 font-black text-xs border-2 border-zinc-950"
                     title="Güneye Kaydır"
                   >
                     ↓
@@ -449,7 +449,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                   <button
                     type="button"
                     onClick={() => applyGeometryTransform({ dLon: 0.00003 })}
-                    className="py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-100 font-black text-xs border border-zinc-300 dark:border-white/10"
+                    className="py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-100 font-black text-xs border-2 border-zinc-950"
                     title="Doğuya Kaydır"
                   >
                     →
@@ -467,7 +467,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                   onAdminPreviewBuilding?.(building.id, { code: e.target.value.toUpperCase() })
                 }
                 placeholder="Kod"
-                className="bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 rounded-xl px-2 py-1.5 font-black text-xs outline-none"
+                className="bg-white dark:bg-zinc-900 border-2 border-zinc-950 rounded-lg px-2 py-1.5 font-black text-xs outline-none"
                 title="Bina Kodu"
               />
               <input
@@ -477,7 +477,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                   onAdminPreviewBuilding?.(building.id, { name: e.target.value })
                 }
                 placeholder="Bina Adı"
-                className="col-span-2 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 rounded-xl px-2.5 py-1.5 font-bold text-xs outline-none"
+                className="col-span-2 bg-white dark:bg-zinc-900 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 font-bold text-xs outline-none"
                 title="Bina Tam Adı"
               />
               <input
@@ -488,7 +488,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                 onChange={(e) =>
                   onAdminPreviewBuilding?.(building.id, { floors_count: Number(e.target.value) || 1 })
                 }
-                className="bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 rounded-xl px-2 py-1.5 font-black text-xs text-center outline-none"
+                className="bg-white dark:bg-zinc-900 border-2 border-zinc-950 rounded-lg px-2 py-1.5 font-black text-xs text-center outline-none"
                 title="Kat Sayısı"
               />
             </div>
@@ -543,7 +543,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
         )}
 
         {/* Navigation & Route Actions (Symmetrical 2-Column Grid) */}
-        <div className="p-3 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-white/10 space-y-2.5">
+        <div className="p-3 bg-white dark:bg-zinc-900 border-b-2 border-zinc-950 space-y-2.5">
           <div className="grid grid-cols-2 gap-2">
             <TactileButton
               size="sm"
@@ -598,8 +598,9 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                   }
                   onClick={onToggleSimulateWalk}
                   className="flex-1"
+                  title={isSimulatingWalk ? 'Simülasyonu durdur ve gerçek konuma dön' : 'Yürüyüş rotasını haritada simüle et'}
                 >
-                  {isSimulatingWalk ? 'Duraklat' : 'Simülatörü Başlat'}
+                  {isSimulatingWalk ? 'Simülasyonu Durdur' : 'Rotayı Önizle'}
                 </TactileButton>
 
                 <TactileButton
@@ -614,31 +615,31 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
           )}
         </div>
 
-        {/* Apple HIG Segmented Control (1. Amfi Durumları | 2. Ders Programı) */}
-        <div className="px-3 pt-2.5 pb-2 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-white/10">
-          <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/90 border border-zinc-200/80 dark:border-white/10">
+        {/* Segmented Control (1. Amfi Durumları | 2. Ders Programı) */}
+        <div className="p-2 border-b-2 border-zinc-950 bg-zinc-100 dark:bg-zinc-800">
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-zinc-200 dark:bg-zinc-900 rounded-lg border-2 border-zinc-950">
             <button
               type="button"
               onClick={() => setActiveTab('radar')}
-              className={`py-1.5 px-2 rounded-lg text-xs font-black transition flex items-center justify-center gap-1.5 ${
+              className={`py-1.5 px-2 rounded-md text-xs font-black transition flex items-center justify-center gap-1.5 ${
                 activeTab === 'radar'
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-100 shadow-sm border border-zinc-300 dark:border-white/15'
-                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-transparent'
+                  ? 'bg-amber-400 text-zinc-950 border-2 border-zinc-950 shadow-hard-sm'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100'
               }`}
             >
-              <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'radar' ? 'text-emerald-500' : ''}`} />
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
               <span>Amfi Durumları ({rooms.length})</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('schedule')}
-              className={`py-1.5 px-2 rounded-lg text-xs font-black transition flex items-center justify-center gap-1.5 ${
+              className={`py-1.5 px-2 rounded-md text-xs font-black transition flex items-center justify-center gap-1.5 ${
                 activeTab === 'schedule'
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-100 shadow-sm border border-zinc-300 dark:border-white/15'
-                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-transparent'
+                  ? 'bg-sky-400 text-zinc-950 border-2 border-zinc-950 shadow-hard-sm'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100'
               }`}
             >
-              <Calendar className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'schedule' ? 'text-sky-500' : ''}`} />
+              <Calendar className="w-3.5 h-3.5 shrink-0" />
               <span>Ders Programı</span>
             </button>
           </div>
@@ -647,16 +648,16 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
         {/* Tab 1: Live Amphitheater Radar */}
         {activeTab === 'radar' ? (
           <>
-            <div className="px-4 py-2 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-xs bg-zinc-50 dark:bg-zinc-900/50">
-              <span className="font-extrabold text-zinc-700 dark:text-zinc-300">
+            <div className="px-4 py-2 border-b-2 border-zinc-950 flex items-center justify-between text-xs bg-zinc-50 dark:bg-zinc-900/80 font-black">
+              <span className="text-zinc-900 dark:text-zinc-100">
                 Anlık Durum ({roomsData?.query_time || 'TR Saati'})
               </span>
-              <label className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300 font-bold cursor-pointer select-none">
+              <label className="flex items-center gap-1.5 text-zinc-900 dark:text-zinc-100 font-black cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={filterOnlyFree}
                   onChange={(e) => setFilterOnlyFree(e.target.checked)}
-                  className="rounded border-zinc-400 accent-emerald-500"
+                  className="rounded border-2 border-zinc-950 accent-emerald-500"
                 />
                 <span>Sadece Boş Olanlar</span>
               </label>
@@ -675,13 +676,13 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                 displayedRooms.map((room) => (
                   <div
                     key={room.id}
-                    className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border-2 border-zinc-950 shadow-hard-sm space-y-2 text-xs"
+                    className="p-3 rounded-lg bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2 text-xs"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <div className="font-black text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+                        <div className="font-extrabold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
                           <span>{room.name}</span>
-                          <span className="text-[10px] text-zinc-500 font-normal">
+                          <span className="text-[10px] text-zinc-500 font-bold">
                             (Kat {room.floor} • {room.capacity} Kişi)
                           </span>
                         </div>
@@ -691,7 +692,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                               <Zap className="w-3 h-3" /> Priz Var
                             </span>
                           ) : (
-                            <span className="text-zinc-400">Priz Yok</span>
+                            <span className="text-zinc-400 font-medium">Priz Yok</span>
                           )}
                           <span>•</span>
                           <span>
@@ -729,16 +730,16 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                     </div>
 
                     {!room.is_currently_free && room.current_course_name && (
-                      <div className="text-[11px] text-rose-900 dark:text-rose-200 bg-rose-50 dark:bg-rose-950/60 p-2 rounded-lg border border-rose-300 dark:border-rose-800 font-medium">
+                      <div className="text-[11px] text-zinc-950 dark:text-zinc-950 bg-rose-200 dark:bg-rose-300 p-2 rounded-md border-2 border-zinc-950 font-bold">
                         Aktif Ders: <strong>{room.current_course_code}</strong> —{' '}
                         {room.current_course_name} (Bitiş: {room.current_course_ends_at})
                       </div>
                     )}
 
                     {room.is_crowd_busy && (
-                      <div className="flex items-center justify-between gap-2 text-[11px] text-amber-900 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/60 p-2 rounded-lg border border-amber-300 dark:border-amber-800">
-                        <span className="flex items-center gap-1.5 font-bold">
-                          <Users className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <div className="flex items-center justify-between gap-2 text-[11px] text-zinc-950 dark:text-zinc-950 bg-amber-200 dark:bg-amber-300 p-2 rounded-md border-2 border-zinc-950 font-bold">
+                        <span className="flex items-center gap-1.5">
+                          <Users className="w-3.5 h-3.5 shrink-0" />
                           <span>{room.crowd_busy_reason}</span>
                         </span>
                         {isAdmin && (
@@ -768,7 +769,7 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                               }))
                             }
                             placeholder="Örn: Kulüp toplantısı / etüt var..."
-                            className="flex-1 min-w-[130px] bg-white dark:bg-zinc-950 border border-zinc-950 rounded-lg px-2.5 py-1 text-[11px] text-zinc-900 dark:text-zinc-100 font-semibold outline-none"
+                            className="flex-1 min-w-[130px] bg-zinc-50 dark:bg-zinc-800 border-2 border-zinc-950 rounded-md px-2.5 py-1 text-[11px] text-zinc-900 dark:text-zinc-100 font-bold outline-none"
                           />
                           <TactileButton
                             size="sm"
@@ -805,16 +806,16 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
         ) : (
           /* Tab 2: Weekly Course Schedule (Pazartesi - Cuma) */
           <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="p-2 border-b-2 border-zinc-950 flex items-center gap-1 bg-zinc-100 dark:bg-zinc-950">
+            <div className="p-2 border-b-2 border-zinc-950 flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800">
               {WEEKDAYS.map((w) => (
                 <button
                   key={w.day}
                   type="button"
                   onClick={() => setSelectedDay(w.day)}
-                  className={`flex-1 py-1.5 rounded-lg text-xs font-black transition border-2 border-zinc-950 ${
+                  className={`flex-1 py-1.5 rounded-md text-xs font-black transition border-2 border-zinc-950 ${
                     selectedDay === w.day
-                      ? 'bg-sky-400 text-zinc-950 shadow-hard-sm'
-                      : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 shadow-none'
+                      ? 'bg-amber-400 text-zinc-950 shadow-hard-sm'
+                      : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300'
                   }`}
                 >
                   {w.label}
@@ -831,28 +832,28 @@ export const BuildingDetailSheet: React.FC<BuildingDetailSheetProps> = ({
                 dayScheduleItems.map((item) => (
                   <div
                     key={`${item.id}-${item.roomId}`}
-                    className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border-2 border-zinc-950 shadow-hard-sm flex items-center justify-between gap-2"
+                    className="p-3 rounded-lg bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm flex items-center justify-between gap-2"
                   >
                     <div>
-                      <div className="font-black text-zinc-900 dark:text-zinc-100">
-                        <span className="text-sky-600 dark:text-sky-300 font-black">
+                      <div className="font-extrabold text-zinc-900 dark:text-zinc-100">
+                        <span className="text-sky-600 dark:text-sky-400 font-black">
                           {item.course_code}
                         </span>{' '}
                         — {item.course_name}
                       </div>
-                      <div className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 flex items-center gap-2">
+                      <div className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 flex items-center gap-2 font-bold">
                         <span>
                           {item.roomName} (Kat {item.floor})
                         </span>
                         {item.instructor ? (
                           <span className="flex items-center gap-1 text-zinc-500">
-                            <GraduationCap className="w-3 h-3" />
+                            <GraduationCap className="w-3.5 h-3.5" />
                             {item.instructor}
                           </span>
                         ) : null}
                       </div>
                     </div>
-                    <span className="px-2 py-1 rounded-lg bg-zinc-200 dark:bg-zinc-800 border border-zinc-950 text-zinc-900 dark:text-zinc-100 font-black shrink-0 tabular-nums">
+                    <span className="px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 border-2 border-zinc-950 text-zinc-950 dark:text-zinc-100 font-black shrink-0 tabular-nums shadow-hard-sm">
                       {item.start_time} – {item.end_time}
                     </span>
                   </div>

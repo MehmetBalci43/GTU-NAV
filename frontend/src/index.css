@@ -227,7 +227,8 @@
   box-shadow: 4px 4px 0px #18181B !important;
 }
 
-.dark-theme .maplibregl-popup-content {
+.dark-theme .maplibregl-popup-content,
+.dark .maplibregl-popup-content {
   background: #282D3C !important;
   color: #F8FAFC !important;
   border: 2px solid #0D1117 !important;
@@ -236,6 +237,11 @@
 
 .maplibregl-popup-tip {
   border-top-color: #18181B !important;
+}
+
+.dark-theme .maplibregl-popup-tip,
+.dark .maplibregl-popup-tip {
+  border-top-color: #0D1117 !important;
 }
 
 /* ========================================================================== */

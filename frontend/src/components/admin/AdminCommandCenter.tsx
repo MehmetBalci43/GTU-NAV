@@ -345,7 +345,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
       }`}
     >
       <aside className="w-full md:w-[420px] max-h-[82dvh] md:max-h-full flex flex-col pointer-events-auto">
-        <TactileCard className="flex-1 flex flex-col overflow-hidden p-0 border border-zinc-300 dark:border-white/10 shadow-hard-lg dark:shadow-hard-night-lg bg-white dark:bg-[#1A1D27] rounded-[24px]">
+        <TactileCard className="flex-1 flex flex-col overflow-hidden p-0 border-2 border-zinc-950 shadow-hard-lg bg-white dark:bg-zinc-900 rounded-2xl">
         {/* Header */}
         <div className="p-3.5 sm:p-4 border-b-2 border-zinc-950 flex items-start justify-between gap-3 bg-purple-50 dark:bg-purple-950/40">
           <div>
@@ -356,7 +356,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
               >
                 GTÜ LiveOps Komuta Merkezi
               </StatusBadge>
-              <span className="text-[10px] px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-950 dark:bg-emerald-950/80 dark:text-emerald-300 border border-zinc-950 font-black">
+              <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-950 dark:bg-emerald-900 dark:text-emerald-200 border-2 border-zinc-950 font-black shadow-hard-sm">
                 Kalıcı JSON Senkronize
               </span>
             </div>
@@ -378,7 +378,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="grid grid-cols-3 gap-1 p-2 bg-zinc-100 dark:bg-zinc-950 border-b-2 border-zinc-950 text-xs">
+        <div className="grid grid-cols-3 gap-1 p-2 bg-zinc-100 dark:bg-zinc-800 border-b-2 border-zinc-950 text-xs">
           <TactileButton
             size="sm"
             variant={activeTab === 'tickets' ? 'primary' : 'ghost'}
@@ -408,12 +408,12 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
         </div>
 
         {statusMessage && (
-          <div className="mx-3 mt-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 border-2 border-zinc-950 text-emerald-900 dark:text-emerald-200 text-xs font-black shadow-hard-sm flex items-center justify-between">
+          <div className="mx-3 mt-2 px-3 py-2 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 border-2 border-zinc-950 text-emerald-950 dark:text-emerald-200 text-xs font-black shadow-hard-sm flex items-center justify-between">
             <span>{statusMessage}</span>
             <button
               type="button"
               onClick={() => setStatusMessage(null)}
-              className="text-xs font-black px-1"
+              className="text-xs font-black px-1 hover:opacity-70 transition"
             >
               ✕
             </button>
@@ -425,10 +425,10 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
           {activeTab === 'tickets' && (
             <>
               <div className="flex items-center justify-between">
-                <span className="font-black text-zinc-700 dark:text-zinc-300">
+                <span className="font-semibold text-zinc-700 dark:text-zinc-300">
                   AI Aciliyet Skoruna Göre Sıralı
                 </span>
-                <label className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 font-bold cursor-pointer">
+                <label className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 font-medium cursor-pointer">
                   <input
                     type="checkbox"
                     checked={hideSpam}
@@ -447,14 +447,14 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                 visibleTickets.map((t) => (
                   <div
                     key={t.id}
-                    className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2"
+                    className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/80 border-2 border-zinc-950 shadow-hard-sm space-y-2"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="font-black text-zinc-900 dark:text-zinc-100">
                           {t.title}
                         </div>
-                        <div className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">
+                        <div className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 font-medium">
                           {t.description}
                         </div>
                       </div>
@@ -483,11 +483,11 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                           }))
                         }
                         placeholder="Öğrenciye yanıt notu yazın (Örn: Teknik ekip yönlendirildi)..."
-                        className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 text-[11px] text-zinc-900 dark:text-zinc-100 font-semibold outline-none"
+                        className="w-full bg-white dark:bg-zinc-900 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 text-[11px] text-zinc-900 dark:text-zinc-100 font-bold outline-none shadow-hard-sm"
                       />
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-zinc-200 dark:border-zinc-800">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t-2 border-zinc-950">
                       <span className="text-[11px] font-black text-purple-700 dark:text-purple-300">
                         {t.ai_department}
                       </span>
@@ -495,10 +495,10 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                         <button
                           type="button"
                           onClick={() => handleTicketStatus(t.id, 'in_progress')}
-                          className={`px-2 py-0.5 rounded-lg border border-zinc-950 font-black text-[11px] ${
+                          className={`px-2.5 py-1 rounded-md border-2 border-zinc-950 font-black text-[11px] shadow-hard-sm transition active:translate-x-0.5 active:translate-y-0.5 ${
                             t.status === 'in_progress'
                               ? 'bg-amber-400 text-zinc-950'
-                              : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300'
+                              : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
                           }`}
                         >
                           İnceleniyor
@@ -506,10 +506,10 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                         <button
                           type="button"
                           onClick={() => handleTicketStatus(t.id, 'resolved')}
-                          className={`px-2 py-0.5 rounded-lg border border-zinc-950 font-black text-[11px] ${
+                          className={`px-2.5 py-1 rounded-md border-2 border-zinc-950 font-black text-[11px] shadow-hard-sm transition active:translate-x-0.5 active:translate-y-0.5 ${
                             t.status === 'resolved'
                               ? 'bg-emerald-400 text-zinc-950'
-                              : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300'
+                              : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
                           }`}
                         >
                           Çözüldü
@@ -517,10 +517,10 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                         <button
                           type="button"
                           onClick={() => handleTicketStatus(t.id, 'rejected')}
-                          className={`px-2 py-0.5 rounded-lg border border-zinc-950 font-black text-[11px] ${
+                          className={`px-2.5 py-1 rounded-md border-2 border-zinc-950 font-black text-[11px] shadow-hard-sm transition active:translate-x-0.5 active:translate-y-0.5 ${
                             t.status === 'rejected'
-                              ? 'bg-rose-500 text-white'
-                              : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300'
+                              ? 'bg-rose-400 text-zinc-950'
+                              : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
                           }`}
                         >
                           Reddet
@@ -536,9 +536,9 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
           {activeTab === 'map_ops' && (
             <div className="space-y-3.5">
               {/* 1. STEP-BY-STEP PERSISTENT BUILDING CREATION WIZARD */}
-              <div className="p-3.5 rounded-2xl bg-sky-50/60 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-3">
+              <div className="p-3.5 rounded-lg bg-sky-50 dark:bg-zinc-850/80 border-2 border-zinc-950 shadow-hard-sm space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="font-black text-sky-800 dark:text-sky-300 flex items-center gap-1.5 text-xs sm:text-sm">
+                  <div className="font-black text-sky-950 dark:text-sky-300 flex items-center gap-1.5 text-xs sm:text-sm">
                     <Building2 className="w-4 h-4 text-sky-500 shrink-0" />
                     <span>Adım Adım Yeni Bina Ekle</span>
                   </div>
@@ -560,19 +560,19 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                 </div>
 
                 {/* 3-Step Visual Stepper Header */}
-                <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-zinc-200/70 dark:bg-zinc-950 border border-zinc-300 dark:border-white/10">
+                <div className="grid grid-cols-3 gap-1 p-1 rounded-lg bg-zinc-200 dark:bg-zinc-900 border-2 border-zinc-950">
                   <button
                     type="button"
                     onClick={() => {
                       setBldWizardStep(1);
                       onSetAdminMapMode('add_building');
                     }}
-                    className={`py-1.5 px-2 rounded-lg text-[11px] font-black transition flex items-center justify-center gap-1 ${
+                    className={`py-1.5 px-2 rounded-md text-[11px] font-black transition flex items-center justify-center gap-1 ${
                       bldWizardStep === 1
-                        ? 'bg-sky-400 text-zinc-950 border border-zinc-950 shadow-sm'
+                        ? 'bg-sky-400 text-zinc-950 border-2 border-zinc-950 shadow-hard-sm'
                         : selectedFootprints.length > 0 || pickedCoords
                         ? 'text-emerald-700 dark:text-emerald-400'
-                        : 'text-zinc-500'
+                        : 'text-zinc-600 dark:text-zinc-400'
                     }`}
                   >
                     <span>1. Bina Seç</span>
@@ -589,12 +589,12 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                       onSetActiveEntrancePickerSlot?.(1);
                       onSetAdminMapMode('pick_building_entrance');
                     }}
-                    className={`py-1.5 px-2 rounded-lg text-[11px] font-black transition flex items-center justify-center gap-1 disabled:opacity-40 ${
+                    className={`py-1.5 px-2 rounded-md text-[11px] font-black transition flex items-center justify-center gap-1 disabled:opacity-40 ${
                       bldWizardStep === 2
-                        ? 'bg-sky-400 text-zinc-950 border border-zinc-950 shadow-sm'
+                        ? 'bg-sky-400 text-zinc-950 border-2 border-zinc-950 shadow-hard-sm'
                         : pickedEntranceCoords
                         ? 'text-emerald-700 dark:text-emerald-400'
-                        : 'text-zinc-500'
+                        : 'text-zinc-600 dark:text-zinc-400'
                     }`}
                   >
                     <span>2. Kapılar</span>
@@ -610,10 +610,10 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                       setBldWizardStep(3);
                       onSetAdminMapMode('none');
                     }}
-                    className={`py-1.5 px-2 rounded-lg text-[11px] font-black transition flex items-center justify-center gap-1 disabled:opacity-40 ${
+                    className={`py-1.5 px-2 rounded-md text-[11px] font-black transition flex items-center justify-center gap-1 disabled:opacity-40 ${
                       bldWizardStep === 3
-                        ? 'bg-sky-400 text-zinc-950 border border-zinc-950 shadow-sm'
-                        : 'text-zinc-500'
+                        ? 'bg-sky-400 text-zinc-950 border-2 border-zinc-950 shadow-hard-sm'
+                        : 'text-zinc-600 dark:text-zinc-400'
                     }`}
                   >
                     <span>3. Bilgiler</span>
@@ -642,9 +642,9 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                     </TactileButton>
 
                     {selectedFootprints.length > 0 ? (
-                      <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border-2 border-emerald-500/50 space-y-2">
+                      <div className="p-2.5 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 border-2 border-zinc-950 shadow-hard-sm space-y-2">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-black text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                          <span className="text-xs font-black text-emerald-950 dark:text-emerald-300 flex items-center gap-1.5">
                             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                             <span>{selectedFootprints.length} Bina Bloğu Seçildi</span>
                           </span>
@@ -652,7 +652,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                             <button
                               type="button"
                               onClick={() => onClearSelectedFootprints?.()}
-                              className="text-[10px] font-black text-zinc-600 dark:text-zinc-400 hover:underline"
+                              className="text-[10px] font-black text-zinc-700 dark:text-zinc-300 hover:underline"
                             >
                               Seçimi Bırak
                             </button>
@@ -662,7 +662,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                                 onClick={async () => {
                                   await onDeleteSelectedFootprints();
                                 }}
-                                className="px-2 py-0.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-[10px] font-black border border-zinc-950 flex items-center gap-1 shadow-sm active:scale-95 transition"
+                                className="px-2 py-0.5 rounded-md bg-rose-500 hover:bg-rose-600 text-white text-[10px] font-black border-2 border-zinc-950 flex items-center gap-1 shadow-hard-sm active:translate-x-0.5 active:translate-y-0.5 transition"
                                 title="Seçili boş bina yapılarını haritadan kalıcı olarak sil"
                               >
                                 <Trash2 className="w-3 h-3" />
@@ -671,21 +671,21 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                             )}
                           </div>
                         </div>
-                        <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 truncate">
+                        <div className="text-[11px] font-bold text-emerald-800 dark:text-emerald-400 truncate">
                           {selectedFootprints.map((fp) => fp.name).join(' • ')}
                         </div>
 
                         {/* Live Footprint Resize, Rotate & Nudge Controls */}
                         {onTransformSelectedFootprints && (
-                          <div className="pt-1.5 border-t border-emerald-500/30 space-y-1.5">
-                            <div className="text-[10px] font-black text-emerald-900 dark:text-emerald-300 uppercase">
+                          <div className="pt-1.5 border-t-2 border-zinc-950 space-y-1.5">
+                            <div className="text-[10px] font-black text-emerald-950 dark:text-emerald-300 uppercase">
                               Bina Boyut & Konum Ayarla (Canlı)
                             </div>
                             <div className="grid grid-cols-6 gap-1">
                               <button
                                 type="button"
                                 onClick={() => onTransformSelectedFootprints({ scaleX: 0.9, scaleY: 0.9 })}
-                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                                className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                                 title="Genel Küçült"
                               >
                                 Küçült
@@ -693,7 +693,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                               <button
                                 type="button"
                                 onClick={() => onTransformSelectedFootprints({ scaleX: 1.1, scaleY: 1.1 })}
-                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                                className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                                 title="Genel Büyüt"
                               >
                                 Büyüt
@@ -701,28 +701,28 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                               <button
                                 type="button"
                                 onClick={() => onTransformSelectedFootprints({ scaleX: 0.9, scaleY: 1 })}
-                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                                className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                               >
                                 En-
                               </button>
                               <button
                                 type="button"
                                 onClick={() => onTransformSelectedFootprints({ scaleX: 1.1, scaleY: 1 })}
-                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                                className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                               >
                                 En+
                               </button>
                               <button
                                 type="button"
                                 onClick={() => onTransformSelectedFootprints({ scaleX: 1, scaleY: 0.9 })}
-                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                                className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                               >
                                 Boy-
                               </button>
                               <button
                                 type="button"
                                 onClick={() => onTransformSelectedFootprints({ scaleX: 1, scaleY: 1.1 })}
-                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                                className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                               >
                                 Boy+
                               </button>
@@ -731,42 +731,42 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                               <button
                                 type="button"
                                 onClick={() => onTransformSelectedFootprints({ rotateDeg: -10 })}
-                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-amber-100"
+                                className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                               >
                                 ↺ -10°
                               </button>
                               <button
                                 type="button"
                                 onClick={() => onTransformSelectedFootprints({ rotateDeg: 10 })}
-                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-amber-100"
+                                className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                               >
                                 ↻ +10°
                               </button>
                               <button
                                 type="button"
                                 onClick={() => onTransformSelectedFootprints({ dLon: -0.00003 })}
-                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                                className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[11px] border-2 border-zinc-950 shadow-hard-sm"
                               >
                                 ←
                               </button>
                               <button
                                 type="button"
                                 onClick={() => onTransformSelectedFootprints({ dLat: 0.000025 })}
-                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                                className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[11px] border-2 border-zinc-950 shadow-hard-sm"
                               >
                                 ↑
                               </button>
                               <button
                                 type="button"
                                 onClick={() => onTransformSelectedFootprints({ dLat: -0.000025 })}
-                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                                className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[11px] border-2 border-zinc-950 shadow-hard-sm"
                               >
                                 ↓
                               </button>
                               <button
                                 type="button"
                                 onClick={() => onTransformSelectedFootprints({ dLon: 0.00003 })}
-                                className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                                className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[11px] border-2 border-zinc-950 shadow-hard-sm"
                               >
                                 →
                               </button>
@@ -775,11 +775,11 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                         )}
                       </div>
                     ) : pickedCoords ? (
-                      <div className="p-2.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-400/50 text-xs font-bold text-sky-800 dark:text-sky-300">
+                      <div className="p-2.5 rounded-lg bg-sky-100 dark:bg-sky-950/60 border-2 border-zinc-950 shadow-hard-sm text-xs font-black text-sky-950 dark:text-sky-300">
                         📍 Özel Arazi Konumu Seçildi: {pickedCoords.lat.toFixed(5)}, {pickedCoords.lon.toFixed(5)}
                       </div>
                     ) : (
-                      <div className="p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-950/60 border border-dashed border-zinc-300 dark:border-zinc-700 text-[11px] font-bold text-zinc-500 text-center">
+                      <div className="p-2.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 border-2 border-dashed border-zinc-950 text-[11px] font-black text-zinc-600 dark:text-zinc-400 text-center">
                         Henüz bina bloğu seçilmedi. Haritadan bir binaya tıklayın.
                       </div>
                     )}
@@ -804,12 +804,12 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                 {/* STEP 2: 1st & OPTIONAL 2nd ENTRANCE PIN SELECTION */}
                 {bldWizardStep === 2 && (
                   <div className="space-y-2.5 pt-0.5">
-                    <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-semibold leading-relaxed">
+                    <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-bold leading-relaxed">
                       Haritaya tıklayarak binanın <strong>1. Giriş Kapısını</strong> ve varsa <strong>2. Ek Giriş Kapısını</strong> işaretleyin.
                     </p>
 
                     {/* 1. Kapı (Ana Giriş) */}
-                    <div className="p-2.5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 space-y-2">
+                    <div className="p-2.5 rounded-lg bg-white dark:bg-zinc-800 border-2 border-zinc-950 shadow-hard-sm space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="font-black text-xs text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
                           <span className="w-5 h-5 rounded-md bg-emerald-400 text-zinc-950 font-black text-[11px] flex items-center justify-center border border-zinc-950">
@@ -846,7 +846,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                     </div>
 
                     {/* 2. Kapı (Opsiyonel Ek Giriş) */}
-                    <div className="p-2.5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 space-y-2">
+                    <div className="p-2.5 rounded-lg bg-white dark:bg-zinc-800 border-2 border-zinc-950 shadow-hard-sm space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="font-black text-xs text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
                           <span className="w-5 h-5 rounded-md bg-sky-400 text-zinc-950 font-black text-[11px] flex items-center justify-center border border-zinc-950">
@@ -922,7 +922,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                 {/* STEP 3: BUILDING METADATA & SAVE */}
                 {bldWizardStep === 3 && (
                   <form onSubmit={handleCreateBuilding} className="space-y-2.5 pt-0.5">
-                    <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/40 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
+                    <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 border-2 border-zinc-950 shadow-hard-sm text-[11px] font-black text-emerald-950 dark:text-emerald-300 flex items-center justify-between">
                       <span>
                         ✓ {selectedFootprints.length > 0 ? `${selectedFootprints.length} Blok` : 'Özel Konum'} •{' '}
                         {pickedSecondaryEntranceCoords ? '2 Giriş Kapısı' : pickedEntranceCoords ? '1 Giriş Kapısı' : 'Otomatik Kapı'}
@@ -931,7 +931,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[10px] font-black text-zinc-500 mb-1">
+                        <label className="block text-[10px] font-black text-zinc-600 dark:text-zinc-400 mb-1">
                           Bina Kodu *
                         </label>
                         <input
@@ -940,17 +940,17 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                           value={newBldCode}
                           onChange={(e) => setNewBldCode(e.target.value)}
                           placeholder="Örn: YDB, SKS"
-                          className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none"
+                          className="w-full bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none shadow-hard-sm"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-zinc-500 mb-1">
+                        <label className="block text-[10px] font-black text-zinc-600 dark:text-zinc-400 mb-1">
                           Kategori
                         </label>
                         <select
                           value={newBldCategory}
                           onChange={(e) => setNewBldCategory(e.target.value)}
-                          className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none"
+                          className="w-full bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none shadow-hard-sm"
                         >
                           <option value="academic">Akademik</option>
                           <option value="dining">Sosyal / Yemek</option>
@@ -961,7 +961,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-black text-zinc-500 mb-1">
+                      <label className="block text-[10px] font-black text-zinc-600 dark:text-zinc-400 mb-1">
                         Bina Tam Adı *
                       </label>
                       <input
@@ -970,13 +970,13 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                         value={newBldName}
                         onChange={(e) => setNewBldName(e.target.value)}
                         placeholder="Örn: Yabancı Diller Bölümü"
-                        className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none"
+                        className="w-full bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none shadow-hard-sm"
                       />
                     </div>
 
                     <div className="grid grid-cols-3 gap-2">
                       <div className="col-span-2">
-                        <label className="block text-[10px] font-black text-zinc-500 mb-1">
+                        <label className="block text-[10px] font-black text-zinc-600 dark:text-zinc-400 mb-1">
                           1. Giriş Kapısı Adı
                         </label>
                         <input
@@ -984,11 +984,11 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                           value={newEntranceName}
                           onChange={(e) => setNewEntranceName(e.target.value)}
                           placeholder="Ana Giriş Kapısı"
-                          className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none"
+                          className="w-full bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none shadow-hard-sm"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-zinc-500 mb-1">
+                        <label className="block text-[10px] font-black text-zinc-600 dark:text-zinc-400 mb-1">
                           Kat Sayısı
                         </label>
                         <input
@@ -997,14 +997,14 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                           max={15}
                           value={newBldFloors}
                           onChange={(e) => setNewBldFloors(Number(e.target.value))}
-                          className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none text-center"
+                          className="w-full bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none text-center shadow-hard-sm"
                         />
                       </div>
                     </div>
 
                     {pickedSecondaryEntranceCoords && (
                       <div>
-                        <label className="block text-[10px] font-black text-zinc-500 mb-1">
+                        <label className="block text-[10px] font-black text-zinc-600 dark:text-zinc-400 mb-1">
                           2. Giriş Kapısı Adı
                         </label>
                         <input
@@ -1012,7 +1012,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                           value={newSecondaryEntranceName}
                           onChange={(e) => setNewSecondaryEntranceName(e.target.value)}
                           placeholder="2. Giriş Kapısı"
-                          className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none"
+                          className="w-full bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none shadow-hard-sm"
                         />
                       </div>
                     )}
@@ -1045,12 +1045,12 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
               </div>
 
               {/* 2. Walkway Closure Toggle */}
-              <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2">
+              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/80 border-2 border-zinc-950 shadow-hard-sm space-y-2">
                 <div className="font-black text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
                   <AlertTriangle className="w-4 h-4 text-amber-500" />
                   <span>2. Yürüyüş Yolu Kapat / Aç (Dinamik A*)</span>
                 </div>
-                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-semibold">
+                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-bold">
                   Modu aktif edip haritadaki herhangi bir yürüyüş yoluna tıklayarak yolu kapatabilir veya açabilirsiniz.
                 </p>
 
@@ -1078,7 +1078,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                           key={eid}
                           type="button"
                           onClick={() => onToggleEdgeBlocked(eid, false)}
-                          className="px-2 py-0.5 rounded-lg bg-rose-100 text-rose-950 border border-zinc-950 font-black text-[11px] hover:bg-rose-200"
+                          className="px-2 py-0.5 rounded-md bg-rose-200 dark:bg-rose-950/40 text-rose-950 dark:text-rose-300 border-2 border-zinc-950 font-black text-[11px] shadow-hard-sm hover:bg-rose-300 transition"
                         >
                           ⛔ {eid} (Aç ✕)
                         </button>
@@ -1089,7 +1089,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
               </div>
 
               {/* 3. Selected Existing Building Edit */}
-              <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2.5">
+              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/80 border-2 border-zinc-950 shadow-hard-sm space-y-2.5">
                 <div className="font-black text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
                   <DoorClosed className="w-4 h-4 text-emerald-500" />
                   <span>3. Mevcut Binayı Düzenle / Sil</span>
@@ -1097,7 +1097,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                 <select
                   value={selectedBuildingId || ''}
                   onChange={(e) => onSelectBuildingId?.(e.target.value || null)}
-                  className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold text-xs outline-none"
+                  className="w-full bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 font-bold text-xs outline-none shadow-hard-sm"
                 >
                   <option value="">— Haritadan veya listeden bina seçin —</option>
                   {buildings.map((b) => (
@@ -1108,52 +1108,52 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                 </select>
 
                 {selectedBuilding && (
-                  <form onSubmit={handleUpdateSelectedBuilding} className="space-y-2 pt-2 border-t-2 border-zinc-950/20">
+                  <form onSubmit={handleUpdateSelectedBuilding} className="space-y-2 pt-2 border-t-2 border-zinc-950">
                     {onTransformSelectedBuilding && (
-                      <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/40 space-y-1.5">
-                        <div className="text-[10px] font-black text-emerald-900 dark:text-emerald-300 uppercase">
+                      <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 border-2 border-zinc-950 shadow-hard-sm space-y-1.5">
+                        <div className="text-[10px] font-black text-emerald-950 dark:text-emerald-300 uppercase">
                           Bina Boyut, Yön & Konum Ayarla (Otomatik Kaydedilir)
                         </div>
                         <div className="grid grid-cols-6 gap-1">
                           <button
                             type="button"
                             onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { scaleX: 0.9, scaleY: 0.9 })}
-                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                            className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                           >
                             Küçült
                           </button>
                           <button
                             type="button"
                             onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { scaleX: 1.1, scaleY: 1.1 })}
-                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                            className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                           >
                             Büyüt
                           </button>
                           <button
                             type="button"
                             onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { scaleX: 0.9, scaleY: 1 })}
-                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                            className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                           >
                             En-
                           </button>
                           <button
                             type="button"
                             onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { scaleX: 1.1, scaleY: 1 })}
-                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                            className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                           >
                             En+
                           </button>
                           <button
                             type="button"
                             onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { scaleX: 1, scaleY: 0.9 })}
-                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                            className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                           >
                             Boy-
                           </button>
                           <button
                             type="button"
                             onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { scaleX: 1, scaleY: 1.1 })}
-                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-sky-100"
+                            className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                           >
                             Boy+
                           </button>
@@ -1162,42 +1162,42 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                           <button
                             type="button"
                             onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { rotateDeg: -10 })}
-                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-amber-100"
+                            className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                           >
                             ↺ -10°
                           </button>
                           <button
                             type="button"
                             onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { rotateDeg: 10 })}
-                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[10px] border border-zinc-300 dark:border-white/10 hover:bg-amber-100"
+                            className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm"
                           >
                             ↻ +10°
                           </button>
                           <button
                             type="button"
                             onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { dLon: -0.00003 })}
-                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                            className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[11px] border-2 border-zinc-950 shadow-hard-sm"
                           >
                             ←
                           </button>
                           <button
                             type="button"
                             onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { dLat: 0.000025 })}
-                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                            className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[11px] border-2 border-zinc-950 shadow-hard-sm"
                           >
                             ↑
                           </button>
                           <button
                             type="button"
                             onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { dLat: -0.000025 })}
-                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                            className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[11px] border-2 border-zinc-950 shadow-hard-sm"
                           >
                             ↓
                           </button>
                           <button
                             type="button"
                             onClick={() => onTransformSelectedBuilding(selectedBuilding.id, { dLon: 0.00003 })}
-                            className="py-1 rounded-lg bg-white dark:bg-zinc-900 font-black text-[11px] border border-zinc-300 dark:border-white/10 hover:bg-emerald-100"
+                            className="py-1 rounded-md bg-white dark:bg-zinc-900 font-black text-[11px] border-2 border-zinc-950 shadow-hard-sm"
                           >
                             →
                           </button>
@@ -1210,7 +1210,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                         value={editBldName}
                         onChange={(e) => setEditBldName(e.target.value)}
                         placeholder="Bina Adı"
-                        className="col-span-2 bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
+                        className="col-span-2 bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 font-bold text-xs outline-none shadow-hard-sm"
                       />
                       <input
                         type="number"
@@ -1218,7 +1218,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                         max={15}
                         value={editBldFloors}
                         onChange={(e) => setEditBldFloors(Number(e.target.value))}
-                        className="bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
+                        className="bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 font-black text-xs outline-none text-center shadow-hard-sm"
                         title="Kat Sayısı"
                       />
                     </div>
@@ -1228,7 +1228,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                         value={editEntranceName}
                         onChange={(e) => setEditEntranceName(e.target.value)}
                         placeholder="Giriş Kapısı Adı"
-                        className="flex-1 bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
+                        className="flex-1 bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 font-bold text-xs outline-none shadow-hard-sm"
                       />
                       <TactileButton
                         type="submit"
@@ -1251,7 +1251,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
               </div>
 
               {/* 4. Draw New Walkway Path */}
-              <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2">
+              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/80 border-2 border-zinc-950 shadow-hard-sm space-y-2">
                 <div className="font-black text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
                   <Wrench className="w-4 h-4 text-indigo-500" />
                   <span>4. Yeni Yürüyüş Patikası Çiz</span>
@@ -1261,7 +1261,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                   value={newEdgeName}
                   onChange={(e) => setNewEdgeName(e.target.value)}
                   placeholder="Yol Adı"
-                  className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
+                  className="w-full bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 font-bold text-xs outline-none shadow-hard-sm"
                 />
                 <div className="flex items-center gap-2">
                   <TactileButton
@@ -1293,7 +1293,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
 
               {/* 5. Manage Active Map Alerts */}
               {activeAlerts.length > 0 && (
-                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2">
+                <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/80 border-2 border-zinc-950 shadow-hard-sm space-y-2">
                   <div className="font-black text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
                     <AlertTriangle className="w-4 h-4 text-rose-500" />
                     <span>5. Aktif Saha Uyarıları ({activeAlerts.length})</span>
@@ -1302,7 +1302,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                     {activeAlerts.map((al) => (
                       <div
                         key={al.id}
-                        className="flex items-center justify-between gap-2 p-2 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-950"
+                        className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800 border-2 border-zinc-950 shadow-hard-sm"
                       >
                         <div>
                           <div className="font-black text-zinc-900 dark:text-zinc-100">
@@ -1333,7 +1333,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
             <div className="space-y-3">
               <form
                 onSubmit={handleCreateAnnouncement}
-                className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm space-y-2.5"
+                className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/80 border-2 border-zinc-950 shadow-hard-sm space-y-2.5"
               >
                 <div className="font-black text-zinc-900 dark:text-zinc-100">
                   Yeni Kampüs Geneli Canlı Duyuru
@@ -1344,7 +1344,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                   value={annTitle}
                   onChange={(e) => setAnnTitle(e.target.value)}
                   placeholder="Başlık (Örn: Ring Seferi / Kütüphane 24 Saat Açık)"
-                  className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-3 py-1.5 font-bold"
+                  className="w-full bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-3 py-1.5 font-bold text-xs outline-none shadow-hard-sm"
                 />
                 <textarea
                   required
@@ -1352,7 +1352,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                   value={annMessage}
                   onChange={(e) => setAnnMessage(e.target.value)}
                   placeholder="Duyuru metni..."
-                  className="w-full bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-3 py-1.5 font-semibold"
+                  className="w-full bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-3 py-1.5 font-bold text-xs outline-none shadow-hard-sm"
                 />
                 <div className="flex items-center justify-between gap-2">
                   <select
@@ -1360,7 +1360,7 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                     onChange={(e) =>
                       setAnnSeverity(e.target.value as 'info' | 'warning' | 'urgent')
                     }
-                    className="bg-white dark:bg-zinc-950 border-2 border-zinc-950 rounded-xl px-2.5 py-1.5 font-bold"
+                    className="bg-white dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-2.5 py-1.5 font-bold text-xs outline-none shadow-hard-sm"
                   >
                     <option value="info">Bilgi (Mavi)</option>
                     <option value="warning">Uyarı (Kehribar)</option>
@@ -1381,13 +1381,13 @@ export const AdminCommandCenter: React.FC<AdminCommandCenterProps> = ({
                 {announcements.map((a) => (
                   <div
                     key={a.id}
-                    className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm flex items-center justify-between gap-2"
+                    className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/80 border-2 border-zinc-950 shadow-hard-sm flex items-center justify-between gap-2"
                   >
                     <div>
                       <div className="font-black text-zinc-900 dark:text-zinc-100">
                         {a.title}
                       </div>
-                      <div className="text-[11px] text-zinc-600 dark:text-zinc-400">
+                      <div className="text-[11px] text-zinc-600 dark:text-zinc-400 font-medium">
                         {a.message}
                       </div>
                     </div>

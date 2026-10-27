@@ -622,10 +622,10 @@
     "entrance_node_id": "osm_12176768702",
     "entrance_lat": 40.806853,
     "entrance_lon": 29.363227,
-    "secondary_entrance_node_id": null,
-    "secondary_entrance_name": null,
-    "secondary_entrance_lat": null,
-    "secondary_entrance_lon": null
+    "secondary_entrance_node_id": "osm_12176461340",
+    "secondary_entrance_name": "BIYO 2. Giriş Kapısı",
+    "secondary_entrance_lat": 40.806833,
+    "secondary_entrance_lon": 29.362481
   },
   {
     "id": "hubf",
@@ -1926,48 +1926,6 @@
     "entrance_node_id": "osm_14272955054",
     "entrance_lat": 40.806126,
     "entrance_lon": 29.363342,
-    "secondary_entrance_node_id": null,
-    "secondary_entrance_name": null,
-    "secondary_entrance_lat": null,
-    "secondary_entrance_lon": null
-  },
-  {
-    "id": "b_igzide_237",
-    "code": "İÇ GÜZIDE",
-    "name": "İç Güzide Kafe",
-    "category": "dining",
-    "floors_count": 1,
-    "entrance_name": "İÇ GÜZIDE Ana Giriş Kapısı",
-    "description": "İç Güzide Kafe kampüs binası.",
-    "lat": 40.806295,
-    "lon": 29.359721,
-    "polygon_coords": [
-      [
-        [
-          29.359481,
-          40.806055
-        ],
-        [
-          29.359961000000002,
-          40.806055
-        ],
-        [
-          29.359961000000002,
-          40.806535
-        ],
-        [
-          29.359481,
-          40.806535
-        ],
-        [
-          29.359481,
-          40.806055
-        ]
-      ]
-    ],
-    "entrance_node_id": "osm_14312064441",
-    "entrance_lat": 40.80634,
-    "entrance_lon": 29.359613,
     "secondary_entrance_node_id": null,
     "secondary_entrance_name": null,
     "secondary_entrance_lat": null,

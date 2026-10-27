@@ -12,6 +12,7 @@ import {
   Box,
   Map as MapIcon,
   MapPin,
+  AlertTriangle,
 } from 'lucide-react';
 import {
   Building,
@@ -42,9 +43,11 @@ export interface MapControlActions {
   basemapMode: BasemapStyleMode;
   is3DPitch: boolean;
   themeMode: ThemeMode;
+  showAlerts: boolean;
   toggleBasemap: (mode?: BasemapStyleMode) => void;
   togglePitch: () => void;
   toggleTheme: () => void;
+  toggleAlerts: () => void;
 }
 
 interface CampusMap3DProps {
@@ -391,7 +394,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       }
     >
   >(new Map());
-  const alertMarkersRef = useRef<maplibregl.Marker[]>([]);
+  const alertMarkersRef = useRef<{ marker: maplibregl.Marker; wrapper: HTMLDivElement }[]>([]);
   const userMarkerRef = useRef<maplibregl.Marker | null>(null);
   const rawGpsMarkerRef = useRef<maplibregl.Marker | null>(null);
 
@@ -400,6 +403,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
   const [is3DPitch, setIs3DPitch] = useState<boolean>(false); // 2D diorama by default per Decision K-04
   const [isMapLoaded, setIsMapLoaded] = useState<boolean>(false);
   const [showBuildingLabels, setShowBuildingLabels] = useState<boolean>(true);
+  const [showAlerts, setShowAlerts] = useState<boolean>(true);
   const [currentBearing, setCurrentBearing] = useState<number>(0);
   const [currentZoom, setCurrentZoom] = useState<number>(15.6);
 
@@ -701,21 +705,6 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           }
         }
       }
-
-      // If Admin clicks an unmapped OSM building footprint even in normal mode, launch the step-by-step building wizard!
-      if (cb.isAdmin && map.getLayer('extra-footprints-fill')) {
-        const fpFeatures = map.queryRenderedFeatures(e.point, {
-          layers: ['extra-footprints-fill'],
-        });
-        if (fpFeatures.length > 0) {
-          const wayId = Number(fpFeatures[0].properties?.osm_way_id);
-          const fpName = String(fpFeatures[0].properties?.name || '');
-          if (wayId) {
-            cb.onAdminToggleFootprintSelection?.(wayId, fpName);
-            return;
-          }
-        }
-      }
     });
 
     mapRef.current = map;
@@ -734,6 +723,58 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       document.documentElement.classList.toggle('dark', themeMode === 'night');
     }
   }, [themeMode]);
+
+  // Apply road and building styling based on basemapMode (satellite thins roads and lowers opacity, diorama stays 100% normal)
+  const applyBasemapRoadAndBuildingStyle = useCallback(
+    (map: maplibregl.Map, mode: BasemapStyleMode, theme: ThemeMode) => {
+      const p = PALETTES[theme];
+      const isSat = mode === 'satellite';
+      if (map.getLayer('walkways-casing')) {
+        map.setPaintProperty(
+          'walkways-casing',
+          'line-color',
+          isSat ? 'rgba(15, 23, 42, 0.75)' : p.roadCasing
+        );
+        map.setPaintProperty(
+          'walkways-casing',
+          'line-width',
+          isSat
+            ? ['interpolate', ['linear'], ['zoom'], 13, 2.5, 15, 4, 17, 6.5, 19, 9.5]
+            : ['interpolate', ['linear'], ['zoom'], 13, 5, 15, 8.5, 17, 13.5, 19, 20]
+        );
+        map.setPaintProperty(
+          'walkways-casing',
+          'line-opacity',
+          isSat ? 0.45 : theme === 'night' ? 0.95 : 0.85
+        );
+      }
+      if (map.getLayer('walkways-fill')) {
+        map.setPaintProperty(
+          'walkways-fill',
+          'line-color',
+          isSat ? 'rgba(248, 250, 252, 0.88)' : p.roadFill
+        );
+        map.setPaintProperty(
+          'walkways-fill',
+          'line-width',
+          isSat
+            ? ['interpolate', ['linear'], ['zoom'], 13, 1.5, 15, 2.5, 17, 4.2, 19, 6.5]
+            : ['interpolate', ['linear'], ['zoom'], 13, 3, 15, 5.5, 17, 9.5, 19, 15]
+        );
+        map.setPaintProperty('walkways-fill', 'line-opacity', isSat ? 0.75 : 1);
+      }
+      if (map.getLayer('buildings-top')) {
+        map.setPaintProperty('buildings-top', 'fill-opacity', 0.98);
+      }
+      if (map.getLayer('buildings-shadow')) {
+        map.setPaintProperty('buildings-shadow', 'fill-opacity', 1);
+      }
+      if (map.getLayer('buildings-rim')) {
+        map.setPaintProperty('buildings-rim', 'fill-opacity', 1);
+      }
+    },
+    []
+  );
 
   // Update theme & basemap paint properties
   const handleToggleBasemap = (targetMode?: BasemapStyleMode) => {
@@ -782,6 +823,8 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         nextMode === 'diorama' ? 'visible' : 'none'
       );
     }
+
+    applyBasemapRoadAndBuildingStyle(map, nextMode, themeMode);
   };
 
   const handleToggleTheme = () => {
@@ -809,12 +852,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         nextTheme === 'night' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'
       );
     }
-    if (map.getLayer('walkways-casing')) {
-      map.setPaintProperty('walkways-casing', 'line-color', p.roadCasing);
-    }
-    if (map.getLayer('walkways-fill')) {
-      map.setPaintProperty('walkways-fill', 'line-color', p.roadFill);
-    }
+    applyBasemapRoadAndBuildingStyle(map, basemapMode, nextTheme);
     if (map.getLayer('buildings-shadow')) {
       map.setPaintProperty('buildings-shadow', 'fill-color', p.buildingShadow);
     }
@@ -898,12 +936,14 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       basemapMode,
       is3DPitch,
       themeMode,
+      showAlerts,
       toggleBasemap: (m) => handleToggleBasemap(m),
       togglePitch: () => handleTogglePitch(),
       toggleTheme: () => handleToggleTheme(),
+      toggleAlerts: () => setShowAlerts((prev) => !prev),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [basemapMode, is3DPitch, themeMode, isMapLoaded]);
+  }, [basemapMode, is3DPitch, themeMode, showAlerts, isMapLoaded]);
 
   // Render GeoJSON Layers (Mini Motorways Walkways, Diorama Buildings, Entrances, Active Route)
   useEffect(() => {
@@ -1435,6 +1475,8 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         },
       });
     }
+
+    applyBasemapRoadAndBuildingStyle(map, basemapMode, themeMode);
   }, [
     buildings,
     walkGraph,
@@ -1443,11 +1485,13 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     activeRoute,
     isMapLoaded,
     themeMode,
+    basemapMode,
     is3DPitch,
     selectedFootprintIds,
     selectedFootprints,
     adminMapMode,
     isAdmin,
+    applyBasemapRoadAndBuildingStyle,
   ]);
 
   // Synchronize Building Badges & Zoom-Based LOD Visibility
@@ -1534,12 +1578,12 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
     });
   }, [selectedBuildingId, showBuildingLabels]);
 
-  // Synchronize Map Alert Markers (Apple Maps Compact Hazard Beacons)
+  // Synchronize Map Alert Markers (Apple Maps Compact Hazard Beacons with Zoom LOD & Toggle)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    alertMarkersRef.current.forEach((m) => m.remove());
+    alertMarkersRef.current.forEach((m) => m.marker.remove());
     alertMarkersRef.current = [];
 
     activeAlerts.forEach((alert) => {
@@ -1549,6 +1593,8 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
 
       const wrapper = document.createElement('div');
       wrapper.style.zIndex = '25';
+      const isVisible = showAlerts && map.getZoom() >= 15.65;
+      wrapper.style.display = isVisible ? 'block' : 'none';
 
       const beacon = document.createElement('button');
       beacon.type = 'button';
@@ -1556,21 +1602,20 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       beacon.style.borderColor = beaconColor;
       beacon.title = `${alert.title} (${alert.upvotes} onay)`;
       beacon.innerHTML = `
-        <span class="beacon-pulse" style="border-color: ${beaconColor}"></span>
         <span class="text-[12px] leading-none select-none">${icon}</span>
       `;
 
       const popup = new maplibregl.Popup({ offset: 14, closeButton: false }).setHTML(`
         <div class="p-2 space-y-1.5 min-w-[200px]">
-          <div class="font-black text-sm text-zinc-950">${alert.title}</div>
-          <div class="text-[11px] text-zinc-600 font-semibold">${
+          <div class="font-bold text-sm text-zinc-900 dark:text-zinc-100">${alert.title}</div>
+          <div class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">${
             alert.blocks_route ? '⛔ Bu yol yaya rotasında kapalıdır' : '⚠️ Saha uyarısı'
           }</div>
-          <div class="flex items-center justify-between pt-2 border-t-2 border-zinc-950/20">
-            <span class="text-[11px] font-black text-zinc-800">Doğruluk Oyu:</span>
+          <div class="flex items-center justify-between pt-2 border-t border-black/[0.08] dark:border-white/[0.10]">
+            <span class="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">Doğruluk Oyu:</span>
             <div class="flex gap-1.5">
-              <button data-vote="up" data-id="${alert.id}" class="px-2 py-0.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-zinc-950 rounded-md font-black text-xs">👍 ${alert.upvotes}</button>
-              <button data-vote="down" data-id="${alert.id}" class="px-2 py-0.5 bg-rose-100 hover:bg-rose-200 text-rose-900 border border-zinc-950 rounded-md font-black text-xs">👎 ${alert.downvotes}</button>
+              <button data-vote="up" data-id="${alert.id}" class="px-2 py-0.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 rounded-lg font-semibold text-xs transition">👍 ${alert.upvotes}</button>
+              <button data-vote="down" data-id="${alert.id}" class="px-2 py-0.5 bg-rose-500/15 hover:bg-rose-500/25 text-rose-700 dark:text-rose-300 border border-rose-500/30 rounded-lg font-semibold text-xs transition">👎 ${alert.downvotes}</button>
             </div>
           </div>
         </div>
@@ -1590,9 +1635,17 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         .setLngLat([alert.lon, alert.lat])
         .setPopup(popup)
         .addTo(map);
-      alertMarkersRef.current.push(alertMarker);
+      alertMarkersRef.current.push({ marker: alertMarker, wrapper });
     });
-  }, [activeAlerts, onVoteAlert]);
+  }, [activeAlerts, onVoteAlert, showAlerts]);
+
+  // Synchronize alert markers visibility with zoom level and showAlerts toggle (LOD auto-hide)
+  useEffect(() => {
+    const isVisible = showAlerts && currentZoom >= 15.65;
+    alertMarkersRef.current.forEach((entry) => {
+      entry.wrapper.style.display = isVisible ? 'block' : 'none';
+    });
+  }, [showAlerts, currentZoom]);
 
   // Snapped Location Dot & Raw GPS Ghost Dot
   const prevUserSourceRef = useRef<string>(userPos.source);
@@ -1619,7 +1672,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
         root.style.zIndex = '15';
         const dot = document.createElement('div');
         dot.className =
-          'w-6 h-6 rounded-full bg-sky-500 border-[3px] border-zinc-950 shadow-[0_0_12px_rgba(14,165,233,0.9)] flex items-center justify-center';
+          'w-6 h-6 rounded-full bg-sky-500 border-2 border-white shadow-[0_0_12px_rgba(14,165,233,0.9)] flex items-center justify-center';
         const innerDot = document.createElement('div');
         innerDot.className = 'w-2 h-2 rounded-full bg-white';
         dot.appendChild(innerDot);
@@ -1632,13 +1685,13 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       }
     }
 
-    if (validRaw && userPos.source === 'gps') {
+    if (isAdmin && validRaw && userPos.source === 'gps') {
       if (!rawGpsMarkerRef.current) {
         const rawRoot = document.createElement('div');
         rawRoot.style.zIndex = '14';
         const rawDot = document.createElement('div');
         rawDot.className =
-          'w-3.5 h-3.5 rounded-full bg-amber-400/70 border border-zinc-950 pointer-events-none';
+          'w-3.5 h-3.5 rounded-full bg-amber-400/70 border border-black/30 dark:border-white/30 pointer-events-none';
         rawRoot.appendChild(rawDot);
         rawGpsMarkerRef.current = new maplibregl.Marker({ element: rawRoot, anchor: 'center' })
           .setLngLat([userPos.rawLon, userPos.rawLat])
@@ -1646,11 +1699,11 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       } else {
         rawGpsMarkerRef.current.setLngLat([userPos.rawLon, userPos.rawLat]);
       }
-    } else if (rawGpsMarkerRef.current && userPos.source !== 'gps') {
+    } else if (rawGpsMarkerRef.current && (!isAdmin || userPos.source !== 'gps')) {
       rawGpsMarkerRef.current.remove();
       rawGpsMarkerRef.current = null;
     }
-  }, [userPos]);
+  }, [userPos, isAdmin]);
 
   // Fly to selected building
   const prevSelectedIdRef = useRef<string | null>(null);
@@ -1709,7 +1762,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
                   ? `🏛️ ${selectedFootprintIds.length} blok ayak izi seçildi. Yeni blok ekleyebilir veya giriş kapısına geçebilirsiniz.`
                   : '🏛️ Haritada altın parlayan bina kutucuğuna tıklayın (Birden fazla blok seçebilirsiniz)')}
               {adminMapMode === 'pick_building_entrance' &&
-                '🚪 Binanın ana giriş kapısının olduğu noktaya haritada tıklayın (Snap-to-Node)'}
+                '🚪 Binanın ana giriş kapısının olduğu noktaya haritada tıklayın'}
               {adminMapMode === 'draw_edge' &&
                 '📏 Yeni yürüyüş patikası için başlangıç ve bitiş noktalarına tıklayın'}
               {adminMapMode === 'pick_alert_coords' &&
@@ -1733,7 +1786,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
       {/*              DESKTOP BOTTOM-RIGHT MAP COMMAND DOCK                   */}
       {/* ==================================================================== */}
       <div
-        className={`hidden md:flex fixed bottom-6 z-20 items-center gap-1.5 p-1.5 rounded-2xl bg-white/95 dark:bg-[#1E222D]/95 border border-zinc-300 dark:border-white/10 shadow-hard-md dark:shadow-hard-night-md backdrop-blur-md transition-all duration-300 ease-out ${
+        className={`hidden md:flex fixed bottom-6 z-20 items-center gap-1.5 p-1.5 rounded-2xl bg-white/95 dark:bg-[#1E222D]/95 border-2 border-zinc-950 shadow-hard-md dark:shadow-hard-night-md transition-all duration-300 ease-out ${
           isRightDrawerOpen ? 'right-[436px]' : 'right-6'
         }`}
       >
@@ -1777,32 +1830,21 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           </TactileIconButton>
         )}
 
-        <div className="w-px h-5 bg-zinc-300 dark:bg-white/10 mx-0.5" />
+        <div className="w-px h-5 bg-zinc-300 dark:bg-white/20 mx-0.5" />
 
-        <TactileButton
+        <TactileIconButton
           size="sm"
-          variant={basemapMode === 'diorama' ? 'primary' : 'ghost'}
-          icon={<Compass className="w-3.5 h-3.5" />}
-          onClick={() => handleToggleBasemap('diorama')}
-          title="Mini Motorways Kampüs Maketi Görünümü"
+          variant={basemapMode === 'satellite' ? 'accent' : 'secondary'}
+          label={basemapMode === 'satellite' ? 'Vektörel Haritaya Geç' : 'Uydu Görünümüne Geç'}
+          onClick={() => handleToggleBasemap()}
         >
-          Maket
-        </TactileButton>
-
-        <TactileButton
-          size="sm"
-          variant={basemapMode === 'satellite' ? 'primary' : 'ghost'}
-          icon={<Layers className="w-3.5 h-3.5" />}
-          onClick={() => handleToggleBasemap('satellite')}
-          title="Esri Yüksek Çözünürlüklü Uydu Altlığı"
-        >
-          Uydu
-        </TactileButton>
+          <Layers className="w-4 h-4" />
+        </TactileIconButton>
 
         <TactileIconButton
           size="sm"
           variant={is3DPitch ? 'accent' : 'secondary'}
-          label={is3DPitch ? '2B Makete Dön' : '3B Bloğa Geç'}
+          label={is3DPitch ? '2B Görünüme Dön' : '3B Bloğa Geç'}
           onClick={handleTogglePitch}
         >
           <Box className="w-3.5 h-3.5" />
@@ -1833,9 +1875,20 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             <EyeOff className="w-3.5 h-3.5 text-zinc-400" />
           )}
         </TactileIconButton>
+
+        <TactileIconButton
+          size="sm"
+          variant={showAlerts ? 'warning' : 'secondary'}
+          label={showAlerts ? 'Saha Uyarılarını Gizle' : 'Saha Uyarılarını Göster'}
+          onClick={() => setShowAlerts((prev) => !prev)}
+        >
+          <AlertTriangle
+            className={`w-3.5 h-3.5 ${
+              showAlerts ? 'text-amber-500 dark:text-amber-400' : 'text-zinc-400 opacity-60'
+            }`}
+          />
+        </TactileIconButton>
       </div>
-
-
 
       {/* ==================================================================== */}
       {/*       MOBILE BOTTOM-RIGHT THUMB ZONE (ABOVE BOTTOM SHEET)            */}
@@ -1850,10 +1903,10 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
             onClick={onTogglePickUserStart}
             aria-label="Konum Belirle"
             title="Haritada başlangıç noktası seçin"
-            className={`w-11 h-11 rounded-2xl flex items-center justify-center border shadow-hard-md active:scale-95 transition ${
+            className={`w-11 h-11 rounded-2xl flex items-center justify-center border-2 border-zinc-950 shadow-hard-md active:scale-95 transition ${
               isPickingUserStart
-                ? 'bg-sky-400 text-zinc-950 border-zinc-950 ring-2 ring-sky-300'
-                : 'bg-white/95 dark:bg-[#1E222D]/95 text-sky-600 dark:text-sky-400 border-zinc-300 dark:border-white/10'
+                ? 'bg-sky-400 text-zinc-950 ring-2 ring-sky-300'
+                : 'bg-white/95 dark:bg-[#1E222D]/95 text-sky-600 dark:text-sky-400'
             }`}
           >
             <MapPin className="w-5 h-5" />
@@ -1865,7 +1918,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
           onClick={() => fitCampusBounds(600)}
           aria-label="Tüm Kampüsü Ortala"
           title="Tüm Kampüsü Ortala"
-          className="w-11 h-11 rounded-2xl bg-white/95 dark:bg-[#1E222D]/95 text-zinc-900 dark:text-zinc-100 border border-zinc-300 dark:border-white/10 shadow-hard-md flex items-center justify-center active:scale-95 transition"
+          className="w-11 h-11 rounded-2xl bg-white/95 dark:bg-[#1E222D]/95 text-zinc-900 dark:text-zinc-100 border-2 border-zinc-950 shadow-hard-md flex items-center justify-center active:scale-95 transition"
         >
           <LocateFixed className="w-5 h-5 text-sky-500" />
         </button>
@@ -1880,7 +1933,7 @@ export const CampusMap3D: React.FC<CampusMap3DProps> = ({
               });
             }}
             aria-label={`Kuzeye Çevir (${currentBearing}°)`}
-            className="w-11 h-11 rounded-2xl bg-amber-400 text-zinc-950 border border-zinc-950 shadow-hard-md flex items-center justify-center active:scale-95 transition"
+            className="w-11 h-11 rounded-2xl bg-amber-400 text-zinc-950 border-2 border-zinc-950 shadow-hard-md flex items-center justify-center active:scale-95 transition"
           >
             <Compass
               className="w-5 h-5 transition-transform duration-200"

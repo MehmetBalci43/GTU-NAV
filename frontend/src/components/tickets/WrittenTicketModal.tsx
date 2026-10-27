@@ -26,6 +26,7 @@ interface WrittenTicketModalProps {
   isOpen: boolean;
   buildings: Building[];
   reporterEmail: string;
+  isAdmin?: boolean;
   initialBuildingId?: string | null;
   initialClassroomId?: string | null;
   onClose: () => void;
@@ -46,6 +47,7 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
   isOpen,
   buildings,
   reporterEmail,
+  isAdmin = false,
   initialBuildingId,
   initialClassroomId,
   onClose,
@@ -173,16 +175,18 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-      <TactileCard className="w-full max-w-2xl max-h-[90dvh] flex flex-col p-0 overflow-hidden">
+      <TactileCard className="w-full max-w-2xl max-h-[90dvh] flex flex-col p-0 overflow-hidden bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-lg dark:shadow-hard-night-lg">
         {/* Header */}
         <div className="p-4 border-b-2 border-zinc-950 flex items-start justify-between gap-3">
           <div>
-            <StatusBadge
-              variant="sky"
-              icon={<Sparkles className="w-3.5 h-3.5" />}
-            >
-              Yerel CPU Türkçe NLP Triyajı & Aciliyet Analizi
-            </StatusBadge>
+            {isAdmin && (
+              <StatusBadge
+                variant="sky"
+                icon={<Sparkles className="w-3.5 h-3.5" />}
+              >
+                Yerel CPU Türkçe NLP Triyajı & Aciliyet Analizi
+              </StatusBadge>
+            )}
             <h2 className="text-base sm:text-lg font-black text-zinc-900 dark:text-zinc-100 mt-1">
               İdareye Yazılı Arıza / Talep Bildirimi
             </h2>
@@ -202,32 +206,38 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
           {createdTicket && (
-            <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 border-2 border-zinc-950 shadow-hard-sm space-y-2">
-              <div className="font-black text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
+            <div className="p-3.5 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 border-2 border-zinc-950 shadow-hard-sm space-y-2">
+              <div className="font-black text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span>Bildiriminiz yerel NLP modeli tarafından &lt;5 ms içinde sınıflandırıldı</span>
+                <span>
+                  {isAdmin
+                    ? 'Bildiriminiz yerel NLP modeli tarafından <5 ms içinde sınıflandırıldı'
+                    : 'Bildiriminiz başarıyla alındı ve ilgili birime iletildi.'}
+                </span>
               </div>
               <div className="flex flex-wrap gap-2 pt-0.5">
                 <StatusBadge variant="sky">
-                  🏢 Atanan Birim: {createdTicket.ai_department}
+                  🏢 {isAdmin ? 'Atanan Birim' : 'İlgili Birim'}: {createdTicket.ai_department}
                 </StatusBadge>
-                <StatusBadge
-                  variant={
-                    createdTicket.ai_urgency_score >= 75
-                      ? 'rose'
-                      : createdTicket.ai_urgency_score >= 50
-                      ? 'amber'
-                      : 'emerald'
-                  }
-                >
-                  ⚡ Aciliyet Skoru: {createdTicket.ai_urgency_score}/100 ({createdTicket.ai_priority_label.toUpperCase()})
-                </StatusBadge>
+                {isAdmin && (
+                  <StatusBadge
+                    variant={
+                      createdTicket.ai_urgency_score >= 75
+                        ? 'rose'
+                        : createdTicket.ai_urgency_score >= 50
+                        ? 'amber'
+                        : 'emerald'
+                    }
+                  >
+                    ⚡ Aciliyet Skoru: {createdTicket.ai_urgency_score}/100 ({createdTicket.ai_priority_label.toUpperCase()})
+                  </StatusBadge>
+                )}
               </div>
             </div>
           )}
 
           {errorMsg && (
-            <div className="p-3 rounded-xl bg-rose-100 dark:bg-rose-950/80 border-2 border-rose-900 text-rose-900 dark:text-rose-200 font-bold flex items-center gap-2">
+            <div className="p-3 rounded-lg bg-rose-100 dark:bg-rose-950/60 border-2 border-zinc-950 shadow-hard-sm text-rose-950 dark:text-rose-200 font-bold flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
@@ -242,7 +252,7 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-zinc-100 dark:bg-zinc-900 border-2 border-zinc-950 rounded-xl px-3 py-2 text-zinc-900 dark:text-zinc-100 font-bold outline-none"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-3 py-2 text-zinc-900 dark:text-zinc-100 font-bold outline-none shadow-hard-sm"
                 >
                   {TICKET_CATEGORIES.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -250,7 +260,7 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
                     </option>
                   ))}
                 </select>
-                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 font-bold">
                   {selectedCategoryCfg.hint}
                 </p>
               </div>
@@ -262,7 +272,7 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
                 <select
                   value={buildingId}
                   onChange={(e) => setBuildingId(e.target.value)}
-                  className="w-full bg-zinc-100 dark:bg-zinc-900 border-2 border-zinc-950 rounded-xl px-3 py-2 text-zinc-900 dark:text-zinc-100 font-bold outline-none"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-3 py-2 text-zinc-900 dark:text-zinc-100 font-bold outline-none shadow-hard-sm"
                 >
                   <option value="">— Genel Kampüs Alanı —</option>
                   {buildings.map((b) => (
@@ -286,13 +296,13 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Örn: BMB Amfi 1 projeksiyon cihazı çalışmıyor / Zemin kat su sızıntısı"
-                className="w-full bg-zinc-100 dark:bg-zinc-900 border-2 border-zinc-950 rounded-xl px-3 py-2 text-zinc-900 dark:text-zinc-100 font-semibold outline-none focus:ring-2 focus:ring-sky-400"
+                className="w-full bg-zinc-50 dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-3 py-2 text-zinc-900 dark:text-zinc-100 font-bold outline-none shadow-hard-sm"
               />
             </div>
 
             <div>
               <label className="block font-black text-zinc-800 dark:text-zinc-200 mb-1">
-                Detaylı Açıklama (Türkçe NLP aciliyet ve birim puanlaması yapar)
+                {isAdmin ? 'Detaylı Açıklama (Türkçe NLP aciliyet ve birim puanlaması yapar)' : 'Detaylı Açıklama'}
               </label>
               <textarea
                 required
@@ -305,7 +315,7 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
                   setShowMismatchConfirm(false);
                 }}
                 placeholder="Arızanın veya talebin yerini ve aciliyet durumunu kısaca yazınız..."
-                className="w-full bg-zinc-100 dark:bg-zinc-900 border-2 border-zinc-950 rounded-xl px-3 py-2 text-zinc-900 dark:text-zinc-100 font-semibold outline-none focus:ring-2 focus:ring-sky-400"
+                className="w-full bg-zinc-50 dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-3 py-2 text-zinc-900 dark:text-zinc-100 font-bold outline-none shadow-hard-sm"
               />
             </div>
 
@@ -313,53 +323,58 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
             {aiPreview && !createdTicket && (
               <div className="space-y-1.5 pt-0.5">
                 {aiPreview.ai_is_spam ? (
-                  <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-900 text-rose-800 dark:text-rose-200 text-xs flex items-center gap-2 font-medium">
+                  <div className="p-2.5 rounded-lg bg-rose-100 dark:bg-rose-950/60 border-2 border-zinc-950 shadow-hard-sm text-rose-950 dark:text-rose-200 text-xs flex items-center gap-2 font-bold">
                     <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                     <span>
                       Uygunsuz, spam veya test içerik algılandı. Bildirim düşük öncelikli (Spam) olarak işaretlenecektir.
                     </span>
                   </div>
                 ) : aiPreview.is_mismatch ? (
-                  <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border-2 border-amber-500 text-amber-900 dark:text-amber-200 text-xs space-y-1.5 shadow-sm">
+                  <div className="p-3 rounded-lg bg-amber-100 dark:bg-amber-950/60 border-2 border-zinc-950 shadow-hard-sm text-amber-950 dark:text-amber-100 text-xs space-y-2">
                     <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 font-black text-amber-800 dark:text-amber-300">
+                      <div className="flex items-center gap-1.5 font-black text-amber-950 dark:text-amber-200">
                         <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                        <span>Yapay Zekâ Birim Önerisi: {aiPreview.ai_department}</span>
+                        <span>{isAdmin ? 'Yapay Zekâ Birim Önerisi: ' : 'Önerilen Birim: '}{aiPreview.ai_department}</span>
                       </div>
-                      <StatusBadge
-                        variant={
-                          aiPreview.ai_urgency_score >= 75
-                            ? 'rose'
-                            : aiPreview.ai_urgency_score >= 50
-                            ? 'amber'
-                            : 'emerald'
-                        }
-                      >
-                        ⚡ {aiPreview.ai_urgency_score}/100 ({aiPreview.ai_priority_label.toUpperCase()})
-                      </StatusBadge>
+                      {isAdmin && (
+                        <StatusBadge
+                          variant={
+                            aiPreview.ai_urgency_score >= 75
+                              ? 'rose'
+                              : aiPreview.ai_urgency_score >= 50
+                              ? 'amber'
+                              : 'emerald'
+                          }
+                        >
+                          ⚡ {aiPreview.ai_urgency_score}/100 ({aiPreview.ai_priority_label.toUpperCase()})
+                        </StatusBadge>
+                      )}
                     </div>
-                    <p className="text-[11px] text-amber-800/90 dark:text-amber-300/90">
+                    <p className="text-[11px] font-bold text-amber-900 dark:text-amber-200">
                       Siz <strong>"{selectedCategoryCfg.label}"</strong> seçtiniz, fakat girdiğiniz arıza metni{' '}
                       <strong>"{aiPreview.ai_department}"</strong> ile ilgili görünüyor.
                     </p>
-                    <button
+                    <TactileButton
                       type="button"
+                      size="sm"
+                      variant="warning"
                       onClick={handleApplyAISuggestion}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-zinc-950 font-black text-xs transition-colors shadow-sm"
+                      icon={<CheckCircle2 className="w-3.5 h-3.5" />}
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Kategoriyi "{aiPreview.ai_department}" Yap</span>
-                    </button>
+                      Kategoriyi "{aiPreview.ai_department}" Yap
+                    </TactileButton>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between text-[11px] text-emerald-700 dark:text-emerald-400 font-medium px-1">
+                  <div className="flex items-center justify-between text-[11px] text-emerald-700 dark:text-emerald-400 font-bold px-1">
                     <span className="flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       Metin seçtiğiniz birim ({selectedCategoryCfg.defaultDepartment}) ile uyumlu.
                     </span>
-                    <span className="font-bold">
-                      Aciliyet: {aiPreview.ai_urgency_score}/100 ({aiPreview.ai_priority_label.toUpperCase()})
-                    </span>
+                    {isAdmin && (
+                      <span className="font-black">
+                        Aciliyet: {aiPreview.ai_urgency_score}/100 ({aiPreview.ai_priority_label.toUpperCase()})
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -367,15 +382,15 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
 
             {/* Mismatch Confirmation Box Before Submission */}
             {showMismatchConfirm && aiPreview && (
-              <div className="p-3.5 rounded-xl bg-amber-100/95 dark:bg-amber-950/95 border-2 border-zinc-950 shadow-hard space-y-2.5 animate-in fade-in">
-                <div className="flex items-center gap-2 font-black text-zinc-900 dark:text-zinc-100 text-xs sm:text-sm">
+              <div className="p-3.5 rounded-lg bg-amber-100 dark:bg-amber-950/60 border-2 border-zinc-950 shadow-hard-sm space-y-2.5 animate-in fade-in">
+                <div className="flex items-center gap-2 font-black text-zinc-950 dark:text-zinc-100 text-xs sm:text-sm">
                   <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>Yapay Zekâ Birim Yönlendirmesini Onaylıyor musunuz?</span>
+                  <span>Birim Yönlendirmesini Onaylıyor musunuz?</span>
                 </div>
-                <p className="text-xs text-zinc-700 dark:text-zinc-300 font-medium leading-relaxed">
-                  Siz <span className="font-bold underline">{selectedCategoryCfg.defaultDepartment}</span> birimini seçtiniz.
+                <p className="text-xs text-zinc-800 dark:text-zinc-200 font-bold leading-relaxed">
+                  Siz <span className="underline">{selectedCategoryCfg.defaultDepartment}</span> birimini seçtiniz.
                   Fakat arıza metnine göre sistem, talebin en hızlı çözülebilmesi için{' '}
-                  <span className="font-bold text-amber-800 dark:text-amber-300 underline">
+                  <span className="underline">
                     {aiPreview.ai_department}
                   </span>{' '}
                   birimine iletilmesini öneriyor.
@@ -403,7 +418,7 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowMismatchConfirm(false)}
-                    className="text-[11px] font-bold text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 underline ml-auto"
+                    className="text-[11px] font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 underline ml-auto"
                   >
                     Düzenlemeye Geri Dön
                   </button>
@@ -428,24 +443,25 @@ export const WrittenTicketModal: React.FC<WrittenTicketModalProps> = ({
           {/* Student's Past Tickets */}
           {myTickets.length > 0 && (
             <div className="pt-3 border-t-2 border-zinc-950 space-y-2">
-              <div className="font-black text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-zinc-500" />
+              <div className="font-black text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
                 <span>Geçmiş Yazılı Bildirimleriniz ({myTickets.length})</span>
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {myTickets.map((t) => (
                   <div
                     key={t.id}
-                    className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-sm flex items-center justify-between gap-2"
+                    className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/80 border-2 border-zinc-950 shadow-hard-sm flex items-center justify-between gap-2"
                   >
                     <div>
-                      <div className="font-black text-zinc-900 dark:text-zinc-100">
+                      <div className="font-black text-zinc-950 dark:text-zinc-100">
                         {t.title}
                       </div>
-                      <div className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                        {t.ai_department} • Aciliyet: {t.ai_urgency_score}/100
+                      <div className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 font-bold">
+                        {t.ai_department}
+                        {isAdmin ? ` • Aciliyet: ${t.ai_urgency_score}/100` : ''}
                         {t.admin_note ? (
-                          <span className="text-sky-600 dark:text-sky-300 font-bold">
+                          <span className="text-sky-600 dark:text-sky-400 font-bold">
                             {' '}
                             • İdare Yanıtı: {t.admin_note}
                           </span>

@@ -57,7 +57,7 @@ function interpolateAlongPolyline(coords: [number, number][], fraction: number):
  * 100% isolated from direct hardware geolocation to guarantee rock-solid stability.
  * Safe fallback to default campus entrance (Marmaray) if coordinates are outside GTÜ.
  */
-export function useNavigation(blockedEdgeIds: string[]) {
+export function useNavigation(blockedEdgeIds: string[], isAdmin: boolean = false) {
   const [userPos, setUserPos] = useState<UserPositionState>({
     rawLat: CAMPUS_CONFIG.defaultSimStartCoord.lat,
     rawLon: CAMPUS_CONFIG.defaultSimStartCoord.lon,
@@ -161,8 +161,9 @@ export function useNavigation(blockedEdgeIds: string[]) {
         }
 
         const firstPt = res.coordinates[0];
-        const doorLon = firstPt ? firstPt[0] : originLon;
-        const doorLat = firstPt ? firstPt[1] : originLat;
+        const secondPt = res.coordinates.length > 1 ? res.coordinates[1] : firstPt;
+        const doorLon = secondPt ? secondPt[0] : originLon;
+        const doorLat = secondPt ? secondPt[1] : originLat;
         routeOriginRef.current = {
           rawLat: originLat,
           rawLon: originLon,
@@ -170,14 +171,14 @@ export function useNavigation(blockedEdgeIds: string[]) {
           doorLon,
         };
 
-        // Snap character to the route start (which is the building's exit door if started inside a building)
+        // Keep character at their true origin (inside the building) instead of snapping outside
         setUserPos((prev) => ({
           ...prev,
           rawLat: originLat,
           rawLon: originLon,
-          snappedLat: doorLat,
-          snappedLon: doorLon,
-          isSnapped: true,
+          snappedLat: originLat,
+          snappedLon: originLon,
+          isSnapped: false,
           offRouteDistanceMeters: 0,
           remainingMeters: res.distance_m,
           remainingMinutes: res.duration_min,
@@ -209,10 +210,12 @@ export function useNavigation(blockedEdgeIds: string[]) {
         targetBuildingId,
         curPos.rawLat,
         curPos.rawLon,
-        '⚠️ Rotanız üzerindeki bir yürüyüş yolu kapatıldı. A* algoritması alternatif güvenli rotayı hesapladı.'
+        isAdmin
+          ? '⚠️ Rotanız üzerindeki bir yürüyüş yolu kapatıldı. A* algoritması alternatif güvenli rotayı hesapladı.'
+          : 'Rotanız üzerindeki bir yürüyüş yolu kapandığı için alternatif güzergâh oluşturuldu.'
       );
     }
-  }, [blockedEdgeIds, activeRoute, targetBuildingId, computeRouteToBuilding]);
+  }, [blockedEdgeIds, activeRoute, targetBuildingId, computeRouteToBuilding, isAdmin]);
 
   const applyRawCoordinates = useCallback(
     (
@@ -245,8 +248,8 @@ export function useNavigation(blockedEdgeIds: string[]) {
           source === 'simulator'
         );
 
-        // If user started inside a building (teleported to exit door) and hasn't walked away from their indoor origin yet,
-        // keep them anchored at the building exit door and prevent false off-route loops
+        // If user started inside a building and hasn't walked away from their indoor origin yet,
+        // keep them at their true indoor GPS coordinates and prevent false off-route recalculations
         const originInfo = routeOriginRef.current;
         const distFromRawOriginM = originInfo
           ? haversineDistanceM(rawLat, rawLon, originInfo.rawLat, originInfo.rawLon)
@@ -258,12 +261,12 @@ export function useNavigation(blockedEdgeIds: string[]) {
           source !== 'simulator' &&
           originInfo !== null &&
           originToDoorM > 3.0 &&
-          distFromRawOriginM <= 18.0 &&
+          distFromRawOriginM <= 24.0 &&
           snap.distanceToRouteM > CAMPUS_CONFIG.snapThresholdMeters;
 
-        const effectiveSnappedLat = isStillInsideStartBuilding ? originInfo!.doorLat : snap.lat;
-        const effectiveSnappedLon = isStillInsideStartBuilding ? originInfo!.doorLon : snap.lon;
-        const effectiveIsSnapped = isStillInsideStartBuilding ? true : snap.isSnapped;
+        const effectiveSnappedLat = isStillInsideStartBuilding ? rawLat : snap.lat;
+        const effectiveSnappedLon = isStillInsideStartBuilding ? rawLon : snap.lon;
+        const effectiveIsSnapped = isStillInsideStartBuilding ? false : snap.isSnapped;
         const effectiveIsOffRoute = isStillInsideStartBuilding ? false : snap.isOffRoute;
 
         // Calculate remaining route distance from snapped point
@@ -321,7 +324,9 @@ export function useNavigation(blockedEdgeIds: string[]) {
             rawLon,
             isFirstGpsLock
               ? '📡 Canlı GPS konumunuza göre rota yeniden hesaplandı.'
-              : '🔄 Rotadan sapma algılandı. Yeni konumunuza göre A* rotası güncellendi.'
+              : isAdmin
+                ? '🔄 Rotadan sapma algılandı. Yeni konumunuza göre A* rotası güncellendi.'
+                : 'Yeni konumunuza göre yürüyüş rotası güncellendi.'
           );
         }
       } else {
@@ -369,6 +374,30 @@ export function useNavigation(blockedEdgeIds: string[]) {
 
     return () => clearInterval(interval);
   }, [isSimulatingWalk, activeRoute, applyRawCoordinates]);
+
+  const toggleSimulateWalk = useCallback(() => {
+    setIsSimulatingWalk((prev) => {
+      const next = !prev;
+      if (!next) {
+        // Pausing or stopping walking simulation: restore character directly to real indoor / GPS position!
+        setSimProgress(0);
+        const restored = lastRealUserPosRef.current;
+        setUserPos((p) => ({
+          ...p,
+          rawLat: restored.lat,
+          rawLon: restored.lon,
+          snappedLat: restored.lat,
+          snappedLon: restored.lon,
+          isSnapped: false,
+          offRouteDistanceMeters: 0,
+          source: restored.source,
+        }));
+      } else {
+        setSimProgress(0);
+      }
+      return next;
+    });
+  }, []);
 
   const setUserStartCoords = useCallback(
     (lat: number, lon: number) => {
@@ -434,6 +463,7 @@ export function useNavigation(blockedEdgeIds: string[]) {
     computeRouteToBuilding,
     applyRawCoordinates,
     setUserStartCoords,
+    toggleSimulateWalk,
     clearNavigation,
   };
 }

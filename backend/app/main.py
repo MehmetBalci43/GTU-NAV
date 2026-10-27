@@ -1,5 +1,6 @@
 from collections import defaultdict
 import json
+import math
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -385,6 +386,14 @@ def calculate_route(req: RouteRequest, db: Session = Depends(get_db)) -> RouteRe
                 if best_res is None or cand["distance_m"] < best_res["distance_m"]:
                     best_res = cand
 
+        if start_b is not None and best_res is not None and best_res.get("coordinates"):
+            first_lon, first_lat = best_res["coordinates"][0]
+            dist_to_door = haversine_m(req.start_lat, req.start_lon, first_lat, first_lon)
+            if dist_to_door > 1.2:
+                best_res["coordinates"] = [[round(req.start_lon, 6), round(req.start_lat, 6)]] + best_res["coordinates"]
+                best_res["distance_m"] = round(best_res["distance_m"] + dist_to_door, 1)
+                best_res["duration_min"] = max(1, math.ceil(best_res["distance_m"] / 80.0))
+
         return RouteResponse(**best_res)
 
     if req.target_lat is None or req.target_lon is None:
@@ -397,6 +406,15 @@ def calculate_route(req: RouteRequest, db: Session = Depends(get_db)) -> RouteRe
         )
         if best_custom is None or cand["distance_m"] < best_custom["distance_m"]:
             best_custom = cand
+
+    if start_b is not None and best_custom is not None and best_custom.get("coordinates"):
+        first_lon, first_lat = best_custom["coordinates"][0]
+        dist_to_door = haversine_m(req.start_lat, req.start_lon, first_lat, first_lon)
+        if dist_to_door > 1.2:
+            best_custom["coordinates"] = [[round(req.start_lon, 6), round(req.start_lat, 6)]] + best_custom["coordinates"]
+            best_custom["distance_m"] = round(best_custom["distance_m"] + dist_to_door, 1)
+            best_custom["duration_min"] = max(1, math.ceil(best_custom["distance_m"] / 80.0))
+
     return RouteResponse(**best_custom)
 
 
@@ -640,17 +658,16 @@ def update_building_entrance(
     graph = load_walk_graph()
     nodes_map = {n["id"]: n for n in graph.get("nodes", [])}
     nearest_nid = find_nearest_node(nodes_map, req.entrance_lat, req.entrance_lon)
-    snapped_node = nodes_map[nearest_nid]
 
     if req.entrance_slot == 2:
         b.secondary_entrance_node_id = nearest_nid
-        b.secondary_entrance_lat = snapped_node["lat"]
-        b.secondary_entrance_lon = snapped_node["lon"]
+        b.secondary_entrance_lat = round(req.entrance_lat, 6)
+        b.secondary_entrance_lon = round(req.entrance_lon, 6)
         b.secondary_entrance_name = req.entrance_name or f"{b.code} 2. Giriş Kapısı"
     else:
         b.entrance_node_id = nearest_nid
-        b.entrance_lat = snapped_node["lat"]
-        b.entrance_lon = snapped_node["lon"]
+        b.entrance_lat = round(req.entrance_lat, 6)
+        b.entrance_lon = round(req.entrance_lon, 6)
         if req.entrance_name:
             b.entrance_name = req.entrance_name
 
@@ -669,10 +686,9 @@ def create_or_update_building(
     init_db()
     graph = load_walk_graph()
     nodes_map = {n["id"]: n for n in graph.get("nodes", [])}
-    ent_lat = req.entrance_lat if req.entrance_lat is not None else req.lat
-    ent_lon = req.entrance_lon if req.entrance_lon is not None else req.lon
+    ent_lat = round(req.entrance_lat if req.entrance_lat is not None else req.lat, 6)
+    ent_lon = round(req.entrance_lon if req.entrance_lon is not None else req.lon, 6)
     nearest_nid = find_nearest_node(nodes_map, ent_lat, ent_lon)
-    snapped_node = nodes_map[nearest_nid]
 
     sec_nid = None
     sec_lat = None
@@ -680,9 +696,8 @@ def create_or_update_building(
     sec_name = None
     if req.secondary_entrance_lat is not None and req.secondary_entrance_lon is not None:
         sec_nid = find_nearest_node(nodes_map, req.secondary_entrance_lat, req.secondary_entrance_lon)
-        sec_node = nodes_map[sec_nid]
-        sec_lat = sec_node["lat"]
-        sec_lon = sec_node["lon"]
+        sec_lat = round(req.secondary_entrance_lat, 6)
+        sec_lon = round(req.secondary_entrance_lon, 6)
         sec_name = req.secondary_entrance_name or f"{req.code} 2. Giriş Kapısı"
 
     d = 0.00024
@@ -697,8 +712,8 @@ def create_or_update_building(
         b.lat = req.lat
         b.lon = req.lon
         b.entrance_node_id = nearest_nid
-        b.entrance_lat = snapped_node["lat"]
-        b.entrance_lon = snapped_node["lon"]
+        b.entrance_lat = ent_lat
+        b.entrance_lon = ent_lon
         b.entrance_name = req.entrance_name or f"{req.code} Ana Giriş Kapısı"
         if sec_nid is not None:
             b.secondary_entrance_node_id = sec_nid
@@ -721,8 +736,8 @@ def create_or_update_building(
             lon=req.lon,
             entrance_node_id=nearest_nid,
             entrance_name=req.entrance_name or f"{req.code} Ana Giriş Kapısı",
-            entrance_lat=snapped_node["lat"],
-            entrance_lon=snapped_node["lon"],
+            entrance_lat=ent_lat,
+            entrance_lon=ent_lon,
             secondary_entrance_node_id=sec_nid,
             secondary_entrance_name=sec_name,
             secondary_entrance_lat=sec_lat,

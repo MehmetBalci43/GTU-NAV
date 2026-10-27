@@ -74,7 +74,7 @@ export const ReportAlertModal: React.FC<ReportAlertModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-      <TactileCard className="w-full max-w-lg p-4 sm:p-5 space-y-4">
+      <TactileCard className="w-full max-w-lg p-4 sm:p-5 space-y-4 bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-lg dark:shadow-hard-night-lg">
         {/* Header */}
         <div className="flex items-start justify-between border-b-2 border-zinc-950 pb-3">
           <div>
@@ -108,17 +108,17 @@ export const ReportAlertModal: React.FC<ReportAlertModalProps> = ({
                   key={t.id}
                   type="button"
                   onClick={() => setSelectedTypeId(t.id)}
-                  className={`text-left p-3 rounded-xl border-2 border-zinc-950 transition ${
+                  className={`text-left p-3 rounded-lg border-2 border-zinc-950 transition active:translate-x-0.5 active:translate-y-0.5 ${
                     active
-                      ? 'bg-amber-100 dark:bg-amber-950/80 text-zinc-950 dark:text-zinc-100 shadow-hard-sm ring-2 ring-amber-400'
-                      : 'bg-zinc-50 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 shadow-none'
+                      ? 'bg-amber-300 dark:bg-amber-400 text-zinc-950 shadow-hard-sm'
+                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                   }`}
                 >
                   <div className="font-black flex items-center justify-between">
                     <span>{t.title}</span>
-                    {active && <Check className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
+                    {active && <Check className="w-4 h-4 text-zinc-950" />}
                   </div>
-                  <div className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-1">
+                  <div className={`text-[11px] mt-1 font-bold ${active ? 'text-zinc-900' : 'text-zinc-500 dark:text-zinc-400'}`}>
                     {t.subtitle}
                   </div>
                 </button>
@@ -136,21 +136,21 @@ export const ReportAlertModal: React.FC<ReportAlertModalProps> = ({
               onChange={(e) => setCustomTitle(e.target.value)}
               placeholder={selectedConfig.title}
               maxLength={120}
-              className="w-full bg-zinc-100 dark:bg-zinc-900 border-2 border-zinc-950 rounded-xl px-3 py-2 text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-amber-400 font-semibold"
+              className="w-full bg-zinc-50 dark:bg-zinc-800 border-2 border-zinc-950 rounded-lg px-3 py-2 text-zinc-900 dark:text-zinc-100 outline-none font-bold shadow-hard-sm"
             />
           </div>
 
           {/* Location picker */}
-          <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 flex flex-wrap items-center justify-between gap-2 shadow-hard-sm">
+          <div className="p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 border-2 border-zinc-950 shadow-hard-sm flex flex-wrap items-center justify-between gap-2">
             <div>
-              <div className="font-extrabold text-zinc-900 dark:text-zinc-200 flex items-center gap-1.5">
+              <div className="font-black text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-amber-500 shrink-0" />
                 <span className="tabular-nums">
                   Konum: {lat.toFixed(5)}, {lon.toFixed(5)}
                 </span>
               </div>
               {pickedEdgeId && (
-                <div className="text-[11px] text-amber-600 dark:text-amber-400 font-bold mt-0.5">
+                <div className="text-[11px] text-amber-700 dark:text-amber-400 font-black mt-0.5">
                   Seçili Yol Kenarı: {pickedEdgeId}
                 </div>
               )}

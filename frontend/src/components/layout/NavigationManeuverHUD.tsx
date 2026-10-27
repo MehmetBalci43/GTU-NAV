@@ -19,6 +19,7 @@ import { TactileButton, TactileCard } from '../ui/Primitives';
 interface NavigationManeuverHUDProps {
   activeRoute: RouteResponse;
   userPos: UserPositionState;
+  isAdmin?: boolean;
   isSimulatingWalk: boolean;
   onToggleSimulateWalk: () => void;
   isLiveGpsActive?: boolean;
@@ -101,6 +102,7 @@ function computeNextManeuver(
 export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
   activeRoute,
   userPos,
+  isAdmin = false,
   isSimulatingWalk,
   onToggleSimulateWalk,
   isLiveGpsActive = false,
@@ -125,19 +127,19 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
 
   return (
     <>
-      {/* 1. TOP MANEUVER BANNER (Compact & Non-Destructive Collapse, Never Overlaps Top Bars) */}
+      {/* 1. TOP MANEUVER BANNER */}
       <div className="fixed top-3 md:top-4 inset-x-3 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 z-30 flex justify-center pointer-events-none">
         {isManeuverBannerCollapsed ? (
           <button
             type="button"
             onClick={() => setIsManeuverBannerCollapsed(false)}
-            className="pointer-events-auto px-3.5 py-2 rounded-full bg-emerald-400 dark:bg-emerald-500 text-zinc-950 border-2 border-zinc-950 shadow-hard-sm hover:brightness-95 active:scale-95 transition flex items-center gap-2 text-xs font-black"
+            className="pointer-events-auto px-4 py-2 rounded-xl bg-zinc-900 text-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-md active:translate-x-0.5 active:translate-y-0.5 transition flex items-center gap-2 text-xs font-black"
             title="Adım Adım Dönüş Talimatını Göster"
           >
-            {maneuver.type === 'arrive' && <CheckCircle2 className="w-4 h-4 shrink-0" />}
-            {maneuver.type === 'right' && <CornerUpRight className="w-4 h-4 shrink-0" />}
-            {maneuver.type === 'left' && <CornerUpLeft className="w-4 h-4 shrink-0" />}
-            {maneuver.type === 'straight' && <ArrowUp className="w-4 h-4 shrink-0" />}
+            {maneuver.type === 'arrive' && <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />}
+            {maneuver.type === 'right' && <CornerUpRight className="w-4 h-4 shrink-0 text-emerald-400" />}
+            {maneuver.type === 'left' && <CornerUpLeft className="w-4 h-4 shrink-0 text-emerald-400" />}
+            {maneuver.type === 'straight' && <ArrowUp className="w-4 h-4 shrink-0 text-emerald-400" />}
             <span className="truncate max-w-[200px]">
               {maneuver.type === 'arrive'
                 ? 'Hedefe Ulaşıldı'
@@ -146,9 +148,9 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
             <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-80" />
           </button>
         ) : (
-          <div className="pointer-events-auto w-full max-w-[360px] bg-emerald-400 dark:bg-emerald-500 text-zinc-950 border-2 border-zinc-950 shadow-hard-md rounded-2xl px-3 py-2 flex items-center gap-2.5 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="pointer-events-auto w-full max-w-[360px] bg-zinc-900 text-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-lg rounded-xl px-3.5 py-2.5 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-150">
             {/* Turn Icon Box */}
-            <div className="w-9 h-9 rounded-xl bg-zinc-950 text-emerald-400 border border-zinc-950 flex items-center justify-center shrink-0 shadow-sm">
+            <div className="w-9 h-9 rounded-lg bg-emerald-400 text-zinc-950 border-2 border-zinc-950 shadow-hard-sm flex items-center justify-center shrink-0">
               {maneuver.type === 'arrive' && <CheckCircle2 className="w-5 h-5" />}
               {maneuver.type === 'right' && <CornerUpRight className="w-5 h-5" />}
               {maneuver.type === 'left' && <CornerUpLeft className="w-5 h-5" />}
@@ -157,7 +159,7 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
 
             {/* Maneuver Text */}
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] font-black uppercase tracking-wider text-emerald-950/80 flex items-center gap-1">
+              <div className="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1">
                 {maneuver.type === 'arrive' ? (
                   <span>Hedefe Ulaşıldı</span>
                 ) : (
@@ -173,11 +175,11 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
               </div>
             </div>
 
-            {/* Collapse Maneuver Banner (Does NOT cancel the route!) */}
+            {/* Collapse Maneuver Banner */}
             <button
               type="button"
               onClick={() => setIsManeuverBannerCollapsed(true)}
-              className="w-7 h-7 rounded-lg bg-zinc-950/15 hover:bg-zinc-950/25 text-zinc-950 font-black flex items-center justify-center transition shrink-0"
+              className="w-7 h-7 rounded-md bg-zinc-800 hover:bg-zinc-700 text-white border-2 border-zinc-950 shadow-hard-sm flex items-center justify-center transition shrink-0"
               title="Dönüş bildirimini küçült (Rotayı kapatmaz)"
               aria-label="Dönüş bildirimini küçült"
             >
@@ -187,31 +189,31 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
         )}
       </div>
 
-      {/* 2. BOTTOM ACTIVE NAVIGATION & SENSOR ISLAND (Bottom-Left on Desktop so it never overlaps Bottom-Right Map Dock) */}
+      {/* 2. BOTTOM ACTIVE NAVIGATION & SENSOR ISLAND */}
       <div className="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 md:left-4 md:translate-x-0 z-30 pointer-events-auto w-[92vw] sm:w-auto max-w-md">
-        <TactileCard className="p-3 sm:px-3.5 sm:py-2.5 flex flex-col gap-2.5 bg-white dark:bg-[#1E222D]">
+        <TactileCard className="p-3 sm:px-3.5 sm:py-2.5 flex flex-col gap-2.5 bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard-md">
           {/* Destination & Remaining Summary */}
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="font-black text-xs sm:text-sm text-zinc-950 dark:text-zinc-100 truncate">
+                <span className="font-black text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 truncate">
                   {activeRoute.target_entrance_name}
                 </span>
-                <span className="px-2 py-0.5 rounded-lg bg-sky-400 text-zinc-950 font-black text-[11px] tabular-nums border border-zinc-950 shrink-0">
+                <span className="px-2 py-0.5 rounded-md bg-sky-400 text-zinc-950 font-black text-[11px] tabular-nums border-2 border-zinc-950 shadow-hard-sm shrink-0">
                   {userPos.remainingMeters} m (~{userPos.remainingMinutes} dk)
                 </span>
               </div>
 
               <div className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 mt-1 flex items-center gap-1.5 flex-wrap">
-                {userPos.isSnapped ? (
+                {isAdmin && userPos.isSnapped ? (
                   <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                     <Magnet className="w-3.5 h-3.5 shrink-0" />
-                    <span>Snap-to-Path Yola Kilitli ({userPos.offRouteDistanceMeters}m sapma düzeltildi)</span>
+                    <span>Snap-to-Path ({userPos.offRouteDistanceMeters}m sapma düzeltildi)</span>
                   </span>
                 ) : (
                   <span className="flex items-center gap-1">
                     <Compass className="w-3.5 h-3.5 text-sky-500 shrink-0" />
-                    <span>{isLiveGpsActive ? 'Canlı GPS sinyali alınıyor...' : 'Serbest Konum • Simülatörle test edin'}</span>
+                    <span>{isLiveGpsActive ? 'Canlı GPS konumu aktif' : 'Tahmini yürüyüş rotası'}</span>
                   </span>
                 )}
               </div>
@@ -219,12 +221,12 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
 
             {/* Real-time GPS vs Simulator Status Badge */}
             {isLiveGpsActive ? (
-              <span className="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-300 font-black text-[10px] border border-emerald-500/40 flex items-center gap-1 shrink-0">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              <span className="px-2 py-0.5 rounded-md bg-emerald-400 text-zinc-950 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm flex items-center gap-1 shrink-0">
+                <span className="w-2 h-2 rounded-full bg-zinc-950 animate-ping" />
                 <span>Canlı GPS</span>
               </span>
             ) : isSimulatingWalk ? (
-              <span className="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-950/80 dark:text-amber-300 font-black text-[10px] border border-amber-500/40 flex items-center gap-1 shrink-0">
+              <span className="px-2 py-0.5 rounded-md bg-amber-400 text-zinc-950 font-black text-[10px] border-2 border-zinc-950 shadow-hard-sm flex items-center gap-1 shrink-0">
                 <Play className="w-2.5 h-2.5 fill-current" />
                 <span>Yürüyor</span>
               </span>
@@ -232,7 +234,7 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
           </div>
 
           {/* Action Controls: Simulator, End Route */}
-          <div className="flex items-center justify-end gap-2 pt-1.5 border-t border-zinc-200/80 dark:border-white/10">
+          <div className="flex items-center justify-end gap-2 pt-1.5 border-t-2 border-zinc-950">
             <TactileButton
               size="sm"
               variant={isSimulatingWalk ? 'warning' : 'primary'}
@@ -244,9 +246,9 @@ export const NavigationManeuverHUD: React.FC<NavigationManeuverHUDProps> = ({
                 )
               }
               onClick={onToggleSimulateWalk}
-              title="Masaüstü Yürüyüş Simülatörünü Aç/Kapat"
+              title={isSimulatingWalk ? 'Simülasyonu durdur ve gerçek konuma dön' : 'Yürüyüş rotasını haritada simüle et'}
             >
-              {isSimulatingWalk ? 'Duraklat' : 'Simüle Et'}
+              {isSimulatingWalk ? 'Simülasyonu Durdur' : 'Rotayı Önizle'}
             </TactileButton>
 
             <TactileButton

@@ -33,7 +33,6 @@ export const TactileButton: React.FC<TactileButtonProps> = ({
   const baseStyles =
     'inline-flex items-center justify-center font-extrabold select-none transition-all duration-75 text-center cursor-pointer border-2 border-zinc-950 disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed';
 
-  // Apple HIG: Minimum touch target 44pt for mobile (md size = 44px)
   const sizeStyles = {
     sm: 'min-h-[36px] sm:min-h-[32px] px-3 py-1 text-xs rounded-xl shadow-hard-sm active:translate-x-[1px] active:translate-y-[1px] active:shadow-none',
     md: 'min-h-[44px] px-4 py-2 text-xs sm:text-sm rounded-xl shadow-hard active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#18181B]',
@@ -95,7 +94,6 @@ export const TactileIconButton: React.FC<TactileIconButtonProps> = ({
   disabled,
   ...props
 }) => {
-  // Apple HIG: All clickable controls must have minimum 44x44pt touch area on mobile
   const sizeStyles = {
     sm: 'w-9 h-9 min-w-[36px] min-h-[36px] rounded-lg shadow-hard-sm text-xs active:translate-x-[1px] active:translate-y-[1px] active:shadow-none',
     md: 'w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl shadow-hard text-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#18181B]',
@@ -103,15 +101,15 @@ export const TactileIconButton: React.FC<TactileIconButtonProps> = ({
   };
 
   const variantStyles = {
-    primary: 'bg-emerald-400 hover:bg-emerald-300 text-zinc-950',
+    primary: 'bg-emerald-400 hover:bg-emerald-300 text-zinc-950 border-2 border-zinc-950',
     secondary:
-      'bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100',
-    accent: 'bg-sky-400 hover:bg-sky-300 text-zinc-950',
-    warning: 'bg-amber-400 hover:bg-amber-300 text-zinc-950',
-    danger: 'bg-rose-500 hover:bg-rose-400 text-white',
-    neutral: 'bg-zinc-900 hover:bg-zinc-800 text-zinc-100',
+      'bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 border-2 border-zinc-950',
+    accent: 'bg-sky-400 hover:bg-sky-300 text-zinc-950 border-2 border-zinc-950',
+    warning: 'bg-amber-400 hover:bg-amber-300 text-zinc-950 border-2 border-zinc-950',
+    danger: 'bg-rose-500 hover:bg-rose-400 text-white border-2 border-zinc-950',
+    neutral: 'bg-zinc-900 dark:bg-zinc-950 hover:bg-zinc-800 text-zinc-100 border-2 border-zinc-950',
     ghost:
-      'border-transparent shadow-none bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 active:translate-x-0 active:translate-y-0',
+      'border-transparent shadow-none bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 active:translate-x-0 active:translate-y-0',
   };
 
   return (
@@ -119,7 +117,7 @@ export const TactileIconButton: React.FC<TactileIconButtonProps> = ({
       type="button"
       aria-label={label}
       title={label}
-      className={`inline-flex items-center justify-center font-extrabold select-none transition-all duration-75 border-2 border-zinc-950 disabled:opacity-50 disabled:pointer-events-none ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      className={`inline-flex items-center justify-center font-extrabold select-none transition-all duration-75 disabled:opacity-50 disabled:pointer-events-none cursor-pointer ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
       disabled={disabled}
       {...props}
     >
@@ -145,13 +143,12 @@ export const TactileCard: React.FC<TactileCardProps> = ({
 }) => (
   <div
     onClick={onClick}
-    className={`bg-white dark:bg-[#282D3C] border-2 border-zinc-950 shadow-hard-md dark:shadow-hard-night-md dark:ring-1 dark:ring-white/10 rounded-2xl p-4 text-zinc-900 dark:text-zinc-100 transition-colors ${className}`}
+    className={`bg-white dark:bg-zinc-900 border-2 border-zinc-950 shadow-hard rounded-2xl p-4 text-zinc-900 dark:text-zinc-100 transition-colors ${className}`}
   >
     {children}
   </div>
 );
 
-// Backward-compatible alias for existing imports
 export const SurfaceCard: React.FC<TactileCardProps> = TactileCard;
 
 /* -------------------------------------------------------------------------- */
@@ -172,18 +169,18 @@ export const StatusBadge: React.FC<BadgeProps> = ({
   className = '',
 }) => {
   const styles: Record<string, string> = {
-    emerald: 'bg-emerald-100 text-emerald-900 border-emerald-900/60 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500/40',
-    rose: 'bg-rose-100 text-rose-900 border-rose-900/60 dark:bg-rose-950/80 dark:text-rose-300 dark:border-rose-500/40',
-    amber: 'bg-amber-100 text-amber-900 border-amber-900/60 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-500/40',
-    sky: 'bg-sky-100 text-sky-900 border-sky-900/60 dark:bg-sky-950/80 dark:text-sky-300 dark:border-sky-500/40',
-    purple: 'bg-purple-100 text-purple-900 border-purple-900/60 dark:bg-purple-950/80 dark:text-purple-300 dark:border-purple-500/40',
-    slate: 'bg-zinc-100 text-zinc-900 border-zinc-900/40 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700',
-    mint: 'bg-emerald-50 text-emerald-950 border-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 dark:border-emerald-600',
+    emerald: 'bg-emerald-100 text-emerald-950 border-emerald-950 dark:bg-emerald-950 dark:text-emerald-200 dark:border-emerald-700',
+    rose: 'bg-rose-100 text-rose-950 border-rose-950 dark:bg-rose-950 dark:text-rose-200 dark:border-rose-700',
+    amber: 'bg-amber-100 text-amber-950 border-amber-950 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-700',
+    sky: 'bg-sky-100 text-sky-950 border-sky-950 dark:bg-sky-950 dark:text-sky-200 dark:border-sky-700',
+    purple: 'bg-purple-100 text-purple-950 border-purple-950 dark:bg-purple-950 dark:text-purple-200 dark:border-purple-700',
+    slate: 'bg-zinc-100 text-zinc-900 border-zinc-950 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-600',
+    mint: 'bg-emerald-200 text-emerald-950 border-zinc-950 dark:bg-emerald-900 dark:text-emerald-100 dark:border-zinc-700',
   };
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-bold border tabular-nums select-none ${styles[variant]} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-black border border-zinc-950 shadow-hard-sm tabular-nums select-none ${styles[variant]} ${className}`}
     >
       {icon && <span className="shrink-0">{icon}</span>}
       <span>{children}</span>
@@ -196,8 +193,8 @@ export const StatusBadge: React.FC<BadgeProps> = ({
 /* -------------------------------------------------------------------------- */
 
 export const GrabberHandle: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`w-full flex justify-center py-2 cursor-grab active:cursor-grabbing ${className}`}>
-    <div className="w-12 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600" />
+  <div className={`w-full flex justify-center py-2.5 cursor-grab active:cursor-grabbing ${className}`}>
+    <div className="w-10 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-600 border border-zinc-950 transition-colors" />
   </div>
 );
 
@@ -224,12 +221,12 @@ export const CampusSearchField: React.FC<CampusSearchFieldProps> = ({
 }) => {
   return (
     <div className={`relative w-full ${className}`}>
-      <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-zinc-500 dark:text-zinc-400">
+      <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
         <svg
           className="w-4 h-4"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2.5"
+          strokeWidth="2"
           viewBox="0 0 24 24"
         >
           <circle cx="11" cy="11" r="8" />
@@ -242,7 +239,7 @@ export const CampusSearchField: React.FC<CampusSearchFieldProps> = ({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         autoFocus={autoFocus}
-        className="w-full h-11 pl-10 pr-9 bg-zinc-100 dark:bg-zinc-900 border-2 border-zinc-950 rounded-xl text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none focus:ring-2 focus:ring-sky-400 shadow-hard-sm transition"
+        className="w-full h-11 pl-10 pr-9 bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-950 rounded-xl text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 outline-none focus:ring-2 focus:ring-sky-400 shadow-hard-sm transition"
       />
       {value && (
         <button

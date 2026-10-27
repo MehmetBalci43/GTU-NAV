@@ -312,8 +312,16 @@ def compute_pedestrian_route(
         if not raw_coords or haversine_m(raw_coords[-1][1], raw_coords[-1][0], pt[1], pt[0]) > 1.2:
             raw_coords.append(pt)
 
-    if len(raw_coords) == 1:
-        raw_coords.append([round(target_lon, 6), round(target_lat, 6)])
+    if not raw_coords:
+        raw_coords = [
+            [round(start_lon, 6), round(start_lat, 6)],
+            [round(target_lon, 6), round(target_lat, 6)],
+        ]
+    else:
+        if haversine_m(raw_coords[-1][1], raw_coords[-1][0], target_lat, target_lon) > 0.8:
+            raw_coords.append([round(target_lon, 6), round(target_lat, 6)])
+        if haversine_m(raw_coords[0][1], raw_coords[0][0], start_lat, start_lon) > 0.8:
+            raw_coords.insert(0, [round(start_lon, 6), round(start_lat, 6)])
 
     coords = _smooth_hairpins(raw_coords)
     if len(coords) < 2:
