@@ -13,7 +13,13 @@ from app.ai.ticket_classifier import analyze_written_ticket, get_or_load_model
 from app.config import settings
 from app.database import Base, SessionLocal, engine, get_db
 from app.models import Building, CampusAnnouncement, Classroom, CourseSchedule, MapAlert, User, WrittenTicket
-from app.routing.astar import compute_pedestrian_route, find_nearest_edge, find_nearest_node, haversine_m
+from app.routing.astar import (
+    _point_to_segment_dist_m,
+    compute_pedestrian_route,
+    find_nearest_edge,
+    find_nearest_node,
+    haversine_m,
+)
 from app.schemas import (
     AnnouncementCreate,
     AnnouncementSchema,
@@ -223,6 +229,70 @@ def login_user(req: AuthLoginRequest, db: Session = Depends(get_db)) -> dict:
     return payload
 
 
+def get_corridor_edges_for_alert(
+    graph: dict,
+    alert: MapAlert,
+    radius_m: float = 16.0,
+) -> set[str]:
+    """
+    Expands a single road closure or field alert across all parallel tracks (footways, cycleway,
+    service road, curb connectors) within the road corridor.
+    """
+    nodes = {n["id"]: n for n in graph.get("nodes", [])}
+    edges = graph.get("edges", [])
+    blocked: set[str] = set()
+
+    pts_to_check: list[tuple[float, float]] = []
+    if alert.lat and alert.lon:
+        pts_to_check.append((alert.lat, alert.lon))
+
+    if alert.edge_id:
+        blocked.add(alert.edge_id)
+        edge_obj = next((e for e in edges if e["id"] == alert.edge_id), None)
+        if edge_obj:
+            u = nodes.get(edge_obj["from_node"])
+            v = nodes.get(edge_obj["to_node"])
+            if u and v:
+                pts_to_check.append(((u["lat"] + v["lat"]) / 2, (u["lon"] + v["lon"]) / 2))
+
+    dlat = 0.00030  # ~33 meters bounding box pre-filter
+    dlon = 0.00040  # ~34 meters bounding box pre-filter
+
+    for pt_lat, pt_lon in pts_to_check:
+        for e in edges:
+            eid = e["id"]
+            if eid in blocked:
+                continue
+            u = nodes.get(e["from_node"])
+            v = nodes.get(e["to_node"])
+            if not u or not v:
+                continue
+            if min(u["lat"], v["lat"]) - dlat > pt_lat or max(u["lat"], v["lat"]) + dlat < pt_lat:
+                continue
+            if min(u["lon"], v["lon"]) - dlon > pt_lon or max(u["lon"], v["lon"]) + dlon < pt_lon:
+                continue
+            dist = _point_to_segment_dist_m(pt_lat, pt_lon, u["lat"], u["lon"], v["lat"], v["lon"])
+            if dist <= radius_m:
+                blocked.add(eid)
+
+    return blocked
+
+
+def get_all_blocked_edges(
+    graph: dict,
+    active_closures: list[MapAlert],
+    radius_m: float = 16.0,
+) -> set[str]:
+    """
+    Returns the set of all edge IDs that are blocked by any active closure, expanded
+    to their full multi-lane cross-section corridors.
+    """
+    all_blocked: set[str] = set()
+    for alert in active_closures:
+        all_blocked.update(get_corridor_edges_for_alert(graph, alert, radius_m=radius_m))
+    return all_blocked
+
+
 @app.get("/api/campus/bootstrap", response_model=BootstrapResponse)
 def get_campus_bootstrap(
     day: int | None = None,
@@ -254,9 +324,9 @@ def get_campus_bootstrap(
         .order_by(MapAlert.created_at.desc())
         .all()
     )
-    blocked_edge_ids = [
-        a.edge_id for a in active_alerts if a.blocks_route and a.edge_id is not None
-    ]
+    walk_graph = load_walk_graph()
+    active_closures = [a for a in active_alerts if a.blocks_route]
+    blocked_edge_ids = sorted(list(get_all_blocked_edges(walk_graph, active_closures)))
 
     announcements = (
         db.query(CampusAnnouncement)
@@ -267,7 +337,7 @@ def get_campus_bootstrap(
 
     return BootstrapResponse(
         buildings=building_schemas,
-        walk_graph=load_walk_graph(),
+        walk_graph=walk_graph,
         active_alerts=[MapAlertSchema.model_validate(a) for a in active_alerts],
         blocked_edge_ids=blocked_edge_ids,
         announcements=[AnnouncementSchema.model_validate(an) for an in announcements],
@@ -342,7 +412,7 @@ def calculate_route(req: RouteRequest, db: Session = Depends(get_db)) -> RouteRe
         .filter(MapAlert.status == "active", MapAlert.blocks_route == True)  # noqa: E712
         .all()
     )
-    blocked_edges = {a.edge_id for a in active_closures if a.edge_id}
+    blocked_edges = get_all_blocked_edges(graph, active_closures)
 
     # If the user starts inside a building polygon, snap start to that building's exit door(s)
     # so routes never cut through closed walls where there is no exit door.
@@ -615,18 +685,18 @@ def toggle_walkway_edge(
     if not edge_obj:
         raise HTTPException(status_code=404, detail="Yürüyüş yolu kenarı bulunamadı.")
 
-    existing = (
-        db.query(MapAlert)
-        .filter(MapAlert.edge_id == req.edge_id, MapAlert.status == "active", MapAlert.blocks_route == True)  # noqa: E712
-        .first()
-    )
+    u_node = nodes_map.get(edge_obj["from_node"], {"lat": 40.808, "lon": 29.359})
+    v_node = nodes_map.get(edge_obj["to_node"], {"lat": 40.808, "lon": 29.359})
+    mid_lat = round((u_node["lat"] + v_node["lat"]) / 2, 6)
+    mid_lon = round((u_node["lon"] + v_node["lon"]) / 2, 6)
 
     if req.closed:
+        existing = (
+            db.query(MapAlert)
+            .filter(MapAlert.edge_id == req.edge_id, MapAlert.status == "active", MapAlert.blocks_route == True)  # noqa: E712
+            .first()
+        )
         if not existing:
-            u_node = nodes_map.get(edge_obj["from_node"], {"lat": 40.808, "lon": 29.359})
-            v_node = nodes_map.get(edge_obj["to_node"], {"lat": 40.808, "lon": 29.359})
-            mid_lat = round((u_node["lat"] + v_node["lat"]) / 2, 6)
-            mid_lon = round((u_node["lon"] + v_node["lon"]) / 2, 6)
             alert = MapAlert(
                 alert_type="road_work",
                 title=req.reason or "Yol Çalışması / Geçişe Kapalı",
@@ -642,8 +712,22 @@ def toggle_walkway_edge(
             db.add(alert)
             db.commit()
     else:
-        if existing:
-            existing.status = "resolved"
+        # Reopening: Resolve any active closure whose corridor covers req.edge_id or is within 18m
+        active_closures = (
+            db.query(MapAlert)
+            .filter(MapAlert.status == "active", MapAlert.blocks_route == True)  # noqa: E712
+            .all()
+        )
+        resolved_any = False
+        for closure in active_closures:
+            corridor_edges = get_corridor_edges_for_alert(graph, closure)
+            if req.edge_id in corridor_edges or closure.edge_id == req.edge_id:
+                closure.status = "resolved"
+                resolved_any = True
+            elif haversine_m(mid_lat, mid_lon, closure.lat, closure.lon) <= 18.0:
+                closure.status = "resolved"
+                resolved_any = True
+        if resolved_any:
             db.commit()
 
     return {"edge_id": req.edge_id, "closed": req.closed}

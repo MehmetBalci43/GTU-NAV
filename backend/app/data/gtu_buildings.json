@@ -529,9 +529,9 @@
         ]
       ]
     ],
-    "entrance_node_id": "osm_9785420551",
-    "entrance_lat": 40.808866,
-    "entrance_lon": 29.362634,
+    "entrance_node_id": "osm_11276073883",
+    "entrance_lat": 40.808849,
+    "entrance_lon": 29.362102,
     "secondary_entrance_node_id": null,
     "secondary_entrance_name": null,
     "secondary_entrance_lat": null,
@@ -572,13 +572,13 @@
         ]
       ]
     ],
-    "entrance_node_id": "osm_12176461337",
-    "entrance_lat": 40.807059,
-    "entrance_lon": 29.361952,
-    "secondary_entrance_node_id": null,
-    "secondary_entrance_name": null,
-    "secondary_entrance_lat": null,
-    "secondary_entrance_lon": null
+    "entrance_node_id": "osm_12176461338",
+    "entrance_lat": 40.807003,
+    "entrance_lon": 29.362114,
+    "secondary_entrance_node_id": "osm_2243933402",
+    "secondary_entrance_name": "HEMB 2. Giriş Kapısı",
+    "secondary_entrance_lat": 40.806477,
+    "secondary_entrance_lon": 29.361942
   },
   {
     "id": "biyo",
@@ -624,8 +624,8 @@
     "entrance_lon": 29.363227,
     "secondary_entrance_node_id": "osm_12176461340",
     "secondary_entrance_name": "BIYO 2. Giriş Kapısı",
-    "secondary_entrance_lat": 40.806833,
-    "secondary_entrance_lon": 29.362481
+    "secondary_entrance_lat": 40.806962,
+    "secondary_entrance_lon": 29.362528
   },
   {
     "id": "hubf",
@@ -919,9 +919,9 @@
         ]
       ]
     ],
-    "entrance_node_id": "osm_11276073879",
-    "entrance_lat": 40.80935,
-    "entrance_lon": 29.360296,
+    "entrance_node_id": "osm_2381106852",
+    "entrance_lat": 40.809213,
+    "entrance_lon": 29.360843,
     "secondary_entrance_node_id": null,
     "secondary_entrance_name": null,
     "secondary_entrance_lat": null,
@@ -1514,9 +1514,9 @@
         ]
       ]
     ],
-    "entrance_node_id": "osm_2380129164",
-    "entrance_lat": 40.808819,
-    "entrance_lon": 29.363747,
+    "entrance_node_id": "osm_2385652970",
+    "entrance_lat": 40.809217,
+    "entrance_lon": 29.363337,
     "secondary_entrance_node_id": null,
     "secondary_entrance_name": null,
     "secondary_entrance_lat": null,
