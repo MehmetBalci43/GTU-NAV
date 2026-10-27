@@ -12,9 +12,11 @@
 
 ---
 
-### 🎥 Jüri Canlı Tanıtım ve Ekran Kaydı (Video)
-> **Demo Videosu Bağlantısı:** [YouTube Video / Google Drive Bağlantısı Buraya Eklenecek - docs/demo.mp4](docs/demo.mp4)  
-> *(Uygulamanın Docker ile ayağa kalkışını, masaüstü 3B harita/simülasyon kullanımını ve mobil görünümdeki arıza bildirim/navigasyon akışını içerir).*
+### 🎥 Jüri Canlı Tanıtım ve Demo Videosu
+[![GTÜ-NAV Demo Videosu](https://img.shields.io/badge/YouTube-İzle%20(Canlı%20Demo)-red?style=for-the-badge&logo=youtube)](https://youtu.be/AQKpiyWUAOs)
+
+> 📺 **YouTube Video Bağlantısı:** [https://youtu.be/AQKpiyWUAOs](https://youtu.be/AQKpiyWUAOs)  
+> *(3B kampüs haritası, dinamik A\* yaya navigasyonu, yürüyüş simülatörü, yerel NLP arıza bildirimi ve Marmaray entegrasyonu akışını içerir).*
 
 ---
 
