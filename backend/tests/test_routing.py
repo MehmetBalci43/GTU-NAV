@@ -224,9 +224,13 @@ def test_route_starting_inside_building_uses_building_exit_door() -> None:
             db=db,
         )
         assert len(res.coordinates) >= 3
-        first_lon, first_lat = res.coordinates[0]
-        assert abs(first_lat - bmb["entrance_lat"]) < 0.0002
-        assert abs(first_lon - bmb["entrance_lon"]) < 0.0002
+        # First coordinate is user's interior start point; second coordinate is snapped exit door
+        start_lon, start_lat = res.coordinates[0]
+        assert abs(start_lat - bmb["lat"]) < 0.0001
+        assert abs(start_lon - bmb["lon"]) < 0.0001
+        door_lon, door_lat = res.coordinates[1]
+        assert abs(door_lat - bmb["entrance_lat"]) < 0.0002
+        assert abs(door_lon - bmb["entrance_lon"]) < 0.0002
     finally:
         db.close()
 
