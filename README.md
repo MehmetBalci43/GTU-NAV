@@ -13,10 +13,10 @@
 ---
 
 ### 🎥 Jüri Canlı Tanıtım ve Demo Videosu
-[![GTÜ-NAV Demo Videosu](https://img.shields.io/badge/YouTube-İzle%20(Canlı%20Demo)-red?style=for-the-badge&logo=youtube)](https://youtu.be/AQKpiyWUAOs)
+[![GTÜ-NAV Demo Videosu](https://img.shields.io/badge/YouTube-İzle%20(Canlı%20Demo)-red?style=for-the-badge&logo=youtube)](https://youtu.be/W4bznyXkg_o)
 
-> 📺 **YouTube Video Bağlantısı:** [https://youtu.be/AQKpiyWUAOs](https://youtu.be/AQKpiyWUAOs)  
-> *(3B kampüs haritası, dinamik A\* yaya navigasyonu, yürüyüş simülatörü, yerel NLP arıza bildirimi ve Marmaray entegrasyonu akışını içerir).*
+> 📺 **YouTube Video Bağlantısı:** [https://youtu.be/W4bznyXkg_o](https://youtu.be/W4bznyXkg_o)  
+> *(Docker konteynerlerinin canlı ayağa kalkış logları, 3B kampüs haritası, dinamik A\* yaya navigasyonu, yürüyüş simülatörü, yerel NLP arıza bildirimi ve Marmaray entegrasyonu akışını içerir).*
 
 ---
 
