@@ -14,11 +14,11 @@
 
 ### 🎥 Jüri Canlı Tanıtım ve Ekran Kaydı (Video)
 > **Demo Videosu Bağlantısı:** [YouTube Video / Google Drive Bağlantısı Buraya Eklenecek - docs/demo.mp4](docs/demo.mp4)  
-> *(Uygulamanın Docker ile ayağa kalkışını, masaüstü 3B harita/simülasyon kullanımını ve mobil görünümdeki engelsiz rota/arıza bildirim akışını içerir).*
+> *(Uygulamanın Docker ile ayağa kalkışını, masaüstü 3B harita/simülasyon kullanımını ve mobil görünümdeki arıza bildirim/navigasyon akışını içerir).*
 
 ---
 
-**GTÜ-NAV**, yaklaşık **1.400.000 m²** (360 hektar) büyüklüğündeki ormanlık ve çok binalı Gebze Teknik Üniversitesi kampüsünde; öğrencilerin, akademisyenlerin ve ziyaretçilerin yaya navigasyonu, engelsiz rota bulma, derslik/akademisyen arama, Marmaray ring takibi ve anlık kampüs arıza bildirim süreçlerini tek bir hızlandırılmış 3B web arayüzünde birleştiren yeni nesil bir **Akıllı Kampüs Platformudur**.
+**GTÜ-NAV**, yaklaşık **1.400.000 m²** (360 hektar) büyüklüğündeki ormanlık ve çok binalı Gebze Teknik Üniversitesi kampüsünde; öğrencilerin, akademisyenlerin ve ziyaretçilerin yaya navigasyonu, derslik/akademisyen arama, Marmaray ring takibi ve anlık kampüs arıza bildirim süreçlerini tek bir hızlandırılmış 3B web arayüzünde birleştiren yeni nesil bir **Akıllı Kampüs Platformudur**.
 
 ---
 
@@ -26,9 +26,9 @@
 
 | Kampüsteki Gerçek Problem | GTÜ-NAV Mühendislik Çözümü |
 | :--- | :--- |
-| **Standart Harita Uygulamalarının Kampüs İçi Yetersizliği:** Ticari harita servisleri kampüs içindeki patikaları, kilitli kapıları, dik merdivenleri ve bina içi derslik/akademisyen bilgilerini bilmez. | **Kampüse Özel Yaya Grafı ve Dinamik A\* (A-Star) Rota Motoru:** Kampüs içi tüm yürüyüş yollarını, bina giriş kapılarını, eğim/merdiven bilgilerini ve anlık kapalı yolları bilen özel topolojik graf motoru. |
+| **Standart Harita Uygulamalarının Kampüs İçi Yetersizliği:** Ticari harita servisleri kampüs içindeki patikaları, kilitli kapıları ve bina içi derslik/akademisyen bilgilerini bilmez. | **Kampüse Özel Yaya Grafı ve Dinamik A\* (A-Star) Rota Motoru:** Kampüs içi tüm yürüyüş yollarını, bina giriş kapılarını ve anlık kapalı yolları bilen özel topolojik graf motoru. |
 | **GPS Sıçramaları (Ağaçlık & Bina Kanyonu Etkisi):** Ham mobil GPS verisi kampüs binaları ve sık ağaçlık alanlarda 5–15 metre saparak kullanıcıyı bina duvarlarının içinden yürüyormuş gibi gösterir. | **2B Kalman Filtresi + Vektörel `Snap-to-Path` Motoru:** Ham GPS gürültüsünü filtreleyip yaya konumunu en yakın fiziksel yürüyüş koridoruna dik izdüşümle kilitleyen kesintisiz konum sabitleme algoritması. |
-| **Engelsiz Kampüs Erişimi Eksikliği:** Tekerlekli sandalye kullanan veya hareket kısıtlılığı olan bireyler için merdivensiz rota bulmak imkânsızdır. | **♿ Engelsiz Rota Modu:** Merdivenli ve dik eğimli kenarları graf üzerinde otomatik eleyerek yalnızca düzayak ve rampalı yollardan alternatif rota üreten erişilebilirlik motoru. |
+| **Marmaray ve Ring Seferlerine Yetişme Belirsizliği:** Kampüsün büyüklüğü sebebiyle öğrencilerin durağa yürüme sürelerini ve treni yakalayıp yakalayamayacaklarını kestirmeleri güçtür. | **🚆 Canlı Marmaray Sayacı ve Ring Takibi:** Kullanıcının anlık konumuna göre Fatih Marmaray istasyonuna dinamik yürüme süresi hesaplayan ve trene yetişme durumunu canlı gösteren entegrasyon motoru. |
 | **Kayıtsız ve Sınıflandırılmayan Kampüs Arızaları:** Kırık kaldırımlar, aydınlatma sorunları veya su kaçakları ilgili daire başkanlığına ulaşmadan kaybolur. | **🧠 Yerel Yapay Zekâ Destekli Yazılı Ticket & LiveOps Merkezi:** KVKK uyumlu (fotoğrafsız, yalnızca yapılandırılmış yazılı metin) arıza bildirimlerini **<5 ms** içinde ilgili birime ve aciliyet puanına göre sınıflandıran yerel CPU NLP modeli. |
 
 ---
@@ -74,7 +74,7 @@ GTÜ-NAV/
 │   │   ├── models.py & schemas.py  # SQLAlchemy ORM modelleri ve Pydantic şemaları
 │   │   ├── seed.py                 # Kampüs veritabanı tohumlayıcı ve JSON senkronizasyonu
 │   │   ├── routing/
-│   │   │   └── astar.py            # Bellek önbellekli Dinamik A* & Engelsiz Rota motoru
+│   │   │   └── astar.py            # Bellek önbellekli Dinamik A* yaya rota motoru
 │   │   ├── ai/
 │   │   │   ├── dataset.py          # Kampüs odaklı Türkçe arıza eğitim veri seti
 │   │   │   ├── train_model.py      # TF-IDF (Kelime + Karakter N-Gram) model eğitici
@@ -202,7 +202,7 @@ Kampüs içi yaya navigasyonunda en büyük sorun, ham GPS koordinatlarının bi
 Uygulamayı test ederken fiziksel olarak kampüste yürümenize gerek yoktur; tüm senaryolar arayüz üzerinden simüle edilebilir:
 
 1. **🚶 Masaüstü Yürüyüş Simülatörü (GPS Simülasyonu):**
-   - Harita üzerinden herhangi bir binayı seçip **"Buraya Rota Çiz"** butonuna tıklayın (veya üst çubuktan **♿ Engelsiz** modunu açın).
+   - Harita üzerinden herhangi bir binayı seçip **"Buraya Rota Çiz"** butonuna tıklayın.
    - Alt navigasyon çubuğundaki **"▶️ Yürüyüşü Simüle Et"** butonuna bastığınızda, sanal yaya imleci hesaplanan A\* rotası boyunca adım adım yürür, kalan mesafe/süre ve yönlendirme komutları canlı güncellenir.
    - Harita üzerinde **"📍 Konumu Haritadan Seç"** butonuna basarak yaya konumunu binaların arasına sürükleyip `Snap-to-Path` mıknatıslanma etkisini canlı test edebilirsiniz.
 2. **🛡️ Şifreli Yönetici (LiveOps) Komuta Merkezi Girişi:**
