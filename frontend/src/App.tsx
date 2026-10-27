@@ -76,10 +76,11 @@ export const App: React.FC = () => {
     gpsErrorModal,
     clearGpsErrorModal,
     toggleLiveGps,
-    stopLiveGps,
   } = useLiveGeolocation({
     onPositionUpdate: (lat, lon, accuracyM) => {
-      applyRawCoordinates(lat, lon, 'gps', accuracyM);
+      if (!isSimulatingWalk) {
+        applyRawCoordinates(lat, lon, 'gps', accuracyM);
+      }
     },
     onNotice: (notice) => {
       setRerouteNotice(notice);
@@ -228,7 +229,7 @@ export const App: React.FC = () => {
 
   const handleUserPickStartOnMap = async (lat: number, lon: number) => {
     setAdminMapMode('none');
-    applyRawCoordinates(lat, lon, 'simulator', 3.5);
+    applyRawCoordinates(lat, lon, 'default', 3.5);
     const destId = targetBuildingId || selectedBuildingId;
     if (destId) {
       await computeRouteToBuilding(
@@ -335,9 +336,6 @@ export const App: React.FC = () => {
           userPos={userPos}
           isSimulatingWalk={isSimulatingWalk}
           onToggleSimulateWalk={() => {
-            if (!isSimulatingWalk) {
-              stopLiveGps();
-            }
             setIsSimulatingWalk((prev) => !prev);
           }}
           isLiveGpsActive={isLiveGpsActive}
@@ -349,7 +347,6 @@ export const App: React.FC = () => {
           }}
           onClearRoute={() => {
             clearNavigation();
-            stopLiveGps();
             setSelectedBuildingId(null);
             showToast('Navigasyon sonlandırıldı');
           }}

@@ -81,15 +81,29 @@ export function useNavigation(blockedEdgeIds: string[]) {
 
   const lastRerouteTimeRef = useRef<number>(0);
   const offRouteStrikeCountRef = useRef<number>(0);
+  const routeRequestIdRef = useRef<number>(0);
+  const userPosRef = useRef<UserPositionState>(userPos);
+  userPosRef.current = userPos;
+
+  const lastRealUserPosRef = useRef<{
+    lat: number;
+    lon: number;
+    source: 'default' | 'gps';
+  }>({
+    lat: CAMPUS_CONFIG.defaultSimStartCoord.lat,
+    lon: CAMPUS_CONFIG.defaultSimStartCoord.lon,
+    source: 'default',
+  });
 
   const computeRouteToBuilding = useCallback(
     async (buildingId: string, startLat?: number, startLon?: number, reasonBanner?: string) => {
       // Defensive origin determination:
       // 1. Explicit start coords if within campus
-      // 2. Current snapped userPos if within campus
+      // 2. Last known real GPS/user origin or current snapped userPos if within campus
       // 3. Fallback to default campus entrance (Marmaray station exit)
       let originLat = CAMPUS_CONFIG.defaultSimStartCoord.lat;
       let originLon = CAMPUS_CONFIG.defaultSimStartCoord.lon;
+      const curPos = userPosRef.current;
 
       if (
         typeof startLat === 'number' &&
@@ -98,11 +112,21 @@ export function useNavigation(blockedEdgeIds: string[]) {
       ) {
         originLat = startLat;
         originLon = startLon;
-      } else if (isWithinCampusBounds(userPos.snappedLat, userPos.snappedLon)) {
-        originLat = userPos.snappedLat;
-        originLon = userPos.snappedLon;
+      } else if (
+        curPos.source === 'simulator' &&
+        isWithinCampusBounds(lastRealUserPosRef.current.lat, lastRealUserPosRef.current.lon)
+      ) {
+        originLat = lastRealUserPosRef.current.lat;
+        originLon = lastRealUserPosRef.current.lon;
+      } else if (isWithinCampusBounds(curPos.rawLat, curPos.rawLon)) {
+        originLat = curPos.rawLat;
+        originLon = curPos.rawLon;
+      } else if (isWithinCampusBounds(curPos.snappedLat, curPos.snappedLon)) {
+        originLat = curPos.snappedLat;
+        originLon = curPos.snappedLon;
       }
 
+      const reqId = ++routeRequestIdRef.current;
       setIsCalculatingRoute(true);
       setRouteError(null);
       offRouteStrikeCountRef.current = 0;
@@ -115,6 +139,11 @@ export function useNavigation(blockedEdgeIds: string[]) {
           target_building_id: buildingId,
         });
 
+        // Ignore stale response if route was cancelled or superseded while in-flight
+        if (reqId !== routeRequestIdRef.current) {
+          return null;
+        }
+
         setTargetBuildingId(buildingId);
         setActiveRoute(res);
         setSimProgress(0);
@@ -124,33 +153,33 @@ export function useNavigation(blockedEdgeIds: string[]) {
           setTimeout(() => setRerouteNotice((prev) => (prev === reasonBanner ? null : prev)), 5000);
         }
 
-        const firstPt = res.coordinates[0];
-        setUserPos((prev) => {
-          const distToFirstM = firstPt
-            ? haversineDistanceM(originLat, originLon, firstPt[1], firstPt[0])
-            : 0;
-          const shouldSnapToStart =
-            prev.source !== 'gps' || distToFirstM <= CAMPUS_CONFIG.snapThresholdMeters;
-          return {
-            ...prev,
-            snappedLon: firstPt && shouldSnapToStart ? firstPt[0] : originLon,
-            snappedLat: firstPt && shouldSnapToStart ? firstPt[1] : originLat,
-            isSnapped: Boolean(firstPt && shouldSnapToStart),
-            offRouteDistanceMeters: Math.round(distToFirstM * 10) / 10,
-            remainingMeters: res.distance_m,
-            remainingMinutes: res.duration_min,
-          };
-        });
+        // Keep user marker at their true origin (e.g. inside the building) instead of teleporting to the nearest street edge
+        setUserPos((prev) => ({
+          ...prev,
+          rawLat: originLat,
+          rawLon: originLon,
+          snappedLat: originLat,
+          snappedLon: originLon,
+          isSnapped: false,
+          offRouteDistanceMeters: 0,
+          remainingMeters: res.distance_m,
+          remainingMinutes: res.duration_min,
+        }));
         return res;
       } catch (err) {
+        if (reqId !== routeRequestIdRef.current) {
+          return null;
+        }
         const msg = err instanceof Error ? err.message : 'Rota hesaplanamadı';
         setRouteError(msg);
         return null;
       } finally {
-        setIsCalculatingRoute(false);
+        if (reqId === routeRequestIdRef.current) {
+          setIsCalculatingRoute(false);
+        }
       }
     },
-    [userPos.snappedLat, userPos.snappedLon]
+    []
   );
 
   // Recalculate route if an edge along the active route gets blocked by admin
@@ -158,14 +187,15 @@ export function useNavigation(blockedEdgeIds: string[]) {
     if (!activeRoute || !targetBuildingId) return;
     const hitBlockedEdge = activeRoute.used_edge_ids.some((eid) => blockedEdgeIds.includes(eid));
     if (hitBlockedEdge) {
+      const curPos = userPosRef.current;
       computeRouteToBuilding(
         targetBuildingId,
-        userPos.snappedLat,
-        userPos.snappedLon,
+        curPos.rawLat,
+        curPos.rawLon,
         '⚠️ Rotanız üzerindeki bir yürüyüş yolu kapatıldı. A* algoritması alternatif güvenli rotayı hesapladı.'
       );
     }
-  }, [blockedEdgeIds, activeRoute, targetBuildingId, userPos.snappedLat, userPos.snappedLon, computeRouteToBuilding]);
+  }, [blockedEdgeIds, activeRoute, targetBuildingId, computeRouteToBuilding]);
 
   const applyRawCoordinates = useCallback(
     (
@@ -179,12 +209,23 @@ export function useNavigation(blockedEdgeIds: string[]) {
         return;
       }
 
+      if (source !== 'simulator') {
+        lastRealUserPosRef.current = {
+          lat: rawLat,
+          lon: rawLon,
+          source: source === 'gps' ? 'gps' : 'default',
+        };
+      }
+
+      const prevSource = userPosRef.current.source;
+
       if (activeRoute && activeRoute.coordinates.length >= 2) {
         const snap = snapLocationToRoute(
           rawLat,
           rawLon,
           activeRoute.coordinates,
-          accuracyM
+          accuracyM,
+          source === 'simulator'
         );
 
         // Calculate remaining route distance from snapped point
@@ -213,8 +254,13 @@ export function useNavigation(blockedEdgeIds: string[]) {
           source,
         });
 
+        // Simulator follows activeRoute directly; never trigger off-route A* recalculation from simulator steps
+        if (source === 'simulator') {
+          return;
+        }
+
         // If GPS was just activated while a route from another origin was active, reroute immediately on first fix
-        const isFirstGpsLock = userPos.source !== 'gps' && source === 'gps';
+        const isFirstGpsLock = prevSource !== 'gps' && source === 'gps';
 
         // 3 consecutive strikes off-route (or immediate first GPS lock) trigger A* recalculation from current position
         if (snap.isOffRoute) {
@@ -254,7 +300,7 @@ export function useNavigation(blockedEdgeIds: string[]) {
         });
       }
     },
-    [activeRoute, targetBuildingId, userPos.source, computeRouteToBuilding]
+    [activeRoute, targetBuildingId, computeRouteToBuilding]
   );
 
   // Desktop Walking Simulator loop (moves student along active route smoothly)
@@ -293,6 +339,7 @@ export function useNavigation(blockedEdgeIds: string[]) {
         setTimeout(() => setRerouteNotice(null), 4000);
         return;
       }
+      lastRealUserPosRef.current = { lat, lon, source: 'default' };
       setUserPos({
         rawLat: lat,
         rawLon: lon,
@@ -312,20 +359,26 @@ export function useNavigation(blockedEdgeIds: string[]) {
   );
 
   const clearNavigation = useCallback(() => {
+    routeRequestIdRef.current += 1;
+    offRouteStrikeCountRef.current = 0;
+    setIsCalculatingRoute(false);
     setIsSimulatingWalk(false);
     setActiveRoute(null);
     setTargetBuildingId(null);
     setSimProgress(0);
     setRouteError(null);
-    setUserPos((prev) => ({
-      ...prev,
-      rawLat: prev.snappedLat,
-      rawLon: prev.snappedLon,
+    const restored = lastRealUserPosRef.current;
+    setUserPos({
+      rawLat: restored.lat,
+      rawLon: restored.lon,
+      snappedLat: restored.lat,
+      snappedLon: restored.lon,
       isSnapped: false,
       offRouteDistanceMeters: 0,
       remainingMeters: 0,
       remainingMinutes: 0,
-    }));
+      source: restored.source,
+    });
   }, []);
 
   return {
